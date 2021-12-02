@@ -1,5 +1,8 @@
 #include "sh_battle.h"
+#include "sh_battle_tile.h"
 
+#include "bn_core.h"
+#include "bn_fixed_point.h"
 #include "bn_regular_bg_ptr.h"
 
 
@@ -16,7 +19,6 @@
 #include "bn_sprite_items_card_blank.h"
 #include "bn_sprite_items_cursor_card.h"
 #include "bn_sprite_items_cursor_tile.h"
-#include "bn_sprite_items_board_tile.h"
 
 
 
@@ -61,8 +63,10 @@ void battle_scene(bn::sprite_text_generator& text_generator)
 	// build bg
 	bn::regular_bg_ptr battle_bg = bn::regular_bg_items::battle_bg.create_bg(0, 0);
 	battle_bg.set_priority(3);
-	bn::regular_bg_ptr battle_board = bn::regular_bg_items::battle_board.create_bg(0, -16);
-	battle_board.set_priority(2);
+//	bn::regular_bg_ptr battle_board = bn::regular_bg_items::battle_board.create_bg(0, -16);
+//	battle_board.set_priority(2);
+	sh::battle_board board = sh::battle_board();
+
 
 	// build text generator
 	bn::vector<bn::sprite_ptr, 32> text_sprites;
@@ -101,27 +105,39 @@ void battle_scene(bn::sprite_text_generator& text_generator)
 		}
 		else if(cursor_tile_sprite.visible())
 		{
-			if(bn::keypad::a_pressed())
-			{
-				cursor_tile_sprite.set_visible(false);
-				cursor_card_sprite.set_visible(true);
-			}
+			
+			int mov_x = 0;
+			int mov_y = 0;
 
 			if(bn::keypad::left_pressed())
 			{
-				cursor_tile_sprite.set_x(cursor_tile_sprite.x() - 13);
+				mov_x--;
 			}
 			else if(bn::keypad::right_pressed())
 			{
-				cursor_tile_sprite.set_x(cursor_tile_sprite.x() + 13);
+				mov_x++;
 			}
 			if(bn::keypad::up_pressed())
 			{
-				cursor_tile_sprite.set_y(cursor_tile_sprite.y() - 13);
+				mov_y--;
 			}
 			else if(bn::keypad::down_pressed())
 			{
-				cursor_tile_sprite.set_y(cursor_tile_sprite.y() + 13);
+				mov_y++;
+			}
+
+			if(mov_x != 0 || mov_y != 0)
+			{
+				sh::battle_tile *tile = board.update_selected_tile(mov_x, mov_y);
+				cursor_tile_sprite.set_position(tile->get_position());
+			}
+
+			if(bn::keypad::a_pressed())
+			{
+				board.get_selected_tile()->set_owner(sh::tile_owner::PLAYER);
+				// switch back to card cursor
+				cursor_tile_sprite.set_visible(false);
+				cursor_card_sprite.set_visible(true);
 			}
 		}
 
