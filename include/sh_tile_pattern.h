@@ -1,11 +1,13 @@
-#ifndef SH_CARD_H
-#define SH_CARD_H
+#ifndef SH_TILE_PATTERN_H
+#define SH_TILE_PATTERN_H
 
-namespace sh
-{
+namespace sh{
 
-	enum class Tile_Pattern
+	
+	enum class tile_pattern
 	{
+		EMPTY,			// no tiles
+
 		SINGLE,			// a single tile
 		LINE_2,			// 2 tiles in a straight line
 		LINE_3,			// 3 tiles in a straight line
@@ -28,17 +30,8 @@ namespace sh
 
 	};
 
-	class card
-	{
-	private:
-		virtual ~card() = default;
-		Tile_Pattern tile_pattern;
-
-	public:
-		card() = default;
-		
-	};
+	tile_pattern next_tile_pattern(tile_pattern src);
 
 }
 
-#endif //SH_CARD_H
+#endif //SH_TILE_PATTERN_H

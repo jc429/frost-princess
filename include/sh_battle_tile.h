@@ -2,11 +2,12 @@
 #define SH_BATTLE_TILE_H
 
 #include "bn_sprite_ptr.h"
+#include "bn_point.h"
 
-#define DIRECTION_N 0
-#define DIRECTION_E 1
-#define DIRECTION_S 2
-#define DIRECTION_W 3
+const int DIRECTION_N = 0;
+const int DIRECTION_E = 1;
+const int DIRECTION_S = 2;
+const int DIRECTION_W = 3;
 
 
 namespace sh
@@ -23,9 +24,10 @@ namespace sh
 	private:
 		tile_owner owner;
 		bool is_dark;
-
+		bool is_base;
 
 	public:
+		bn::point coordinates;
 		bn::sprite_ptr sprite;
 		battle_tile* neighbors[4];
 		
@@ -35,6 +37,9 @@ namespace sh
 		bn::fixed_point get_position();
 		void set_dark(bool dark);
 		void set_owner(tile_owner owner_id);
+		tile_owner get_owner();
+		void set_base(bool base);
+
 		void update_sprite();
 	};
 

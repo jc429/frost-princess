@@ -7,6 +7,7 @@
 #include "bn_fixed_point.h"
 
 #include "bn_sprite_items_board_tile.h"
+#include "bn_sprite_items_crown.h"
 
 namespace sh{
 
@@ -18,11 +19,12 @@ namespace sh{
 		{
 			neighbors[i] = NULL;
 		}
+		sprite.set_bg_priority(2);
+		sprite.set_z_order(200);
 	}
 
 	void battle_tile::set_position(int x, int y)
 	{
-		sprite.set_bg_priority(2);
 		sprite.set_position(x, y);
 	}
 	bn::fixed_point battle_tile::get_position()
@@ -40,6 +42,16 @@ namespace sh{
 	{
 		owner = owner_id;
 		update_sprite();
+	}
+
+	tile_owner battle_tile::get_owner()
+	{
+		return owner;
+	}
+
+	void battle_tile::set_base(bool base)
+	{
+		is_base = base;
 	}
 
 	void battle_tile::update_sprite()
