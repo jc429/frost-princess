@@ -1,20 +1,23 @@
 #include "sh_battle.h"
 #include "sh_battle_tile.h"
+#include "sh_battle_deck.h"
 
 #include "bn_core.h"
 #include "bn_fixed_point.h"
 #include "bn_regular_bg_ptr.h"
 
 
-#include "bn_sprite_animate_actions.h"
 
 // graphics
-// fonts
+#include "bn_sprite_animate_actions.h"
+// text & fonts
 #include "common_variable_8x16_sprite_font.h"
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
 #include "bn_regular_bg_items_battle_board.h"
-
+// sound
+#include "bn_sound_items.h"
+// sprites
 #include "bn_sprite_items_portrait_frame.h"
 #include "bn_sprite_items_card_blank.h"
 #include "bn_sprite_items_cursor_card.h"
@@ -22,186 +25,277 @@
 #include "bn_sprite_items_crown.h"
 
 
-
-void battle_scene(bn::sprite_text_generator& text_generator);
-
+#include "bn_log.h"
 
 
-void battle_scene(bn::sprite_text_generator& text_generator)
-{
-	// constexpr bn::string_view info_text_lines[] = {
-	// 	"A: hide/show sprite",
-	// 	"",
-	// 	"START: go to next scene",
-	// };
-
-	bool game_over = false;
+namespace sh{
 
 
-	// place hand cards
-	int selected_card = 2;
-	const int cards_x[] = {-48, -24, 0, 24, 48};
-	const int cards_y = 64;
-	bn::vector<bn::sprite_ptr, 5> card_sprites;
-	for(int i = 0; i < 5; i++)
+	battle_scene::battle_scene() :
+		battle_bg (bn::regular_bg_items::battle_bg.create_bg(0, 0)),
+		cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
+		cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16))
 	{
-		card_sprites.push_back(bn::sprite_items::card_blank.create_sprite(cards_x[i], cards_y));
-	}
-	// build cursors
-	bn::sprite_ptr cursor_card_sprite = bn::sprite_items::cursor_card.create_sprite(cards_x[selected_card], cards_y);
-	bn::sprite_animate_action<2> cursor_card_idle_action = bn::create_sprite_animate_action_forever(
-			cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
-	cursor_card_sprite.set_bg_priority(1);
-	cursor_card_sprite.set_z_order(-100);
-	cursor_card_sprite.set_visible(true);
+	// init text generator
+	//	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
+	// bn::vector<bn::sprite_ptr, 32> text_sprites;
+	// text_generator.set_bg_priority(0);
+	// text_generator.set_z_order(-500);
+	// text_generator.generate(0, -72, "Look ma, I'm on a GBA!", text_sprites);
 
-	bn::sprite_ptr cursor_tile_sprite = bn::sprite_items::cursor_tile.create_sprite(0, -16);
-	bn::sprite_animate_action<2> cursor_tile_idle_action = bn::create_sprite_animate_action_forever(
-			cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
-	cursor_tile_sprite.set_bg_priority(1);
-	cursor_tile_sprite.set_z_order(-100);
-	cursor_tile_sprite.set_visible(false);
+	//	text_generator.set_center_alignment();
+		// constexpr bn::string_view info_text_lines[] = {
+		// 	"A: hide/show sprite",
+		// 	"",
+		// 	"START: go to next scene",
+		// };
 
-	// build bg
-	bn::regular_bg_ptr battle_bg = bn::regular_bg_items::battle_bg.create_bg(0, 0);
-	battle_bg.set_priority(3);
-//	bn::regular_bg_ptr battle_board = bn::regular_bg_items::battle_board.create_bg(0, -16);
-//	battle_board.set_priority(2);
+		bool game_over = false;
 
-	// build board
-	sh::battle_board board = sh::battle_board();
-	
-	// set base tiles
-	bn::sprite_ptr pl_crown = bn::sprite_items::crown.create_sprite(0,0);
-	sh::battle_tile *player_base = board.get_tile(1, BOARD_HEIGHT-2);
-	player_base->set_owner(sh::tile_owner::PLAYER);
-	player_base->set_base(true);
-	pl_crown.set_position(player_base->get_position());
-	pl_crown.set_bg_priority(player_base->sprite.bg_priority());
-	pl_crown.set_z_order(player_base->sprite.z_order() - 10);
+		current_player = tile_owner::PLAYER;
 
-	bn::sprite_ptr foe_crown = bn::sprite_items::crown.create_sprite(0,0);
-	sh::battle_tile *foe_base = board.get_tile(BOARD_WIDTH-2, 1);
-	foe_base->set_owner(sh::tile_owner::FOE);
-	foe_base->set_base(true);
-	foe_crown.set_position(foe_base->get_position());
-	foe_crown.set_bg_priority(foe_base->sprite.bg_priority());
-	foe_crown.set_z_order(foe_base->sprite.z_order() - 10);
-
-
-	// build text generator
-	bn::vector<bn::sprite_ptr, 32> text_sprites;
-	text_generator.set_bg_priority(0);
-	text_generator.set_z_order(-500);
-	text_generator.generate(0, -72, "Big variable width font", text_sprites);
-
-
-
-
-	bn::sprite_ptr portrait_frame_r = bn::sprite_items::portrait_frame.create_sprite(96, -56);
-	bn::sprite_ptr portrait_frame_l = bn::sprite_items::portrait_frame.create_sprite(-96, 56);
-
-				
-
-
-	while(!game_over)
-	{
-
-		if(cursor_card_sprite.visible())
+		// place hand cards
+		selected_card = 0;
+		bn::vector<bn::sprite_ptr, MAX_CARDS_HAND> card_sprites;
+		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
-			if(bn::keypad::a_pressed())
-			{
-				cursor_card_sprite.set_visible(false);
-				cursor_tile_sprite.set_visible(true);
-				board.update_preview_tiles();
-			}
-			else if(bn::keypad::left_pressed())
-			{
-				selected_card = (selected_card + 4) % 5;
-				cursor_card_sprite.set_x(cards_x[selected_card]);
-			}
-			else if(bn::keypad::right_pressed())
-			{
-				selected_card = (selected_card + 1) % 5;
-				cursor_card_sprite.set_x(cards_x[selected_card]);
-			}
+			card_sprites.push_back(bn::sprite_items::card_blank.create_sprite(cards_x[i], cards_y));
 		}
-		else if(cursor_tile_sprite.visible())
+
+		// build cursors
+		
+		//bn::sprite_ptr cursor_card_sprite = (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y));
+		cursor_card_sprite.set_position(cards_x[0], cards_y);
+		bn::sprite_animate_action<2> cursor_card_idle_action = bn::create_sprite_animate_action_forever(
+				cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
+		cursor_card_sprite.set_bg_priority(1);
+		cursor_card_sprite.set_z_order(-100);
+		cursor_card_sprite.set_visible(true);
+
+		//bn::sprite_ptr cursor_tile_sprite = (bn::sprite_items::cursor_tile.create_sprite(0, -16));
+		cursor_tile_sprite.set_position(0, -16);
+		bn::sprite_animate_action<2> cursor_tile_idle_action = bn::create_sprite_animate_action_forever(
+				cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
+		cursor_tile_sprite.set_bg_priority(1);
+		cursor_tile_sprite.set_z_order(-100);
+		cursor_tile_sprite.set_visible(false);
+
+		// build bg
+		//bn::regular_bg_ptr battle_bg = bn::regular_bg_items::battle_bg.create_bg(0, 0);
+		battle_bg.set_priority(3);
+
+		
+		// set base tiles
+		bn::sprite_ptr pl_crown = bn::sprite_items::crown.create_sprite(0,0);
+		battle_tile *player_base = board.get_tile(1, BOARD_HEIGHT-2);
+		player_base->set_owner(tile_owner::PLAYER);
+		player_base->set_base(true);
+		pl_crown.set_position(player_base->get_position());
+		pl_crown.set_bg_priority(player_base->sprite.bg_priority());
+		pl_crown.set_z_order(player_base->sprite.z_order() - 10);
+
+		bn::sprite_ptr foe_crown = bn::sprite_items::crown.create_sprite(0,0);
+		battle_tile *foe_base = board.get_tile(BOARD_WIDTH-2, 1);
+		foe_base->set_owner(tile_owner::FOE);
+		foe_base->set_base(true);
+		foe_crown.set_position(foe_base->get_position());
+		foe_crown.set_bg_priority(foe_base->sprite.bg_priority());
+		foe_crown.set_z_order(foe_base->sprite.z_order() - 10);
+
+
+
+
+
+		bn::sprite_ptr portrait_frame_r = bn::sprite_items::portrait_frame.create_sprite(96, -56);
+		bn::sprite_ptr portrait_frame_l = bn::sprite_items::portrait_frame.create_sprite(-96, 56);
+
+		battle_deck player_deck = battle_deck(-96,15);
+		battle_deck foe_deck = battle_deck(96,-15);
+
+
+		while(!game_over)
 		{
+			// player turn
+
+			// foe turn
+
+
 			
-			if(bn::keypad::select_pressed())
-			{
-				board.set_preview_pattern(sh::next_tile_pattern(board.preview_pattern));
-				cursor_tile_sprite.set_position(board.selected_tile->get_position());
-			}
+			player_turn();
 
-			if(bn::keypad::l_pressed())
-			{
-				sh::battle_tile *tile = board.rotate_preview_CCW();
-				cursor_tile_sprite.set_position(tile->get_position());
-			}
-			if(bn::keypad::r_pressed())
-			{
-				sh::battle_tile *tile = board.rotate_preview_CW();
-				cursor_tile_sprite.set_position(tile->get_position());
-			}
+			swap_turns();
 
-			int mov_x = 0;
-			int mov_y = 0;
+			foe_turn();
+			
+			swap_turns();
 
-			if(bn::keypad::left_pressed())
-			{
-				mov_x--;
-			}
-			else if(bn::keypad::right_pressed())
-			{
-				mov_x++;
-			}
-			if(bn::keypad::up_pressed())
-			{
-				mov_y--;
-			}
-			else if(bn::keypad::down_pressed())
-			{
-				mov_y++;
-			}
 
-			if(mov_x != 0 || mov_y != 0)
-			{
-				sh::battle_tile *tile = board.update_selected_tile(mov_x, mov_y);
-				cursor_tile_sprite.set_position(tile->get_position());
-			}
 
-			if(bn::keypad::a_pressed())
-			{
-				board.mark_tiles(sh::tile_owner::PLAYER);
-				// switch back to card cursor
-				cursor_tile_sprite.set_visible(false);
-				board.hide_preview_tiles();
-				cursor_card_sprite.set_visible(true);
-			}
-			else if(bn::keypad::b_pressed())
-			{
-				// switch back to card cursor
-				cursor_tile_sprite.set_visible(false);
-				board.hide_preview_tiles();
-				cursor_card_sprite.set_visible(true);
-			}
+			
+
+			
 		}
 
+	}
 
-
-
-
+	
+	void battle_scene::update()
+	{
+		// update animations
+		// cursor_card_idle_action.update();
+		// cursor_tile_idle_action.update();
+		
 		// slowly pan bg
 		battle_bg.set_x(battle_bg.x() - 0.25);
 		battle_bg.set_y(battle_bg.y() - 0.25);
-
-		// update animations
-		cursor_card_idle_action.update();
-		cursor_tile_idle_action.update();
-
-
 		bn::core::update();
+	}
+
+	void battle_scene::player_turn()
+	{
+		turn_state turn_state = turn_state::INTRO;
+		current_player = tile_owner::PLAYER;
+		bool turn_over = false;
+
+		turn_state = turn_state::PLAYER_CARD_SELECT;
+		cursor_tile_sprite.set_visible(false);
+		cursor_card_sprite.set_visible(true);
+
+		while(!turn_over)
+		{
+			int mov_x = 0;
+			int mov_y = 0;
+			switch(turn_state)
+			{
+			case turn_state::PLAYER_CARD_SELECT:
+				if(bn::keypad::a_pressed())
+				{
+					bn::sound_items::blip_high.play();
+					cursor_card_sprite.set_visible(false);
+					cursor_tile_sprite.set_visible(true);
+					board.update_preview_tiles();
+					turn_state = turn_state::PLAYER_TILE_PLACEMENT;
+				}
+				else if(bn::keypad::left_pressed())
+				{
+					selected_card = (selected_card + 4) % 5;
+					cursor_card_sprite.set_x(cards_x[selected_card]);
+				}
+				else if(bn::keypad::right_pressed())
+				{
+					selected_card = (selected_card + 1) % 5;
+					cursor_card_sprite.set_x(cards_x[selected_card]);
+				}
+				break;
+			case turn_state::PLAYER_TILE_PLACEMENT:
+				if(bn::keypad::select_pressed())
+				{
+					board.set_preview_pattern(next_tile_pattern(board.preview_pattern));
+					cursor_tile_sprite.set_position(board.selected_tile->get_position());
+				}
+
+				if(bn::keypad::l_pressed())
+				{
+					battle_tile *tile = board.rotate_preview_CCW();
+					cursor_tile_sprite.set_position(tile->get_position());
+				}
+				if(bn::keypad::r_pressed())
+				{
+					battle_tile *tile = board.rotate_preview_CW();
+					cursor_tile_sprite.set_position(tile->get_position());
+				}
+
+				if(bn::keypad::left_pressed())
+				{
+					mov_x--;
+				}
+				else if(bn::keypad::right_pressed())
+				{
+					mov_x++;
+				}
+				if(bn::keypad::up_pressed())
+				{
+					mov_y--;
+				}
+				else if(bn::keypad::down_pressed())
+				{
+					mov_y++;
+				}
+				if(mov_x != 0 || mov_y != 0)
+				{
+					battle_tile *tile = board.move_selected_tile(mov_x, mov_y);
+					cursor_tile_sprite.set_position(tile->get_position());
+					bn::sound_items::blip_soft.play();
+				}
+
+				if(bn::keypad::a_pressed())
+				{
+					bool success = board.mark_tiles(current_player);
+					if(success)
+					{
+						bn::sound_items::blip_high.play();
+						// switch back to card cursor
+						board.hide_preview_tiles();
+						cursor_tile_sprite.set_visible(false);
+						cursor_card_sprite.set_visible(false);
+						turn_over = true;
+					}
+					else{
+						bn::sound_items::blip_low.play();
+					}
+				}
+				else if(bn::keypad::b_pressed())
+				{
+					// cancel back to card cursor
+					bn::sound_items::blip_low.play();
+					board.hide_preview_tiles();
+					cursor_tile_sprite.set_visible(false);
+					cursor_card_sprite.set_visible(true);
+					turn_state = turn_state::PLAYER_CARD_SELECT;
+				}
+				break;
+			default:
+				break;
+			}
+			update();
+		}
+	}
+
+
+
+	void battle_scene::foe_turn()
+	{
+		return;
+		// placeholder AI: randomly slap down a tile until something fits 
+		bool turn_over = false;
+		current_player = tile_owner::FOE;
+		while(!turn_over)
+		{
+			bool success = board.mark_tiles(tile_owner::FOE);
+			if(success)
+			{
+				turn_over = true;
+			}
+		}
+	}
+
+
+
+
+
+
+	void battle_scene::swap_turns()
+	{
+		board.hide_preview_tiles();
+		cursor_tile_sprite.set_visible(false);
+		cursor_card_sprite.set_visible(false);
+		if(current_player == tile_owner::FOE)
+		{
+			current_player = tile_owner::PLAYER;
+		}
+		else if(current_player == tile_owner::PLAYER)
+		{
+			current_player = tile_owner::FOE;
+		}
 	}
 }

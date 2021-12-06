@@ -22,9 +22,10 @@ namespace sh{
 
 		preview_orientation = DIRECTION_N;
 		preview_pattern = tile_pattern::SINGLE;
+		selection_pos = bn::point(0,0);
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			preview_coordinates.push_back(bn::point(0,0));
+			preview_offsets.push_back(bn::point(0,0));
 			bn::sprite_ptr tile_sprite = bn::sprite_items::preview_tile.create_sprite((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y);
 			tile_sprite.set_bg_priority(1);
 			tile_sprite.set_z_order(500);
@@ -63,8 +64,21 @@ namespace sh{
 		}
 
 		//put selection cursor in center
-		selected_tile = get_tile(4,4);
+		select_tile(4,4);
 
+	}
+
+	battle_tile* battle_board::select_tile(int tile_x, int tile_y)
+	{
+		selection_pos = bn::point(tile_x, tile_y);
+		selected_tile = get_tile(tile_x, tile_y);
+		return selected_tile;
+	}
+	battle_tile* battle_board::select_tile(battle_tile *tile)
+	{
+		selection_pos = tile->coordinates;
+		selected_tile = tile;
+		return selected_tile;
 	}
 
 	battle_tile* battle_board::get_tile(int x, int y)
@@ -77,14 +91,14 @@ namespace sh{
 
 	}
 
-	battle_tile* battle_board::update_selected_tile(int mov_x, int mov_y)
+	battle_tile* battle_board::move_selected_tile(int mov_x, int mov_y)
 	{
 		if(mov_x < 0 && selected_tile->neighbors[DIRECTION_W] != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(preview_coordinates.at(i).x() <= 0)
+				if(selection_pos.x() + preview_offsets.at(i).x() <= 0)
 				{
 					safe = false;
 					break;
@@ -100,7 +114,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(preview_coordinates.at(i).x() >= 8)
+				if(selection_pos.x() + preview_offsets.at(i).x() >= 8)
 				{
 					safe = false;
 					break;
@@ -116,7 +130,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(preview_coordinates.at(i).y() <= 0)
+				if(selection_pos.y() + preview_offsets.at(i).y() <= 0)
 				{
 					safe = false;
 					break;
@@ -132,7 +146,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(preview_coordinates.at(i).y() >= 8)
+				if(selection_pos.y() + preview_offsets.at(i).y() >= 8)
 				{
 					safe = false;
 					break;
@@ -145,8 +159,8 @@ namespace sh{
 		}
 
 		// update preview graphics
+		select_tile(selected_tile);
 		update_preview_tiles();
-
 		return selected_tile;
 	}
 
@@ -155,6 +169,32 @@ namespace sh{
 		return selected_tile;
 	}
 
+	battle_tile* battle_board::set_selected_tile(int pos_x, int pos_y)
+	{
+		bn::point temp(pos_x, pos_y);
+		bool safe = true;
+		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+		{
+			if((temp.x() + preview_offsets.at(i).x() < 0) || (temp.x() + preview_offsets.at(i).x() >= BOARD_WIDTH))
+			{
+				safe = false;
+				break;
+			}
+			if((temp.y() + preview_offsets.at(i).y() < 0) || (temp.y() + preview_offsets.at(i).y() >= BOARD_HEIGHT))
+			{
+				safe = false;
+				break;
+			}
+		}
+		if(safe)
+		{
+			selection_pos = temp;
+			selected_tile = get_tile(pos_x, pos_y);
+			update_preview_tiles();
+		}
+		
+		return selected_tile;
+	}
 	
 	bn::fixed_point battle_board::grid_to_world_pos(bn::point pos)
 	{
@@ -209,9 +249,10 @@ namespace sh{
 		bn::point adj = bn::point(0,0);
 		bn::point offset;
 		// reset all tiles
+		selection_pos = cursor_pos;
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			preview_coordinates.at(i) = cursor_pos;
+			preview_offsets.at(i) = bn::point(0,0);
 			preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos));
 			preview_tiles.at(i).set_visible(false);
 		}
@@ -220,7 +261,7 @@ namespace sh{
 		case tile_pattern::EMPTY:
 			break;
 		case tile_pattern::SINGLE:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			preview_tiles.at(0).set_position(grid_to_world_pos(cursor_pos));
 			preview_tiles.at(0).set_visible(true);
 			break;
@@ -232,8 +273,8 @@ namespace sh{
 				offset.set_x(i * adj.x());
 				offset.set_y(i * adj.y());
 				offset = get_rotated_pos(offset);
-				preview_coordinates.at(i) = cursor_pos + offset;
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_offsets.at(i) = offset;
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
@@ -242,8 +283,8 @@ namespace sh{
 			for(int i = 0; i < 3; i++)
 			{
 				offset = get_rotated_pos(adj);
-				preview_coordinates.at(i) = cursor_pos + offset;
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_offsets.at(i) = offset;
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 				adj.set_y(adj.y()-1);
 			}
@@ -253,125 +294,125 @@ namespace sh{
 			for(int i = 0; i < 4; i++)
 			{
 				offset = get_rotated_pos(adj);
-				preview_coordinates.at(i) = cursor_pos + offset;
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_offsets.at(i) = offset;
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 				adj.set_y(adj.y()-1);
 			}
 			break;
 		case tile_pattern::L_SMALL:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(0,-1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			for(int i = 0; i < 3; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
 		case tile_pattern::L_NORMAL:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(0,-1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			adj = bn::point(0,-2);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(3) = cursor_pos + offset;
+			preview_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
 		case tile_pattern::L_REVERSE:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(-1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(0,-1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			adj = bn::point(0,-2);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(3) = cursor_pos + offset;
+			preview_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
 		case tile_pattern::T_4:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(-1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(3) = cursor_pos + offset;
+			preview_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
 		case tile_pattern::S_4:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			adj = bn::point(-1,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(3) = cursor_pos + offset;
+			preview_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
 		case tile_pattern::Z_4:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(-1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			adj = bn::point(1,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(3) = cursor_pos + offset;
+			preview_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
 		case tile_pattern::SQUARE:
-			preview_coordinates.at(0) = cursor_pos;
+			preview_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(1) = cursor_pos + offset;
+			preview_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(2) = cursor_pos + offset;
+			preview_offsets.at(2) = offset;
 			adj = bn::point(1,1);
 			offset = get_rotated_pos(adj);
-			preview_coordinates.at(3) = cursor_pos + offset;
+			preview_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(preview_coordinates.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
 				preview_tiles.at(i).set_visible(true);
 			}
 			break;
@@ -384,21 +425,21 @@ namespace sh{
 
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			if(preview_coordinates.at(i).x() < 0)
+			if(cursor_pos.x() + preview_offsets.at(i).x() < 0)
 			{
-				update_selected_tile(1, 0);
+				move_selected_tile(1, 0);
 			}
-			if(preview_coordinates.at(i).y() < 0)
+			if(cursor_pos.y() + preview_offsets.at(i).y() < 0)
 			{
-				update_selected_tile(0, 1);
+				move_selected_tile(0, 1);
 			}
-			if(preview_coordinates.at(i).x() > 8)
+			if(cursor_pos.x() + preview_offsets.at(i).x() > 8)
 			{
-				update_selected_tile(-1, 0);
+				move_selected_tile(-1, 0);
 			}
-			if(preview_coordinates.at(i).y() > 8)
+			if(cursor_pos.y() + preview_offsets.at(i).y() > 8)
 			{
-				update_selected_tile(0, -1);
+				move_selected_tile(0, -1);
 			}
 		}
 		
@@ -416,7 +457,7 @@ namespace sh{
 	}
 
 	
-	void battle_board::mark_tiles(tile_owner owner)
+	bool battle_board::mark_tiles(tile_owner owner)
 	{
 		if(owner != tile_owner::EMPTY)
 		{
@@ -427,7 +468,7 @@ namespace sh{
 				{
 					continue;
 				}
-				bn::point pos = preview_coordinates.at(i);
+				bn::point pos = selection_pos + preview_offsets.at(i);
 				battle_tile* tile = get_tile(pos.x(), pos.y());
 				for(int j = 0; j < 4; j++)
 				{
@@ -440,7 +481,7 @@ namespace sh{
 			}
 			if(!neighbors_self)
 			{
-				return;
+				return false;
 			}
 		}
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -449,8 +490,9 @@ namespace sh{
 			{
 				continue;
 			}
-			bn::point pos = preview_coordinates.at(i);
+			bn::point pos = selection_pos + preview_offsets.at(i);
 			get_tile(pos.x(), pos.y())->set_owner(owner);
 		}
+		return true;
 	}
 }

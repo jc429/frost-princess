@@ -1,5 +1,5 @@
-#ifndef SH_CARD_H
-#define SH_CARD_H
+#ifndef SH_BATTLE_CARD_H
+#define SH_BATTLE_CARD_H
 
 #include "sh_tile_pattern.h"
 
@@ -11,7 +11,7 @@ namespace sh
 	{
 	private:
 		virtual ~battle_card() = default;
-		tile_pattern tile_pattern;
+		sh::tile_pattern tile_pattern;
 
 	public:
 		battle_card() = default;
@@ -20,4 +20,4 @@ namespace sh
 
 }
 
-#endif //SH_CARD_H
+#endif //SH_BATTLE_CARD_H
