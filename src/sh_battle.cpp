@@ -34,7 +34,9 @@ namespace sh{
 	battle_scene::battle_scene() :
 		battle_bg (bn::regular_bg_items::battle_bg.create_bg(0, 0)),
 		cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
-		cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16))
+		cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16)),
+		cursor_card_idle_action (bn::create_sprite_animate_action_forever(cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1)),
+		cursor_tile_idle_action (bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1))
 	{
 	// init text generator
 	//	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
@@ -66,16 +68,14 @@ namespace sh{
 		
 		//bn::sprite_ptr cursor_card_sprite = (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y));
 		cursor_card_sprite.set_position(cards_x[0], cards_y);
-		bn::sprite_animate_action<2> cursor_card_idle_action = bn::create_sprite_animate_action_forever(
-				cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
+		//cursor_card_idle_action = bn::create_sprite_animate_action_forever(cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
 		cursor_card_sprite.set_bg_priority(1);
 		cursor_card_sprite.set_z_order(-100);
 		cursor_card_sprite.set_visible(true);
 
 		//bn::sprite_ptr cursor_tile_sprite = (bn::sprite_items::cursor_tile.create_sprite(0, -16));
 		cursor_tile_sprite.set_position(0, -16);
-		bn::sprite_animate_action<2> cursor_tile_idle_action = bn::create_sprite_animate_action_forever(
-				cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
+		//cursor_tile_idle_action = bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
 		cursor_tile_sprite.set_bg_priority(1);
 		cursor_tile_sprite.set_z_order(-100);
 		cursor_tile_sprite.set_visible(false);
@@ -87,7 +87,7 @@ namespace sh{
 		
 		// set base tiles
 		bn::sprite_ptr pl_crown = bn::sprite_items::crown.create_sprite(0,0);
-		battle_tile *player_base = board.get_tile(1, BOARD_HEIGHT-2);
+		player_base = board.get_tile(1, BOARD_HEIGHT-2);
 		player_base->set_owner(tile_owner::PLAYER);
 		player_base->set_base(true);
 		pl_crown.set_position(player_base->get_position());
@@ -95,7 +95,7 @@ namespace sh{
 		pl_crown.set_z_order(player_base->sprite.z_order() - 10);
 
 		bn::sprite_ptr foe_crown = bn::sprite_items::crown.create_sprite(0,0);
-		battle_tile *foe_base = board.get_tile(BOARD_WIDTH-2, 1);
+		foe_base = board.get_tile(BOARD_WIDTH-2, 1);
 		foe_base->set_owner(tile_owner::FOE);
 		foe_base->set_base(true);
 		foe_crown.set_position(foe_base->get_position());
@@ -120,13 +120,12 @@ namespace sh{
 			// foe turn
 
 
-			
 			player_turn();
 
 			swap_turns();
 
 			foe_turn();
-			
+
 			swap_turns();
 
 
@@ -142,8 +141,8 @@ namespace sh{
 	void battle_scene::update()
 	{
 		// update animations
-		// cursor_card_idle_action.update();
-		// cursor_tile_idle_action.update();
+		cursor_card_idle_action.update();
+		cursor_tile_idle_action.update();
 		
 		// slowly pan bg
 		battle_bg.set_x(battle_bg.x() - 0.25);
@@ -161,6 +160,8 @@ namespace sh{
 		cursor_tile_sprite.set_visible(false);
 		cursor_card_sprite.set_visible(true);
 
+		select_tile(4,4);
+
 		while(!turn_over)
 		{
 			int mov_x = 0;
@@ -174,6 +175,7 @@ namespace sh{
 					cursor_card_sprite.set_visible(false);
 					cursor_tile_sprite.set_visible(true);
 					board.update_preview_tiles();
+					board.show_preview_tiles();
 					turn_state = turn_state::PLAYER_TILE_PLACEMENT;
 				}
 				else if(bn::keypad::left_pressed())
@@ -265,18 +267,24 @@ namespace sh{
 
 	void battle_scene::foe_turn()
 	{
-		return;
 		// placeholder AI: randomly slap down a tile until something fits 
 		bool turn_over = false;
 		current_player = tile_owner::FOE;
-		while(!turn_over)
-		{
-			bool success = board.mark_tiles(tile_owner::FOE);
-			if(success)
-			{
-				turn_over = true;
-			}
-		}
+
+		tile_pattern pattern = tile_pattern::T_4;
+		board.set_preview_pattern(pattern);
+		select_tile(foe_base->coordinates.x(), foe_base->coordinates.y());
+		bool success = board.mark_tiles(current_player);
+		return;
+		// while(!turn_over)
+		// {
+			
+		// 	bool success = board.mark_tiles(current_player);
+		// 	if(success)
+		// 	{
+		// 		turn_over = true;
+		// 	}
+		// }
 	}
 
 
@@ -298,4 +306,11 @@ namespace sh{
 			current_player = tile_owner::FOE;
 		}
 	}
+
+	void battle_scene::select_tile(int x, int y)
+	{
+		board.set_selected_tile(x, y);
+		cursor_tile_sprite.set_position(board.get_selected_tile()->get_position());
+	}
+
 }

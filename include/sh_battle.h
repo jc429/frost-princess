@@ -3,6 +3,8 @@
 
 #include "bn_keypad.h"
 #include "bn_sprite_text_generator.h"
+#include "bn_sprite_ptr.h"
+#include "bn_sprite_animate_actions.h"
 
 #include "sh_battle_board.h"
 #include "sh_scene.h"
@@ -40,9 +42,16 @@ namespace sh
 		bn::regular_bg_ptr battle_bg;
 		bn::sprite_ptr cursor_card_sprite;
 		bn::sprite_ptr cursor_tile_sprite;
+		bn::sprite_animate_action<2> cursor_card_idle_action;
+		bn::sprite_animate_action<2> cursor_tile_idle_action;
 		battle_board board;
+			
+		battle_tile *player_base;
+		battle_tile *foe_base;
+		
 		tile_owner current_player;
 		int selected_card = 2;
+
 
 		void update();
 		void player_turn();
@@ -51,6 +60,7 @@ namespace sh
 
 	public:
 		battle_scene();
+		void select_tile(int x, int y);
 
 	};
 
