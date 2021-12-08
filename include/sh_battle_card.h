@@ -15,12 +15,15 @@ namespace sh
 		tile_pattern current_pattern;
 		bn::sprite_ptr card_sprite;
 		bn::sprite_ptr pattern_sprite;
+		bn::point position;
 		bool is_faceup;
 
 	public:
 		battle_card(int x, int y);
 		virtual ~battle_card() = default;
+
 		void set_position(bn::point pos);
+		bn::point get_position();
 		void set_pattern(tile_pattern pattern);
 		tile_pattern get_pattern();
 		void set_facedown();

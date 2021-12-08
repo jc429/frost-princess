@@ -231,11 +231,17 @@ namespace sh{
 		show_preview_tiles();
 	}
 
+	battle_tile* battle_board::set_preview_orientation(int rotation)
+	{
+		preview_orientation = rotation;
+		update_preview_tiles();
+		return selected_tile;
+	}
+
 	battle_tile* battle_board::rotate_preview_CW()
 	{
 		preview_orientation = (preview_orientation + 1) % 4;
 		update_preview_tiles();
-		show_preview_tiles();
 		return selected_tile;
 	}
 
@@ -243,9 +249,10 @@ namespace sh{
 	{
 		preview_orientation = (preview_orientation + 3) % 4;
 		update_preview_tiles();
-		show_preview_tiles();
 		return selected_tile;
 	}
+
+
 
 	void battle_board::update_preview_tiles()
 	{

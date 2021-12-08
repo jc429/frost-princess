@@ -50,6 +50,7 @@ namespace sh
 		bn::point get_rotated_pos(bn::point src);
 
 		void set_preview_pattern(tile_pattern new_pattern);
+		battle_tile* set_preview_orientation(int rotation);
 		battle_tile* rotate_preview_CW();
 		battle_tile* rotate_preview_CCW();
 		void update_preview_tiles();

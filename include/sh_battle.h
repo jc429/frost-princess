@@ -37,6 +37,7 @@ namespace sh
 	//void battle_scene(bn::sprite_text_generator& text_generator);
 	const int cards_x[] = {-48, -24, 0, 24, 48};
 	const int cards_y = 64;
+	const int card_y_raised = 56;
 
 	class battle_scene
 	{

@@ -15,17 +15,28 @@ namespace sh
 		card_sprite (bn::sprite_items::card_blank.create_sprite(x,y)),
 		pattern_sprite (bn::sprite_items::tile_patterns.create_sprite(x,y))
 	{
+		position.set_x(x);
+		position.set_y(y);
 		is_faceup = false;
+		card_sprite.set_bg_priority(1);
+		card_sprite.set_z_order(450);
+		pattern_sprite.set_bg_priority(1);
+		pattern_sprite.set_z_order(440);
 		set_pattern(tile_pattern::SINGLE);
 		set_pattern(tile_patterns::random_tile_pattern());
 	}
 	
 	void battle_card::set_position(bn::point pos)
 	{
+		position = pos;
 		card_sprite.set_position(pos.x(), pos.y());
 		pattern_sprite.set_position(pos.x(), pos.y());
 	}
 
+	bn::point battle_card::get_position()
+	{
+		return position;
+	}
 
 
 

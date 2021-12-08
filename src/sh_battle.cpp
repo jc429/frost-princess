@@ -125,11 +125,11 @@ namespace sh{
 
 
 			player_turn();
-
+			// check for dead zones
 			swap_turns();
 
 			foe_turn();
-
+			// check for dead zones
 			swap_turns();
 
 
@@ -163,7 +163,7 @@ namespace sh{
 		turn_state = turn_state::PLAYER_CARD_SELECT;
 		cursor_tile_sprite.set_visible(false);
 		cursor_card_sprite.set_visible(true);
-
+		board.set_preview_orientation(DIRECTION_N);
 
 		select_tile(4,4);
 
@@ -182,6 +182,10 @@ namespace sh{
 					board.update_preview_tiles();
 					board.set_preview_pattern(battle_cards.at(selected_card).get_pattern());
 					board.show_preview_tiles();
+
+					bn::point pos = battle_cards.at(selected_card).get_position();
+					pos.set_y(card_y_raised);
+					battle_cards.at(selected_card).set_position(pos);
 					turn_state = turn_state::PLAYER_TILE_PLACEMENT;
 				}
 				else if(bn::keypad::left_pressed())
@@ -246,6 +250,12 @@ namespace sh{
 						board.hide_preview_tiles();
 						cursor_tile_sprite.set_visible(false);
 						cursor_card_sprite.set_visible(false);
+
+						// TODO: replace later with discard + draw next turn
+						bn::point pos = battle_cards.at(selected_card).get_position();
+						pos.set_y(cards_y);
+						battle_cards.at(selected_card).set_position(pos);
+						//
 						turn_over = true;
 					}
 					else{
@@ -259,6 +269,9 @@ namespace sh{
 					board.hide_preview_tiles();
 					cursor_tile_sprite.set_visible(false);
 					cursor_card_sprite.set_visible(true);
+					bn::point pos = battle_cards.at(selected_card).get_position();
+					pos.set_y(cards_y);
+					battle_cards.at(selected_card).set_position(pos);
 					turn_state = turn_state::PLAYER_CARD_SELECT;
 				}
 				break;
