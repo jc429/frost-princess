@@ -25,7 +25,7 @@ namespace sh{
 		selection_pos = bn::point(0,0);
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			preview_offsets.push_back(bn::point(0,0));
+			preview_tile_offsets.push_back(bn::point(0,0));
 			bn::sprite_ptr tile_sprite = bn::sprite_items::preview_tile.create_sprite((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y);
 			tile_sprite.set_bg_priority(1);
 			tile_sprite.set_z_order(500);
@@ -41,7 +41,7 @@ namespace sh{
 		{
 			for(int j = 0; j < BOARD_HEIGHT; j++)
 			{
-				tiles.push_back(battle_tile());
+				tiles.push_back(battle_tile((i*BOARD_HEIGHT)+j));
 				battle_tile *tile = &tiles.back();
 				tile->coordinates = bn::point(i,j);
 				int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * i);
@@ -99,7 +99,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(selection_pos.x() + preview_offsets.at(i).x() <= 0)
+				if(selection_pos.x() + preview_tile_offsets.at(i).x() <= 0)
 				{
 					safe = false;
 					break;
@@ -115,7 +115,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(selection_pos.x() + preview_offsets.at(i).x() >= 8)
+				if(selection_pos.x() + preview_tile_offsets.at(i).x() >= 8)
 				{
 					safe = false;
 					break;
@@ -131,7 +131,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(selection_pos.y() + preview_offsets.at(i).y() <= 0)
+				if(selection_pos.y() + preview_tile_offsets.at(i).y() <= 0)
 				{
 					safe = false;
 					break;
@@ -147,7 +147,7 @@ namespace sh{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
-				if(selection_pos.y() + preview_offsets.at(i).y() >= 8)
+				if(selection_pos.y() + preview_tile_offsets.at(i).y() >= 8)
 				{
 					safe = false;
 					break;
@@ -176,12 +176,12 @@ namespace sh{
 		bool safe = true;
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			if((temp.x() + preview_offsets.at(i).x() < 0) || (temp.x() + preview_offsets.at(i).x() >= BOARD_WIDTH))
+			if((temp.x() + preview_tile_offsets.at(i).x() < 0) || (temp.x() + preview_tile_offsets.at(i).x() >= BOARD_WIDTH))
 			{
 				safe = false;
 				break;
 			}
-			if((temp.y() + preview_offsets.at(i).y() < 0) || (temp.y() + preview_offsets.at(i).y() >= BOARD_HEIGHT))
+			if((temp.y() + preview_tile_offsets.at(i).y() < 0) || (temp.y() + preview_tile_offsets.at(i).y() >= BOARD_HEIGHT))
 			{
 				safe = false;
 				break;
@@ -256,7 +256,7 @@ namespace sh{
 		selection_pos = cursor_pos;
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			preview_offsets.at(i) = bn::point(0,0);
+			preview_tile_offsets.at(i) = bn::point(0,0);
 			preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos));
 			preview_tile_active[i] = false;
 		}
@@ -265,7 +265,7 @@ namespace sh{
 		case tile_pattern::EMPTY:
 			break;
 		case tile_pattern::SINGLE:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			preview_tiles.at(0).set_position(grid_to_world_pos(cursor_pos));
 			preview_tile_active[0] = true;
 			break;
@@ -277,8 +277,8 @@ namespace sh{
 				offset.set_x(i * adj.x());
 				offset.set_y(i * adj.y());
 				offset = get_rotated_pos(offset);
-				preview_offsets.at(i) = offset;
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tile_offsets.at(i) = offset;
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
@@ -287,8 +287,8 @@ namespace sh{
 			for(int i = 0; i < 3; i++)
 			{
 				offset = get_rotated_pos(adj);
-				preview_offsets.at(i) = offset;
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tile_offsets.at(i) = offset;
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 				adj.set_y(adj.y()-1);
 			}
@@ -298,125 +298,125 @@ namespace sh{
 			for(int i = 0; i < 4; i++)
 			{
 				offset = get_rotated_pos(adj);
-				preview_offsets.at(i) = offset;
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tile_offsets.at(i) = offset;
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 				adj.set_y(adj.y()-1);
 			}
 			break;
 		case tile_pattern::L_SMALL:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(0,-1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			for(int i = 0; i < 3; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
 		case tile_pattern::L_NORMAL:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(0,-1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			adj = bn::point(0,-2);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(3) = offset;
+			preview_tile_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
 		case tile_pattern::L_REVERSE:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(-1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(0,-1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			adj = bn::point(0,-2);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(3) = offset;
+			preview_tile_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
 		case tile_pattern::T_4:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(-1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(3) = offset;
+			preview_tile_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
 		case tile_pattern::S_4:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			adj = bn::point(-1,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(3) = offset;
+			preview_tile_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
 		case tile_pattern::Z_4:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(-1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			adj = bn::point(1,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(3) = offset;
+			preview_tile_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
 		case tile_pattern::SQUARE:
-			preview_offsets.at(0) = bn::point(0,0);
+			preview_tile_offsets.at(0) = bn::point(0,0);
 			adj = bn::point(1,0);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(1) = offset;
+			preview_tile_offsets.at(1) = offset;
 			adj = bn::point(0,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(2) = offset;
+			preview_tile_offsets.at(2) = offset;
 			adj = bn::point(1,1);
 			offset = get_rotated_pos(adj);
-			preview_offsets.at(3) = offset;
+			preview_tile_offsets.at(3) = offset;
 			for(int i = 0; i < 4; i++)
 			{
-				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_offsets.at(i)));
+				preview_tiles.at(i).set_position(grid_to_world_pos(cursor_pos + preview_tile_offsets.at(i)));
 				preview_tile_active[i] = true;
 			}
 			break;
@@ -429,19 +429,19 @@ namespace sh{
 
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			if(cursor_pos.x() + preview_offsets.at(i).x() < 0)
+			if(cursor_pos.x() + preview_tile_offsets.at(i).x() < 0)
 			{
 				move_selected_tile(1, 0);
 			}
-			if(cursor_pos.y() + preview_offsets.at(i).y() < 0)
+			if(cursor_pos.y() + preview_tile_offsets.at(i).y() < 0)
 			{
 				move_selected_tile(0, 1);
 			}
-			if(cursor_pos.x() + preview_offsets.at(i).x() > 8)
+			if(cursor_pos.x() + preview_tile_offsets.at(i).x() > 8)
 			{
 				move_selected_tile(-1, 0);
 			}
-			if(cursor_pos.y() + preview_offsets.at(i).y() > 8)
+			if(cursor_pos.y() + preview_tile_offsets.at(i).y() > 8)
 			{
 				move_selected_tile(0, -1);
 			}
@@ -481,7 +481,7 @@ namespace sh{
 				{
 					continue;
 				}
-				bn::point pos = selection_pos + preview_offsets.at(i);
+				bn::point pos = selection_pos + preview_tile_offsets.at(i);
 				battle_tile* tile = get_tile(pos.x(), pos.y());
 				for(int j = 0; j < 4; j++)
 				{
@@ -503,7 +503,7 @@ namespace sh{
 			{
 				continue;
 			}
-			bn::point pos = selection_pos + preview_offsets.at(i);
+			bn::point pos = selection_pos + preview_tile_offsets.at(i);
 			get_tile(pos.x(), pos.y())->set_owner(owner);
 		}
 		return true;

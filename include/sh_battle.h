@@ -2,13 +2,15 @@
 #define SH_BATTLE_H
 
 #include "bn_keypad.h"
-#include "bn_sprite_text_generator.h"
 #include "bn_sprite_ptr.h"
 #include "bn_sprite_animate_actions.h"
+#include "bn_sprite_text_generator.h"
+#include "bn_random.h"
+#include "bn_vector.h"
 
-#include "sh_battle_board.h"
 #include "sh_scene.h"
-
+#include "sh_battle_board.h"
+#include "sh_battle_card.h"
 
 namespace sh
 {
@@ -51,7 +53,8 @@ namespace sh
 		
 		tile_owner current_player;
 		int selected_card = 2;
-
+		bn::random random;
+		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
 
 		void update();
 		void player_turn();

@@ -11,9 +11,10 @@
 
 namespace sh{
 
-	battle_tile::battle_tile() :
+	battle_tile::battle_tile(int id) :
 		sprite (bn::sprite_items::board_tile.create_sprite((bn::fixed)0, (bn::fixed)0))
 	{
+		tile_id = id;
 		owner = tile_owner::EMPTY;
 		for(int i = 0; i < 4; i++)
 		{

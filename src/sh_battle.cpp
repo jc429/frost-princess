@@ -5,7 +5,7 @@
 #include "bn_core.h"
 #include "bn_fixed_point.h"
 #include "bn_regular_bg_ptr.h"
-
+#include "bn_random.h"
 
 
 // graphics
@@ -58,11 +58,15 @@ namespace sh{
 
 		// place hand cards
 		selected_card = 0;
-		bn::vector<bn::sprite_ptr, MAX_CARDS_HAND> card_sprites;
+		//bn::vector<bn::sprite_ptr, MAX_CARDS_HAND> card_sprites;
+		
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
-			card_sprites.push_back(bn::sprite_items::card_blank.create_sprite(cards_x[i], cards_y));
+			//card_sprites.push_back(bn::sprite_items::card_blank.create_sprite(cards_x[i], cards_y));
+			battle_cards.push_back(battle_card(cards_x[i], cards_y));
 		}
+
+
 
 		// build cursors
 		
@@ -160,6 +164,7 @@ namespace sh{
 		cursor_tile_sprite.set_visible(false);
 		cursor_card_sprite.set_visible(true);
 
+
 		select_tile(4,4);
 
 		while(!turn_over)
@@ -175,6 +180,7 @@ namespace sh{
 					cursor_card_sprite.set_visible(false);
 					cursor_tile_sprite.set_visible(true);
 					board.update_preview_tiles();
+					board.set_preview_pattern(battle_cards.at(selected_card).get_pattern());
 					board.show_preview_tiles();
 					turn_state = turn_state::PLAYER_TILE_PLACEMENT;
 				}
@@ -192,7 +198,7 @@ namespace sh{
 			case turn_state::PLAYER_TILE_PLACEMENT:
 				if(bn::keypad::select_pressed())
 				{
-					board.set_preview_pattern(next_tile_pattern(board.preview_pattern));
+					board.set_preview_pattern(tile_patterns::next_tile_pattern(board.preview_pattern));
 					cursor_tile_sprite.set_position(board.selected_tile->get_position());
 				}
 
@@ -268,23 +274,77 @@ namespace sh{
 	void battle_scene::foe_turn()
 	{
 		// placeholder AI: randomly slap down a tile until something fits 
-		bool turn_over = false;
 		current_player = tile_owner::FOE;
 
-		tile_pattern pattern = tile_pattern::T_4;
+		//tile_pattern pattern = tile_pattern::SINGLE;
+		tile_pattern pattern = tile_patterns::random_tile_pattern();
 		board.set_preview_pattern(pattern);
-		select_tile(foe_base->coordinates.x(), foe_base->coordinates.y());
-		bool success = board.mark_tiles(current_player);
-		return;
-		// while(!turn_over)
-		// {
-			
-		// 	bool success = board.mark_tiles(current_player);
-		// 	if(success)
-		// 	{
-		// 		turn_over = true;
-		// 	}
-		// }
+
+		bn::vector<battle_tile*, 80> foe_active_tiles;
+		bn::vector<battle_tile*, 80> foe_neighboring_tiles;
+		bool tile_checked[81];
+
+		foe_active_tiles.clear();
+		foe_neighboring_tiles.clear();
+		for(int i = 0; i < 81; i++)
+		{
+			tile_checked[i] = false;
+		}
+
+		foe_active_tiles.push_back(foe_base);
+		while(!foe_active_tiles.empty())
+		{
+			battle_tile *active_tile = foe_active_tiles.back();
+			foe_active_tiles.pop_back();
+			tile_checked[active_tile->tile_id] = true;
+			for(int i = 0; i < 4; i++)
+			{
+				battle_tile *neighbor = active_tile->neighbors[i];
+				if(neighbor != NULL)
+				{
+					if(tile_checked[neighbor->tile_id])
+					{
+						continue;
+					}
+					if(neighbor->get_owner() == tile_owner::FOE)
+					{
+						foe_active_tiles.push_back(neighbor);
+					}
+					else
+					{
+						bool neighbor_registered = false;
+						for(int n = 0; n < foe_neighboring_tiles.size(); n++)
+						{
+							if(foe_neighboring_tiles.at(n) == neighbor)
+							{
+								neighbor_registered = true;
+								break;
+							}
+						}
+						if(!neighbor_registered)
+						{
+							foe_neighboring_tiles.push_back(neighbor);
+						}
+					}
+				}
+			}
+		}
+		if(foe_neighboring_tiles.empty())
+		{
+			// uh oh ¯\_(ツ)_/¯
+			return;
+		}
+		int r = random.get_int(0, foe_neighboring_tiles.size());
+		battle_tile *selected_tile = foe_neighboring_tiles.at(r);
+		if(selected_tile != NULL)
+		{
+			select_tile(selected_tile->coordinates.x(), selected_tile->coordinates.y());
+			bool success = board.mark_tiles(current_player);
+			if(!success)
+			{
+				// uh oh ¯\_(ツ)_/¯
+			}
+		}
 	}
 
 

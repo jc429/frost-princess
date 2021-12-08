@@ -22,16 +22,19 @@ namespace sh{
 		Z_4,			// 4 tiles in a Z shape
 		SQUARE,			// 4 tiles in a 2x2 square
 
-		S_5,			// 5 tiles in a S shape
-		Z_5,			// 5 tiles in a Z shape
-		T_5,			// 5 tiles in a T pattern
-		CROSS,			// 5 tiles in a + pattern
-		X				// 5 tiles in an X pattern
+		// S_5,			// 5 tiles in a S shape
+		// Z_5,			// 5 tiles in a Z shape
+		// T_5,			// 5 tiles in a T pattern
+		// CROSS,			// 5 tiles in a + pattern
+		// X				// 5 tiles in an X pattern
 
 	};
 
-	tile_pattern next_tile_pattern(tile_pattern src);
-
+	namespace tile_patterns{
+		tile_pattern next_tile_pattern(tile_pattern src);
+		tile_pattern random_tile_pattern();
+		int get_tile_index(tile_pattern p);
+	}
 }
 
 #endif //SH_TILE_PATTERN_H

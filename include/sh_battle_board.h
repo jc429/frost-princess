@@ -26,7 +26,7 @@ namespace sh
 	private:
 		bn::regular_bg_ptr board_bg;
 		bn::vector<battle_tile, 81> tiles;
-		bn::vector<bn::point, NUM_PREVIEW_TILES> preview_offsets;
+		bn::vector<bn::point, NUM_PREVIEW_TILES> preview_tile_offsets;
 		bn::vector<bn::sprite_ptr, NUM_PREVIEW_TILES> preview_tiles;
 		bool preview_tile_active[NUM_PREVIEW_TILES];
 

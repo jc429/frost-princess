@@ -23,13 +23,13 @@
 #---------------------------------------------------------------------------------------------------------------------
 TARGET      :=  $(notdir $(CURDIR))
 BUILD       :=  build
-LIBBUTANO   :=  ../../lib/butano-8.5.0/butano
+LIBBUTANO   :=  ../../lib/butano-8.6.0/butano
 PYTHON      :=  python
-SOURCES     :=  src ../../lib/butano-8.5.0/common/src
-INCLUDES    :=  include ../../lib/butano-8.5.0/common/include
+SOURCES     :=  src ../../lib/butano-8.6.0/common/src
+INCLUDES    :=  include ../../lib/butano-8.6.0/common/include
 DATA        :=
-GRAPHICS    :=  graphics ../../lib/butano-8.5.0/common/graphics
-AUDIO       :=  audio ../../lib/butano-8.5.0/common/audio
+GRAPHICS    :=  graphics ../../lib/butano-8.6.0/common/graphics
+AUDIO       :=  audio ../../lib/butano-8.6.0/common/audio
 ROMTITLE    :=  SHIMOHIME
 ROMCODE     :=  SMHM
 USERFLAGS   :=  

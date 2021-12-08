@@ -2,6 +2,8 @@
 #define SH_BATTLE_CARD_H
 
 #include "sh_tile_pattern.h"
+#include "bn_sprite_ptr.h"
+#include "bn_point.h"
 
 namespace sh
 {
@@ -10,12 +12,19 @@ namespace sh
 	class battle_card
 	{
 	private:
-		virtual ~battle_card() = default;
-		sh::tile_pattern tile_pattern;
+		tile_pattern current_pattern;
+		bn::sprite_ptr card_sprite;
+		bn::sprite_ptr pattern_sprite;
+		bool is_faceup;
 
 	public:
-		battle_card() = default;
-		
+		battle_card(int x, int y);
+		virtual ~battle_card() = default;
+		void set_position(bn::point pos);
+		void set_pattern(tile_pattern pattern);
+		tile_pattern get_pattern();
+		void set_facedown();
+		void set_faceup();
 	};
 
 }

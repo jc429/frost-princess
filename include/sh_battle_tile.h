@@ -27,12 +27,13 @@ namespace sh
 		bool is_base;
 
 	public:
+		int tile_id;
 		bn::point coordinates;
 		bn::sprite_ptr sprite;
 		battle_tile* neighbors[4];
 		
 
-		battle_tile();
+		battle_tile(int id);
 		void set_position(int x, int y);
 		bn::fixed_point get_position();
 		void set_dark(bool dark);
