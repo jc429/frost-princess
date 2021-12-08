@@ -11,6 +11,8 @@
 #include "sh_scene.h"
 #include "sh_battle_board.h"
 #include "sh_battle_card.h"
+#include "sh_battle_deck.h"
+#include "sh_battle_portrait.h"
 
 namespace sh
 {
@@ -48,10 +50,16 @@ namespace sh
 		bn::sprite_animate_action<2> cursor_card_idle_action;
 		bn::sprite_animate_action<2> cursor_tile_idle_action;
 		battle_board board;
-			
+
+		battle_portrait player_portrait;
+		battle_deck player_deck;
 		battle_tile *player_base;
+
+		battle_portrait foe_portrait;
+		battle_deck foe_deck;	
 		battle_tile *foe_base;
 		
+
 		tile_owner current_player;
 		int selected_card = 2;
 		bn::random random;

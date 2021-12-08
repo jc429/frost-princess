@@ -30,14 +30,23 @@
 
 namespace sh{
 
+	#define BTL_PORTRAIT_X 90
+	#define BTL_PORTRAIT_Y 56
+	#define BTL_DECK_X 96
+	#define BTL_DECK_Y 15
 
 	battle_scene::battle_scene() :
 		battle_bg (bn::regular_bg_items::battle_bg.create_bg(0, 0)),
 		cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
 		cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16)),
 		cursor_card_idle_action (bn::create_sprite_animate_action_forever(cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1)),
-		cursor_tile_idle_action (bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1))
+		cursor_tile_idle_action (bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1)),
+		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
+		player_deck (battle_deck(-BTL_DECK_X,BTL_DECK_Y)),
+		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y)),
+		foe_deck (battle_deck(BTL_DECK_X,-BTL_DECK_Y))
 	{
+		
 	// init text generator
 	//	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	// bn::vector<bn::sprite_ptr, 32> text_sprites;
@@ -109,12 +118,13 @@ namespace sh{
 
 
 
+		player_portrait.set_player_id(0);
+		foe_portrait.set_player_id(1);
+		//bn::sprite_ptr portrait_frame_r = bn::sprite_items::portrait_frame.create_sprite(96, -56);
+		//bn::sprite_ptr portrait_frame_l = bn::sprite_items::portrait_frame.create_sprite(-96, 56);
 
-		bn::sprite_ptr portrait_frame_r = bn::sprite_items::portrait_frame.create_sprite(96, -56);
-		bn::sprite_ptr portrait_frame_l = bn::sprite_items::portrait_frame.create_sprite(-96, 56);
-
-		battle_deck player_deck = battle_deck(-96,15);
-		battle_deck foe_deck = battle_deck(96,-15);
+		// player_deck = battle_deck(-96,15);
+		// foe_deck = battle_deck(96,-15);
 
 
 		while(!game_over)
@@ -147,6 +157,15 @@ namespace sh{
 		// update animations
 		cursor_card_idle_action.update();
 		cursor_tile_idle_action.update();
+
+		if(!player_deck.anim_shuffle.done())
+		{
+			player_deck.anim_shuffle.update();
+		}
+		if(!foe_deck.anim_shuffle.done())
+		{
+			foe_deck.anim_shuffle.update();
+		}
 		
 		// slowly pan bg
 		battle_bg.set_x(battle_bg.x() - 0.25);
