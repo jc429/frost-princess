@@ -1,5 +1,5 @@
-#ifndef SH_BATTLE_H
-#define SH_BATTLE_H
+#ifndef SH_BATTLE_SCENE_H
+#define SH_BATTLE_SCENE_H
 
 #include "bn_keypad.h"
 #include "bn_sprite_ptr.h"
@@ -41,7 +41,7 @@ namespace sh
 	const int cards_y = 64;
 	const int card_y_raised = 56;
 
-	class battle_scene
+	class battle_scene : public scene
 	{
 	private:
 		bn::regular_bg_ptr battle_bg;
@@ -79,4 +79,4 @@ namespace sh
 }
 
 
-#endif //SH_BATTLE_H
+#endif //SH_BATTLE_SCENE_H

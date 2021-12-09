@@ -1,4 +1,4 @@
-#include "sh_battle.h"
+#include "sh_battle_scene.h"
 #include "sh_battle_tile.h"
 #include "sh_battle_deck.h"
 
@@ -46,49 +46,35 @@ namespace sh{
 		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y)),
 		foe_deck (battle_deck(BTL_DECK_X,-BTL_DECK_Y))
 	{
+		type = scene_type::BATTLE;
 		
-	// init text generator
-	//	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
-	// bn::vector<bn::sprite_ptr, 32> text_sprites;
-	// text_generator.set_bg_priority(0);
-	// text_generator.set_z_order(-500);
-	// text_generator.generate(0, -72, "Look ma, I'm on a GBA!", text_sprites);
-
-	//	text_generator.set_center_alignment();
-		// constexpr bn::string_view info_text_lines[] = {
-		// 	"A: hide/show sprite",
-		// 	"",
-		// 	"START: go to next scene",
-		// };
-
 		bool game_over = false;
 
 		current_player = tile_owner::PLAYER;
 
 		// place hand cards
-		selected_card = 0;
 		//bn::vector<bn::sprite_ptr, MAX_CARDS_HAND> card_sprites;
-		
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
 			//card_sprites.push_back(bn::sprite_items::card_blank.create_sprite(cards_x[i], cards_y));
 			battle_cards.push_back(battle_card(cards_x[i], cards_y));
 		}
+		selected_card = 0;
 
 
 
 		// build cursors
 		
 		//bn::sprite_ptr cursor_card_sprite = (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y));
-		cursor_card_sprite.set_position(cards_x[0], cards_y);
 		//cursor_card_idle_action = bn::create_sprite_animate_action_forever(cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
+		cursor_card_sprite.set_position(cards_x[0], cards_y);
 		cursor_card_sprite.set_bg_priority(1);
 		cursor_card_sprite.set_z_order(-100);
-		cursor_card_sprite.set_visible(true);
+		cursor_card_sprite.set_visible(false);
 
 		//bn::sprite_ptr cursor_tile_sprite = (bn::sprite_items::cursor_tile.create_sprite(0, -16));
-		cursor_tile_sprite.set_position(0, -16);
 		//cursor_tile_idle_action = bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
+		cursor_tile_sprite.set_position(0, -16);
 		cursor_tile_sprite.set_bg_priority(1);
 		cursor_tile_sprite.set_z_order(-100);
 		cursor_tile_sprite.set_visible(false);
@@ -126,6 +112,19 @@ namespace sh{
 		// player_deck = battle_deck(-96,15);
 		// foe_deck = battle_deck(96,-15);
 
+		// init text generator
+		//	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
+		// bn::vector<bn::sprite_ptr, 32> text_sprites;
+		// text_generator.set_bg_priority(0);
+		// text_generator.set_z_order(-500);
+		// text_generator.generate(0, -72, "Look ma, I'm on a GBA!", text_sprites);
+
+		//	text_generator.set_center_alignment();
+		// constexpr bn::string_view info_text_lines[] = {
+		// 	"A: hide/show sprite",
+		// 	"",
+		// 	"START: go to next scene",
+		// };
 
 		while(!game_over)
 		{

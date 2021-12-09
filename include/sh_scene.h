@@ -5,18 +5,29 @@
 
 namespace sh
 {
-	enum class scene_type;
+	enum class scene_type
+	{
+		LOGO,
+		TITLE,
+		MAIN_MENU,
+		BATTLE
+	};
 
 	class scene
 	{
 	public:
+		scene_type type;
+
 		virtual ~scene() = default;
-		[[nodiscard]]
-		virtual bn::optional<scene_type> update() = 0;
+	//	[[nodiscard]]
+	//	virtual void update() = 0;
 
 	protected:
 		scene() = default;
 	};
+
+	
+	void set_next_scene(sh::scene_type scene_type);
 }
 
 
