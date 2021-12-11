@@ -14,6 +14,8 @@
 #include "sh_battle_card.h"
 #include "sh_battle_deck.h"
 #include "sh_battle_portrait.h"
+#include "sh_skill_meter.h"
+
 
 namespace sh
 {
@@ -34,23 +36,25 @@ namespace sh
 		END
 	};
 	
-	const int MAX_CARDS_HAND = 5;
-	const int MAX_CARDS_DECK = 20;
 
-	//void battle_scene(bn::sprite_text_generator& text_generator);
-	const int cards_x[] = {-48, -24, 0, 24, 48};
+	const int MAX_CARDS_DECK = 20;
+	const int MAX_CARDS_HAND = 4;
+	const int cards_x[] = {/*-48,*/ -24, 0, 24, 48};
 	const int cards_y = 64;
 	const int card_y_raised = 56;
 
 	class battle_scene : public scene
 	{
 	private:
-		bn::regular_bg_ptr battle_bg;
-		bn::sprite_ptr cursor_card_sprite;
-		bn::sprite_ptr cursor_tile_sprite;
-		bn::sprite_animate_action<2> cursor_card_idle_action;
-		bn::sprite_animate_action<2> cursor_tile_idle_action;
+		bn::regular_bg_ptr _battle_bg;
+		bn::sprite_ptr _cursor_card_sprite;
+		bn::sprite_ptr _cursor_tile_sprite;
+		bn::sprite_animate_action<2> _cursor_card_idle_action;
+		bn::sprite_animate_action<2> _cursor_tile_idle_action;
 		battle_board board;
+		bn::blending_transparency_alpha_loop_action preview_transparency_action;
+
+		bn::vector<skill_meter, 2> _skill_meters;
 
 		battle_portrait player_portrait;
 		battle_deck player_deck;
@@ -61,12 +65,12 @@ namespace sh
 		battle_tile *foe_base;
 		
 
-		tile_owner current_player;
-		int selected_card = 2;
 		bn::random random;
-		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
 
-		bn::blending_transparency_alpha_loop_action preview_transparency_action;
+		tile_owner current_player;
+		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
+		int selected_card;
+
 
 		void update();
 		void player_turn();

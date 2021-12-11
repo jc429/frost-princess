@@ -138,6 +138,10 @@ namespace sh
 			case tile_pattern::SQUARE:
 				return 11;
 				break;
+
+			case tile_pattern::SPECIAL_SINGLE:
+				return 12;
+				break;
 			case tile_pattern::EMPTY:
 			default:
 				return 0;

@@ -12,11 +12,11 @@ namespace sh
 {
 
 	battle_portrait::battle_portrait(int pos_x, int pos_y) :
-		portrait_sprite (bn::sprite_items::portrait_test.create_sprite(pos_x, pos_y)),
-		frame_sprite (bn::sprite_items::portrait_frame.create_sprite(pos_x, pos_y))
+		portrait_sprite (bn::sprite_items::portrait_test.create_sprite(pos_x, pos_y))
+	//	frame_sprite (bn::sprite_items::portrait_frame.create_sprite(pos_x, pos_y))
 	{
-		frame_sprite.set_bg_priority(1);
-		frame_sprite.set_z_order(450);
+		// frame_sprite.set_bg_priority(1);
+		// frame_sprite.set_z_order(450);
 		portrait_sprite.set_bg_priority(1);
 		portrait_sprite.set_z_order(440);
 
@@ -28,9 +28,4 @@ namespace sh
 		portrait_sprite.set_tiles(bn::sprite_items::portrait_test.tiles_item().create_tiles(id));
 	}
 
-	void battle_portrait::set_blending_enabled(bool blending_enabled)
-	{
-		frame_sprite.set_blending_enabled(blending_enabled);
-		portrait_sprite.set_blending_enabled(blending_enabled);
-	}
 }

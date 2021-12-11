@@ -275,6 +275,7 @@ namespace sh{
 		case tile_pattern::EMPTY:
 			break;
 		case tile_pattern::SINGLE:
+		case tile_pattern::SPECIAL_SINGLE:
 			preview_tile_offsets.at(0) = bn::point(0,0);
 			preview_tiles.at(0).set_position(grid_to_world_pos(cursor_pos));
 			preview_tile_active[0] = true;

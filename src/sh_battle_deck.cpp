@@ -29,6 +29,8 @@ namespace sh
 			card_ids.at(r) = temp;
 			m--;
 		}
+		// TODO: check if i actually need to recreate this animation each time
+		anim_shuffle = bn::create_sprite_animate_action_once(sprite, 2, bn::sprite_items::card_deck.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7, 0, 0);
 	}
 
 }

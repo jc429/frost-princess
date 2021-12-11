@@ -9,6 +9,8 @@
 #include "bn_sprite_items_board_tile.h"
 #include "bn_sprite_items_crown.h"
 
+#define COLORBLIND_MODE true
+
 namespace sh{
 
 	battle_tile::battle_tile(int id) :
@@ -59,6 +61,7 @@ namespace sh{
 	{
 		int tile_idx = (int)owner * 2;
 		tile_idx += (is_dark ? 1 : 0);
+		tile_idx += (COLORBLIND_MODE ? 6 : 0);
 		sprite.set_tiles(bn::sprite_items::board_tile.tiles_item().create_tiles(tile_idx));
 	}
 }

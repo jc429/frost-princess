@@ -28,6 +28,8 @@ namespace sh{
 		// CROSS,			// 5 tiles in a + pattern
 		// X				// 5 tiles in an X pattern
 
+		SPECIAL_SINGLE
+
 	};
 
 	namespace tile_patterns{

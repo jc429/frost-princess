@@ -9,13 +9,12 @@ namespace sh
 	{
 	public:
 		bn::sprite_ptr portrait_sprite;
-		bn::sprite_ptr frame_sprite;
+	//	bn::sprite_ptr frame_sprite;
 		int player_id;
 
 		battle_portrait(int pos_x, int pos_y);
 		void set_player_id(int id);
 
-		void set_blending_enabled(bool blending_enabled);
 	};
 }
 
