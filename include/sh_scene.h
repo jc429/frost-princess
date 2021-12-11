@@ -21,12 +21,13 @@ namespace sh
 		virtual ~scene() = default;
 	//	[[nodiscard]]
 	//	virtual void update() = 0;
+		virtual void fade_to_black();
+		virtual void fade_from_black();
 
 	protected:
 		scene() = default;
 	};
 
-	
 	void set_next_scene(sh::scene_type scene_type);
 }
 

@@ -14,9 +14,10 @@ namespace sh
 	{
 		type = scene_type::LOGO;
 
-		set_next_scene(scene_type::BATTLE);
+		set_next_scene(scene_type::TITLE);
 		
-
+		logo_bg.set_blending_enabled(true);
+		fade_from_black();
 		while(true)
 		{
 			if(bn::keypad::any_pressed())
@@ -26,6 +27,7 @@ namespace sh
 
 			bn::core::update();
 		}
+		fade_to_black();
 	}
 
 }

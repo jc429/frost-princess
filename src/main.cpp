@@ -10,6 +10,7 @@
 
 #include "sh_scene.h"
 #include "sh_logo_scene.h"
+#include "sh_title_scene.h"
 #include "sh_battle_scene.h"
 
 
@@ -30,6 +31,10 @@ int main()
 		{
 		case sh::scene_type::LOGO:
 			sh::logo_scene();
+			bn::core::update();
+			break;
+		case sh::scene_type::TITLE:
+			sh::title_scene();
 			bn::core::update();
 			break;
 		case sh::scene_type::BATTLE:

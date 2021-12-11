@@ -14,6 +14,8 @@ namespace sh
 
 		battle_portrait(int pos_x, int pos_y);
 		void set_player_id(int id);
+
+		void set_blending_enabled(bool blending_enabled);
 	};
 }
 

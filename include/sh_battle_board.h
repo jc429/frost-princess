@@ -58,6 +58,8 @@ namespace sh
 		void show_preview_tiles();
 
 		bool mark_tiles(tile_owner owner);
+
+		void set_blending_enabled(bool blending_enabled);
 	};
 }
 

@@ -27,4 +27,10 @@ namespace sh
 		player_id = id;
 		portrait_sprite.set_tiles(bn::sprite_items::portrait_test.tiles_item().create_tiles(id));
 	}
+
+	void battle_portrait::set_blending_enabled(bool blending_enabled)
+	{
+		frame_sprite.set_blending_enabled(blending_enabled);
+		portrait_sprite.set_blending_enabled(blending_enabled);
+	}
 }

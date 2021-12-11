@@ -1,10 +1,11 @@
 #include "sh_battle_tile.h"
 #include "sh_battle_board.h"
 
-#include "bn_regular_bg_ptr.h"
-#include "bn_vector.h"
+#include "bn_blending.h"
 #include "bn_fixed.h"
 #include "bn_fixed_point.h"
+#include "bn_regular_bg_ptr.h"
+#include "bn_vector.h"
 
 #include "bn_regular_bg_items_battle_board.h"
 #include "bn_sprite_items_preview_tile.h"
@@ -18,10 +19,10 @@ namespace sh{
 		board_bg(bn::regular_bg_items::battle_board.create_bg((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y))
 	{
 		board_bg.set_priority(2);
-
+		
 
 		preview_orientation = DIRECTION_N;
-		preview_pattern = tile_pattern::SINGLE;		
+		preview_pattern = tile_pattern::SINGLE;
 		selection_pos = bn::point(0,0);
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
@@ -29,6 +30,8 @@ namespace sh{
 			bn::sprite_ptr tile_sprite = bn::sprite_items::preview_tile.create_sprite((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y);
 			tile_sprite.set_bg_priority(1);
 			tile_sprite.set_z_order(500);
+			tile_sprite.set_blending_enabled(true);
+			//bn::fixed transparency_alpha = bn::blending::transparency_alpha();
 			preview_tiles.push_back(tile_sprite);
 			preview_tile_active[i] = false;
 		}
@@ -514,5 +517,16 @@ namespace sh{
 			get_tile(pos.x(), pos.y())->set_owner(owner);
 		}
 		return true;
+	}
+
+
+	
+	void battle_board::set_blending_enabled(bool blending_enabled)
+	{
+		board_bg.set_blending_enabled(blending_enabled);
+		for(int i = 0; i < tiles.size(); i++)
+		{
+			tiles.at(i).sprite.set_blending_enabled(blending_enabled);
+		}
 	}
 }

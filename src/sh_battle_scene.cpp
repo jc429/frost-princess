@@ -9,6 +9,7 @@
 
 
 // graphics
+#include "bn_blending_actions.h"
 #include "bn_sprite_animate_actions.h"
 // text & fonts
 #include "common_variable_8x16_sprite_font.h"
@@ -44,7 +45,8 @@ namespace sh{
 		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
 		player_deck (battle_deck(-BTL_DECK_X,BTL_DECK_Y)),
 		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y)),
-		foe_deck (battle_deck(BTL_DECK_X,-BTL_DECK_Y))
+		foe_deck (battle_deck(BTL_DECK_X,-BTL_DECK_Y)),
+		preview_transparency_action (bn::blending_transparency_alpha_loop_action(30,0.2))
 	{
 		type = scene_type::BATTLE;
 		
@@ -126,6 +128,10 @@ namespace sh{
 		// 	"START: go to next scene",
 		// };
 
+		
+		fade_from_black();
+
+
 		while(!game_over)
 		{
 			// player turn
@@ -147,6 +153,7 @@ namespace sh{
 
 			
 		}
+		fade_to_black();
 
 	}
 
@@ -169,6 +176,10 @@ namespace sh{
 		// slowly pan bg
 		battle_bg.set_x(battle_bg.x() - 0.25);
 		battle_bg.set_y(battle_bg.y() - 0.25);
+
+		// update transparency 
+		preview_transparency_action.update();
+		
 		bn::core::update();
 	}
 
@@ -187,6 +198,12 @@ namespace sh{
 
 		while(!turn_over)
 		{
+			if(bn::keypad::start_pressed())
+			{
+				fade_to_black();
+				fade_from_black();
+			}
+
 			int mov_x = 0;
 			int mov_y = 0;
 			switch(turn_state)
@@ -403,5 +420,7 @@ namespace sh{
 		board.set_selected_tile(x, y);
 		cursor_tile_sprite.set_position(board.get_selected_tile()->get_position());
 	}
+
+	
 
 }

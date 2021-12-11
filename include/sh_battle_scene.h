@@ -1,6 +1,7 @@
 #ifndef SH_BATTLE_SCENE_H
 #define SH_BATTLE_SCENE_H
 
+#include "bn_blending_actions.h"
 #include "bn_keypad.h"
 #include "bn_sprite_ptr.h"
 #include "bn_sprite_animate_actions.h"
@@ -64,6 +65,8 @@ namespace sh
 		int selected_card = 2;
 		bn::random random;
 		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
+
+		bn::blending_transparency_alpha_loop_action preview_transparency_action;
 
 		void update();
 		void player_turn();
