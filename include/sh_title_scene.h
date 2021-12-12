@@ -13,9 +13,11 @@ namespace sh
 	{
 	public:
 		bn::regular_bg_ptr title_bg;
-		bn::regular_bg_ptr title_snow;
+		bn::regular_bg_ptr title_snow_a;
+		bn::regular_bg_ptr title_snow_b;
 
 		title_scene();
+		void update();
 	};
 
 }

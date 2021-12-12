@@ -32,6 +32,7 @@ namespace sh
 
 		battle_tile* select_tile(int tile_x, int tile_y);
 		battle_tile* select_tile(battle_tile *tile);
+		
 
 	public:
 		bn::point selection_pos;
@@ -58,8 +59,8 @@ namespace sh
 		void show_preview_tiles();
 
 		bool mark_tiles(tile_owner owner);
+		int count_tiles_with_owner(tile_owner owner);
 
-		void set_blending_enabled(bool blending_enabled);
 	};
 }
 

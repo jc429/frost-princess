@@ -5,13 +5,13 @@
 #include "bn_core.h"
 #include "bn_fixed_point.h"
 #include "bn_regular_bg_ptr.h"
-#include "bn_random.h"
 
-
+#include "sh_random.h"
 // graphics
 #include "bn_blending_actions.h"
 #include "bn_sprite_animate_actions.h"
 // text & fonts
+#include "bn_string.h"
 #include "common_variable_8x16_sprite_font.h"
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
@@ -38,6 +38,9 @@ namespace sh{
 	#define BTL_DECK_FOE_X 96
 	#define BTL_DECK_FOE_Y -15
 
+	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
+	bn::vector<bn::sprite_ptr, 32> text_sprites;
+
 	battle_scene::battle_scene() :
 		_battle_bg (bn::regular_bg_items::battle_bg.create_bg(0, 0)),
 		_cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
@@ -53,6 +56,7 @@ namespace sh{
 		type = scene_type::BATTLE;
 		
 		bool game_over = false;
+		turn_count = 1;
 
 		current_player = tile_owner::PLAYER;
 
@@ -120,11 +124,11 @@ namespace sh{
 		// foe_deck = battle_deck(96,-15);
 
 		// init text generator
-		//	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
+		// bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 		// bn::vector<bn::sprite_ptr, 32> text_sprites;
-		// text_generator.set_bg_priority(0);
-		// text_generator.set_z_order(-500);
-		// text_generator.generate(0, -72, "Look ma, I'm on a GBA!", text_sprites);
+		text_generator.set_bg_priority(0);
+		text_generator.set_z_order(-500);
+		set_turn_number(1);
 
 		//	text_generator.set_center_alignment();
 		// constexpr bn::string_view info_text_lines[] = {
@@ -136,6 +140,7 @@ namespace sh{
 		
 		fade_from_black();
 
+		battle_start();
 
 		while(!game_over)
 		{
@@ -156,17 +161,19 @@ namespace sh{
 	
 	void battle_scene::update()
 	{
+		// burn a random number each update
+
 		// update animations
 		_cursor_card_idle_action.update();
 		_cursor_tile_idle_action.update();
 
-		if(!player_deck.anim_shuffle.done())
+		player_deck.update();
+		foe_deck.update();
+
+		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
 		{
-			player_deck.anim_shuffle.update();
-		}
-		if(!foe_deck.anim_shuffle.done())
-		{
-			foe_deck.anim_shuffle.update();
+			battle_card& card = *it;
+			card.update();
 		}
 		
 		// slowly pan bg
@@ -177,6 +184,15 @@ namespace sh{
 		preview_transparency_action.update();
 		
 		bn::core::update();
+	}
+
+	void battle_scene::battle_start()
+	{
+		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+		{
+			battle_card& card = *it;
+			card.flip_faceup();
+		}
 	}
 
 	void battle_scene::player_turn()
@@ -196,8 +212,15 @@ namespace sh{
 		{
 			if(bn::keypad::start_pressed())
 			{
-				fade_to_black();
-				fade_from_black();
+				// fade_to_black();
+				// fade_from_black();
+				player_deck.shuffle();
+				
+				for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+				{
+					battle_card& card = *it;
+					card.flip();
+				}
 			}
 
 			int mov_x = 0;
@@ -229,13 +252,17 @@ namespace sh{
 					selected_card = (selected_card + 1) % MAX_CARDS_HAND;
 					_cursor_card_sprite.set_x(cards_x[selected_card]);
 				}
-				if(bn::keypad::l_held())
+
+
 				{
-					_skill_meters.front().add_sp(-1);
-				}
-				if(bn::keypad::r_held())
-				{
-					_skill_meters.front().add_sp(1);
+					if(bn::keypad::l_held())
+					{
+						_skill_meters.front().add_sp(-1);
+					}
+					if(bn::keypad::r_held())
+					{
+						_skill_meters.front().add_sp(1);
+					}
 				}
 
 
@@ -287,6 +314,7 @@ namespace sh{
 					bool success = board.mark_tiles(current_player);
 					if(success)
 					{
+						update_tile_counts();
 						bn::sound_items::blip_high.play();
 						// switch back to card cursor
 						board.hide_preview_tiles();
@@ -395,16 +423,16 @@ namespace sh{
 		{
 			select_tile(selected_tile->coordinates.x(), selected_tile->coordinates.y());
 			bool success = board.mark_tiles(current_player);
-			if(!success)
+			if(success)
+			{
+				update_tile_counts();
+			}
+			else
 			{
 				// uh oh ¯\_(ツ)_/¯
 			}
 		}
 	}
-
-
-
-
 
 
 	void battle_scene::swap_turns()
@@ -420,6 +448,41 @@ namespace sh{
 		{
 			current_player = tile_owner::FOE;
 		}
+		set_turn_number(turn_count+1);
+	}
+
+
+	void battle_scene::set_turn_number(int turn)
+	{
+		turn_count = turn;
+		update_text();
+		
+	}
+
+	void battle_scene::update_tile_counts()
+	{
+
+		update_text();
+	}
+
+	void battle_scene::update_text()
+	{
+		text_sprites.clear();
+
+		// turn indicator
+		text_generator.set_left_alignment();
+		text_generator.generate(-117, -72, "Turn", text_sprites);
+		text_generator.generate(-85, -72, bn::to_string<2>(bn::min(turn_count, 99)), text_sprites);
+
+		// tile counts
+		text_generator.set_center_alignment();
+		text_generator.generate(-94, -60, "/", text_sprites);
+		text_generator.set_right_alignment();
+		int player_count = board.count_tiles_with_owner(tile_owner::PLAYER);
+		text_generator.generate(-100, -60, bn::to_string<2>(bn::min(player_count, 99)), text_sprites);
+		text_generator.set_left_alignment();
+		int foe_count = board.count_tiles_with_owner(tile_owner::FOE);
+		text_generator.generate(-88, -60, bn::to_string<2>(bn::min(foe_count, 99)), text_sprites);
 	}
 
 	void battle_scene::select_tile(int x, int y)

@@ -10,8 +10,6 @@
 
 namespace sh
 {
-
-
 	class battle_deck
 	{
 	private:
@@ -24,8 +22,8 @@ namespace sh
 		battle_deck(int pos_x, int pos_y);
 		virtual ~battle_deck() = default;
 		void shuffle();
+		void update();
 	};
-
 }
 
 #endif //SH_BATTLE_DECK_H

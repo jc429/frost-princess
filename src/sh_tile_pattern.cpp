@@ -1,6 +1,6 @@
 #include "sh_tile_pattern.h"
 
-#include "bn_random.h"
+#include "sh_random.h"
 
 namespace sh
 {
@@ -57,7 +57,6 @@ namespace sh
 		
 		tile_pattern random_tile_pattern()
 		{
-			static bn::random random;
 			int r = random.get_int(0, 11) + 1;
 			switch(r)
 			{

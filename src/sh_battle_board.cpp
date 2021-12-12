@@ -255,8 +255,6 @@ namespace sh{
 		return selected_tile;
 	}
 
-
-
 	void battle_board::update_preview_tiles()
 	{
 		bn::point cursor_pos = selected_tile->coordinates;
@@ -520,14 +518,17 @@ namespace sh{
 		return true;
 	}
 
-
-	
-	void battle_board::set_blending_enabled(bool blending_enabled)
+	int battle_board::count_tiles_with_owner(tile_owner owner)
 	{
-		board_bg.set_blending_enabled(blending_enabled);
-		for(int i = 0; i < tiles.size(); i++)
+		int count = 0;
+		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
 		{
-			tiles.at(i).sprite.set_blending_enabled(blending_enabled);
+			battle_tile& tile = *it;
+			if(tile.get_owner() == owner)
+				count++;
 		}
+		return count;
 	}
+
+
 }

@@ -63,19 +63,21 @@ namespace sh
 		battle_portrait foe_portrait;
 		battle_deck foe_deck;	
 		battle_tile *foe_base;
-		
-
-		bn::random random;
 
 		tile_owner current_player;
 		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
-		int selected_card;
 
+		int selected_card;
+		int turn_count;
 
 		void update();
+		void battle_start();
 		void player_turn();
 		void foe_turn();
 		void swap_turns();
+		void set_turn_number(int turn);
+		void update_tile_counts();
+		void update_text();
 
 	public:
 		battle_scene();
