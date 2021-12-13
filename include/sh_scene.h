@@ -8,9 +8,11 @@ namespace sh
 	enum class scene_type
 	{
 		LOGO,
+		INTRO,
 		TITLE,
-		MAIN_MENU,
-		BATTLE
+		LEVEL_SELECT,
+		BATTLE,
+		CREDITS
 	};
 
 	class scene

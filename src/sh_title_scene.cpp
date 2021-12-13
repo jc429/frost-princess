@@ -32,7 +32,7 @@ namespace sh
 
 		
 
-		set_next_scene(scene_type::BATTLE);
+		set_next_scene(scene_type::LEVEL_SELECT);
 		
 		fade_from_black();
 

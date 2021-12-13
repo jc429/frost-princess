@@ -2,22 +2,23 @@
 #include "sh_battle_tile.h"
 #include "sh_battle_deck.h"
 
-#include "bn_core.h"
-#include "bn_fixed_point.h"
-#include "bn_regular_bg_ptr.h"
+#include <bn_core.h>
+#include <bn_fixed_point.h>
+#include <bn_log.h>
+#include <bn_regular_bg_ptr.h>
+#include <bn_sound_items.h>
 
+#include "sh_action_manager.h"
 #include "sh_random.h"
 // graphics
-#include "bn_blending_actions.h"
-#include "bn_sprite_animate_actions.h"
+#include <bn_blending_actions.h>
+#include <bn_sprite_animate_actions.h>
 // text & fonts
-#include "bn_string.h"
-#include "common_variable_8x16_sprite_font.h"
+#include <bn_string.h>
+#include "variable_8x16_sprite_font.h"
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
 #include "bn_regular_bg_items_battle_board.h"
-// sound
-#include "bn_sound_items.h"
 // sprites
 #include "bn_sprite_items_portrait_frame.h"
 #include "bn_sprite_items_card_blank.h"
@@ -26,7 +27,6 @@
 #include "bn_sprite_items_crown.h"
 
 
-#include "bn_log.h"
 
 
 namespace sh{
@@ -35,8 +35,6 @@ namespace sh{
 	#define BTL_PORTRAIT_Y 58
 	#define BTL_DECK_PLA_X -50
 	#define BTL_DECK_PLA_Y 62
-	#define BTL_DECK_FOE_X 96
-	#define BTL_DECK_FOE_Y -15
 
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	bn::vector<bn::sprite_ptr, 32> text_sprites;
@@ -53,26 +51,28 @@ namespace sh{
 		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y)),
 		foe_deck (battle_deck(180,120))	// HIDE OFFSCREEN
 	{
-		type = scene_type::BATTLE;
-		
-		bool game_over = false;
-		turn_count = 1;
+		// make sure textgen is set up before writing any text
+		text_generator.set_bg_priority(1);
+		text_generator.set_z_order(-500);
 
-		current_player = tile_owner::PLAYER;
+		type = scene_type::BATTLE;
+		bool game_over = false;
+		
+		// build bg
+		_battle_bg.set_priority(3);
 
 		// place hand cards
-		//bn::vector<bn::sprite_ptr, MAX_CARDS_HAND> card_sprites;
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
-			//card_sprites.push_back(bn::sprite_items::card_blank.create_sprite(cards_x[i], cards_y));
-			battle_cards.push_back(battle_card(cards_x[i], cards_y));
+			card_positions.push_back(bn::point(cards_x[i], cards_y));
+			battle_cards.push_back(battle_card(BTL_DECK_PLA_X, BTL_DECK_PLA_Y));
 		}
 		battle_cards.at(MAX_CARDS_HAND - 1).set_pattern(tile_pattern::SPECIAL_SINGLE);
 		selected_card = 0;
 
 		// skill meters
-		_skill_meters.push_back(skill_meter(-110, 33, true));
-		_skill_meters.push_back(skill_meter(78, -33, true));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(-110, 33), true, bn::fixed_point(-76, 28), false));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(78, -33), true, bn::fixed_point(76, -38), true));
 
 		// build cursors
 		
@@ -90,9 +90,6 @@ namespace sh{
 		_cursor_tile_sprite.set_z_order(-100);
 		_cursor_tile_sprite.set_visible(false);
 
-		// build bg
-		//bn::regular_bg_ptr battle_bg = bn::regular_bg_items::battle_bg.create_bg(0, 0);
-		_battle_bg.set_priority(3);
 
 		
 		// set base tiles
@@ -116,26 +113,9 @@ namespace sh{
 		player_portrait.set_player_id(0);
 		foe_portrait.set_player_id(1);
 
-
-		//bn::sprite_ptr portrait_frame_r = bn::sprite_items::portrait_frame.create_sprite(96, -56);
-		//bn::sprite_ptr portrait_frame_l = bn::sprite_items::portrait_frame.create_sprite(-96, 56);
-
-		// player_deck = battle_deck(-96,15);
-		// foe_deck = battle_deck(96,-15);
-
 		// init text generator
 		// bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 		// bn::vector<bn::sprite_ptr, 32> text_sprites;
-		text_generator.set_bg_priority(0);
-		text_generator.set_z_order(-500);
-		set_turn_number(1);
-
-		//	text_generator.set_center_alignment();
-		// constexpr bn::string_view info_text_lines[] = {
-		// 	"A: hide/show sprite",
-		// 	"",
-		// 	"START: go to next scene",
-		// };
 
 		
 		fade_from_black();
@@ -155,14 +135,18 @@ namespace sh{
 
 		}
 		fade_to_black();
-
 	}
 
+	battle_scene::~battle_scene()
+	{
+		action_manager::clear_sprite_move_actions();
+	}
 	
 	void battle_scene::update()
 	{
+		action_manager::update_sprite_move_actions();
 		// burn a random number each update
-
+		unsigned int burn = random.get();
 		// update animations
 		_cursor_card_idle_action.update();
 		_cursor_tile_idle_action.update();
@@ -188,6 +172,18 @@ namespace sh{
 
 	void battle_scene::battle_start()
 	{
+		turn_count = 1;
+		current_player = tile_owner::PLAYER;
+		set_turn_number(1);
+
+		for(int i = 0; i < battle_cards.size(); i++)
+		{
+			battle_cards.at(i).move_to_destination(card_positions.at(i));
+		}
+		for(int t = 0; t < 45; t++)
+		{
+			update();
+		}
 		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
 		{
 			battle_card& card = *it;
@@ -237,7 +233,7 @@ namespace sh{
 					board.set_preview_pattern(battle_cards.at(selected_card).get_pattern());
 					board.show_preview_tiles();
 
-					bn::point pos = battle_cards.at(selected_card).get_position();
+					bn::fixed_point pos = battle_cards.at(selected_card).get_position();
 					pos.set_y(card_y_raised);
 					battle_cards.at(selected_card).set_position(pos);
 					turn_state = turn_state::PLAYER_TILE_PLACEMENT;
@@ -315,6 +311,8 @@ namespace sh{
 					if(success)
 					{
 						update_tile_counts();
+						// gain SP dependent on .... something
+						_skill_meters.front().add_sp(5);
 						bn::sound_items::blip_high.play();
 						// switch back to card cursor
 						board.hide_preview_tiles();
@@ -322,9 +320,15 @@ namespace sh{
 						_cursor_card_sprite.set_visible(false);
 
 						// TODO: replace later with discard + draw next turn
-						bn::point pos = battle_cards.at(selected_card).get_position();
+						bn::fixed_point pos = battle_cards.at(selected_card).get_position();
 						pos.set_y(cards_y);
 						battle_cards.at(selected_card).set_position(pos);
+						// do not discard if special single
+						if(battle_cards.at(selected_card).get_pattern() != tile_pattern::SPECIAL_SINGLE)
+						{
+							battle_cards.at(selected_card).discard();
+
+						}
 						//
 						turn_over = true;
 					}
@@ -339,7 +343,7 @@ namespace sh{
 					board.hide_preview_tiles();
 					_cursor_tile_sprite.set_visible(false);
 					_cursor_card_sprite.set_visible(true);
-					bn::point pos = battle_cards.at(selected_card).get_position();
+					bn::fixed_point pos = battle_cards.at(selected_card).get_position();
 					pos.set_y(cards_y);
 					battle_cards.at(selected_card).set_position(pos);
 					turn_state = turn_state::PLAYER_CARD_SELECT;
@@ -426,6 +430,7 @@ namespace sh{
 			if(success)
 			{
 				update_tile_counts();
+				_skill_meters.back().add_sp(5);
 			}
 			else
 			{

@@ -1,16 +1,12 @@
-#include "bn_core.h"
-#include "bn_sprite_text_generator.h"
-
-
-#include "bn_keypad.h"
-#include "bn_bg_palettes.h"
-// font stuff
-#include "common_info.h"
-#include "common_variable_8x16_sprite_font.h"
+#include <bn_core.h>
+#include <bn_sprite_text_generator.h>
+#include <bn_keypad.h>
+#include <bn_bg_palettes.h>
 
 #include "sh_scene.h"
 #include "sh_logo_scene.h"
 #include "sh_title_scene.h"
+#include "sh_level_select.h"
 #include "sh_battle_scene.h"
 
 
@@ -35,6 +31,10 @@ int main()
 			break;
 		case sh::scene_type::TITLE:
 			sh::title_scene();
+			bn::core::update();
+			break;
+		case sh::scene_type::LEVEL_SELECT:
+			sh::level_select_scene();
 			bn::core::update();
 			break;
 		case sh::scene_type::BATTLE:

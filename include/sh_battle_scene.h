@@ -1,13 +1,13 @@
 #ifndef SH_BATTLE_SCENE_H
 #define SH_BATTLE_SCENE_H
 
-#include "bn_blending_actions.h"
-#include "bn_keypad.h"
-#include "bn_sprite_ptr.h"
-#include "bn_sprite_animate_actions.h"
-#include "bn_sprite_text_generator.h"
-#include "bn_random.h"
-#include "bn_vector.h"
+#include <bn_blending_actions.h>
+#include <bn_keypad.h>
+#include <bn_sprite_ptr.h>
+#include <bn_sprite_animate_actions.h>
+#include <bn_sprite_text_generator.h>
+#include <bn_random.h>
+#include <bn_vector.h>
 
 #include "sh_scene.h"
 #include "sh_battle_board.h"
@@ -66,6 +66,7 @@ namespace sh
 
 		tile_owner current_player;
 		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
+		bn::vector<bn::point, MAX_CARDS_HAND> card_positions;
 
 		int selected_card;
 		int turn_count;
@@ -81,6 +82,7 @@ namespace sh
 
 	public:
 		battle_scene();
+		~battle_scene();
 		void select_tile(int x, int y);
 
 	};
