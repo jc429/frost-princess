@@ -7,6 +7,7 @@
 #include <bn_regular_bg_ptr.h>
 
 #include "bn_regular_bg_items_title_bg.h"
+#include "bn_sprite_items_portrait_frame.h"
 
 namespace sh
 {
@@ -16,7 +17,18 @@ namespace sh
 		title_bg (bn::regular_bg_items::title_bg.create_bg(0, 0))
 	{
 		type = scene_type::LEVEL_SELECT;
-		
+
+
+		for(int i = -1; i < 2; i++)
+		{
+			for(int j = -1; j < 2; j++)
+			{
+				portrait_frames.push_back(bn::sprite_items::portrait_frame.create_sprite(i * 56, j * 48));
+			}
+		}
+
+
+
 		set_next_scene(scene_type::BATTLE);
 		fade_from_black();
 

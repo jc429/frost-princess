@@ -74,16 +74,20 @@ namespace sh
 		void update();
 		void battle_start();
 		void player_turn();
-		void foe_turn();
 		void swap_turns();
 		void set_turn_number(int turn);
 		void update_tile_counts();
 		void update_text();
 
+		//sh_battle_foe_ai.cpp
+		void foe_turn();
+		void foe_action_update();
+
 	public:
 		battle_scene();
 		~battle_scene();
 		void select_tile(int x, int y);
+		void select_tile(bn::point pos);
 
 	};
 

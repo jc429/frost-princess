@@ -1,11 +1,12 @@
 #include "sh_battle_tile.h"
 #include "sh_battle_board.h"
+#include "sh_direction.h"
 
-#include "bn_blending.h"
-#include "bn_fixed.h"
-#include "bn_fixed_point.h"
-#include "bn_regular_bg_ptr.h"
-#include "bn_vector.h"
+#include <bn_blending.h>
+#include <bn_fixed.h>
+#include <bn_fixed_point.h>
+#include <bn_regular_bg_ptr.h>
+#include <bn_vector.h>
 
 #include "bn_regular_bg_items_battle_board.h"
 #include "bn_sprite_items_preview_tile.h"
@@ -21,15 +22,15 @@ namespace sh{
 		board_bg.set_priority(2);
 		
 
-		preview_orientation = DIRECTION_N;
+		preview_orientation = direction::NORTH;
 		preview_pattern = tile_pattern::SINGLE;
 		selection_pos = bn::point(0,0);
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
 			preview_tile_offsets.push_back(bn::point(0,0));
 			bn::sprite_ptr tile_sprite = bn::sprite_items::preview_tile.create_sprite((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y);
-			tile_sprite.set_bg_priority(1);
-			tile_sprite.set_z_order(500);
+			tile_sprite.set_bg_priority(2);
+			tile_sprite.set_z_order(-500);
 			tile_sprite.set_blending_enabled(true);
 			//bn::fixed transparency_alpha = bn::blending::transparency_alpha();
 			preview_tiles.push_back(tile_sprite);
@@ -55,14 +56,14 @@ namespace sh{
 				if(i > 0)
 				{
 					battle_tile* neighbor = get_tile(i - 1, j);
-					tile->neighbors[DIRECTION_W] = neighbor;
-					neighbor->neighbors[DIRECTION_E] = tile;
+					tile->neighbors[(int)direction::WEST] = neighbor;
+					neighbor->neighbors[(int)direction::EAST] = tile;
 				}
 				if(j > 0)
 				{
 					battle_tile* neighbor = get_tile(i, j-1);
-					tile->neighbors[DIRECTION_N] = neighbor;
-					neighbor->neighbors[DIRECTION_S] = tile;
+					tile->neighbors[(int)direction::NORTH] = neighbor;
+					neighbor->neighbors[(int)direction::SOUTH] = tile;
 				}
 			}
 		}
@@ -90,14 +91,18 @@ namespace sh{
 		x = x % BOARD_WIDTH;
 		y = y % BOARD_HEIGHT;
 		int idx = (x * BOARD_HEIGHT) + y;
-
 		return &tiles.at(idx);
-
 	}
 
-	battle_tile* battle_board::move_selected_tile(int mov_x, int mov_y)
+	battle_tile* battle_board::get_tile(bn::point pos)
 	{
-		if(mov_x < 0 && selected_tile->neighbors[DIRECTION_W] != NULL)
+		return get_tile(pos.x(), pos.y());
+	}
+
+
+	battle_tile* battle_board::move_selected_tile(int dir_x, int dir_y)
+	{
+		if(dir_x < 0 && selected_tile->neighbors[(int)direction::WEST] != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -110,10 +115,10 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[DIRECTION_W];
+				selected_tile = selected_tile->neighbors[(int)direction::WEST];
 			}
 		}
-		if(mov_x > 0 && selected_tile->neighbors[DIRECTION_E] != NULL)
+		if(dir_x > 0 && selected_tile->neighbors[(int)direction::EAST] != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -126,10 +131,10 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[DIRECTION_E];
+				selected_tile = selected_tile->neighbors[(int)direction::EAST];
 			}
 		}
-		if(mov_y < 0 && selected_tile->neighbors[DIRECTION_N] != NULL)
+		if(dir_y < 0 && selected_tile->neighbors[(int)direction::NORTH] != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -142,10 +147,10 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[DIRECTION_N];
+				selected_tile = selected_tile->neighbors[(int)direction::NORTH];
 			}
 		}
-		if(mov_y > 0 && selected_tile->neighbors[DIRECTION_S] != NULL)
+		if(dir_y > 0 && selected_tile->neighbors[(int)direction::SOUTH] != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -158,7 +163,7 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[DIRECTION_S];
+				selected_tile = selected_tile->neighbors[(int)direction::SOUTH];
 			}
 		}
 
@@ -166,6 +171,11 @@ namespace sh{
 		select_tile(selected_tile);
 		update_preview_tiles();
 		return selected_tile;
+	}
+
+	battle_tile* battle_board::move_selected_tile(bn::point dir)
+	{
+		return move_selected_tile(dir.x(), dir.y());
 	}
 
 	battle_tile* battle_board::get_selected_tile()
@@ -196,8 +206,38 @@ namespace sh{
 			selected_tile = get_tile(pos_x, pos_y);
 			update_preview_tiles();
 		}
+		else{ // ???
+			selection_pos = temp;
+			selected_tile = get_tile(pos_x, pos_y);
+			update_preview_tiles();
+			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			{
+				if(temp.x() + preview_tile_offsets.at(i).x() < 0)
+				{
+					move_selected_tile(1, 0);
+				}
+				if(temp.y() + preview_tile_offsets.at(i).y() < 0)
+				{
+					move_selected_tile(0, 1);
+				}
+				if(temp.x() + preview_tile_offsets.at(i).x() > 8)
+				{
+					move_selected_tile(-1, 0);
+				}
+				if(temp.y() + preview_tile_offsets.at(i).y() > 8)
+				{
+					move_selected_tile(0, -1);
+				}
+			}
+			update_preview_tiles();
+		}
 		
 		return selected_tile;
+	}
+	
+	battle_tile* battle_board::set_selected_tile(bn::point pos)
+	{
+		return set_selected_tile(pos.x(), pos.y());
 	}
 	
 	bn::fixed_point battle_board::grid_to_world_pos(bn::point pos)
@@ -211,16 +251,16 @@ namespace sh{
 	{
 		switch(preview_orientation)
 		{
-		case DIRECTION_W:
+		case direction::WEST:
 			return bn::point(src.y(), -1*src.x());
 			break;
-		case DIRECTION_S:
+		case direction::SOUTH:
 			return bn::point(-1*src.x(), -1*src.y());
 			break;
-		case DIRECTION_E:
+		case direction::EAST:
 			return bn::point(-1*src.y(), src.x());
 			break;
-		case DIRECTION_N:
+		case direction::NORTH:
 		default:
 			return src;
 			break;
@@ -234,23 +274,23 @@ namespace sh{
 		show_preview_tiles();
 	}
 
-	battle_tile* battle_board::set_preview_orientation(int rotation)
+	battle_tile* battle_board::set_preview_orientation(direction orientation)
 	{
-		preview_orientation = rotation;
+		preview_orientation = orientation;
 		update_preview_tiles();
 		return selected_tile;
 	}
 
 	battle_tile* battle_board::rotate_preview_CW()
 	{
-		preview_orientation = (preview_orientation + 1) % 4;
+		preview_orientation = directions::next_CW(preview_orientation);
 		update_preview_tiles();
 		return selected_tile;
 	}
 
 	battle_tile* battle_board::rotate_preview_CCW()
 	{
-		preview_orientation = (preview_orientation + 3) % 4;
+		preview_orientation = directions::next_CCW(preview_orientation);
 		update_preview_tiles();
 		return selected_tile;
 	}
@@ -531,4 +571,41 @@ namespace sh{
 	}
 
 
+	bool battle_board::get_preview_tile_active(int preview_tile_id)
+	{
+		preview_tile_id = bn::clamp(preview_tile_id, 0, NUM_PREVIEW_TILES);
+		return preview_tile_active[preview_tile_id];
+	}
+
+	int battle_board::get_preview_size()
+	{
+		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+		{
+			if(!preview_tile_active[i])
+				return i;
+		}
+		return NUM_PREVIEW_TILES;
+	}
+	
+	bn::point battle_board::get_preview_tile_position(int preview_tile_id)
+	{
+		preview_tile_id = bn::clamp(preview_tile_id, 0, NUM_PREVIEW_TILES);
+		return selection_pos + preview_tile_offsets.at(preview_tile_id);
+	}
+
+	bn::point battle_board::get_preview_tile_offset(int preview_tile_id)
+	{
+		preview_tile_id = bn::clamp(preview_tile_id, 0, NUM_PREVIEW_TILES);
+		return preview_tile_offsets.at(preview_tile_id);
+	}
+
+	tile_owner battle_board::get_tile_owner(int pos_x, int pos_y)
+	{
+		return get_tile(pos_x, pos_y)->get_owner();
+	}
+	
+	tile_owner battle_board::get_tile_owner(bn::point pos)
+	{
+		return get_tile(pos)->get_owner();
+	}
 }

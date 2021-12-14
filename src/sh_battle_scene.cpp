@@ -19,6 +19,8 @@
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
 #include "bn_regular_bg_items_battle_board.h"
+#include "bn_regular_bg_items_btl_player_phase.h"
+#include "bn_regular_bg_items_btl_enemy_phase.h"
 // sprites
 #include "bn_sprite_items_portrait_frame.h"
 #include "bn_sprite_items_card_blank.h"
@@ -90,7 +92,11 @@ namespace sh{
 		_cursor_tile_sprite.set_z_order(-100);
 		_cursor_tile_sprite.set_visible(false);
 
-
+		// set the phase announcement bgs
+		// bn::regular_bg_ptr player_phase = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
+		// player_phase.set_priority(0); 
+		// player_phase.set_blending_enabled(true);
+		// player_phase.set_visible(false);
 		
 		// set base tiles
 		bn::sprite_ptr pl_crown = bn::sprite_items::crown.create_sprite(0,0);
@@ -147,6 +153,7 @@ namespace sh{
 		action_manager::update_sprite_move_actions();
 		// burn a random number each update
 		unsigned int burn = random.get();
+		burn = burn * 0;
 		// update animations
 		_cursor_card_idle_action.update();
 		_cursor_tile_idle_action.update();
@@ -200,7 +207,7 @@ namespace sh{
 		turn_state = turn_state::PLAYER_CARD_SELECT;
 		_cursor_tile_sprite.set_visible(false);
 		_cursor_card_sprite.set_visible(true);
-		board.set_preview_orientation(DIRECTION_N);
+		board.set_preview_orientation(direction::NORTH);
 
 		select_tile(4,4);
 
@@ -357,89 +364,6 @@ namespace sh{
 	}
 
 
-
-	void battle_scene::foe_turn()
-	{
-		// placeholder AI: randomly slap down a tile until something fits 
-		current_player = tile_owner::FOE;
-
-		//tile_pattern pattern = tile_pattern::SINGLE;
-		tile_pattern pattern = tile_patterns::random_tile_pattern();
-		board.set_preview_pattern(pattern);
-
-		bn::vector<battle_tile*, 80> foe_active_tiles;
-		bn::vector<battle_tile*, 80> foe_neighboring_tiles;
-		bool tile_checked[81];
-
-		foe_active_tiles.clear();
-		foe_neighboring_tiles.clear();
-		for(int i = 0; i < 81; i++)
-		{
-			tile_checked[i] = false;
-		}
-
-		foe_active_tiles.push_back(foe_base);
-		while(!foe_active_tiles.empty())
-		{
-			battle_tile *active_tile = foe_active_tiles.back();
-			foe_active_tiles.pop_back();
-			tile_checked[active_tile->tile_id] = true;
-			for(int i = 0; i < 4; i++)
-			{
-				battle_tile *neighbor = active_tile->neighbors[i];
-				if(neighbor != NULL)
-				{
-					if(tile_checked[neighbor->tile_id])
-					{
-						continue;
-					}
-					if(neighbor->get_owner() == tile_owner::FOE)
-					{
-						foe_active_tiles.push_back(neighbor);
-					}
-					else
-					{
-						bool neighbor_registered = false;
-						for(int n = 0; n < foe_neighboring_tiles.size(); n++)
-						{
-							if(foe_neighboring_tiles.at(n) == neighbor)
-							{
-								neighbor_registered = true;
-								break;
-							}
-						}
-						if(!neighbor_registered)
-						{
-							foe_neighboring_tiles.push_back(neighbor);
-						}
-					}
-				}
-			}
-		}
-		if(foe_neighboring_tiles.empty())
-		{
-			// uh oh ¯\_(ツ)_/¯
-			return;
-		}
-		int r = random.get_int(0, foe_neighboring_tiles.size());
-		battle_tile *selected_tile = foe_neighboring_tiles.at(r);
-		if(selected_tile != NULL)
-		{
-			select_tile(selected_tile->coordinates.x(), selected_tile->coordinates.y());
-			bool success = board.mark_tiles(current_player);
-			if(success)
-			{
-				update_tile_counts();
-				_skill_meters.back().add_sp(5);
-			}
-			else
-			{
-				// uh oh ¯\_(ツ)_/¯
-			}
-		}
-	}
-
-
 	void battle_scene::swap_turns()
 	{
 		board.hide_preview_tiles();
@@ -496,6 +420,9 @@ namespace sh{
 		_cursor_tile_sprite.set_position(board.get_selected_tile()->get_position());
 	}
 
-	
+	void battle_scene::select_tile(bn::point pos)
+	{
+		select_tile(pos.x(), pos.y());
+	}
 
 }

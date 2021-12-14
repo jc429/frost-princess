@@ -1,13 +1,10 @@
 #ifndef SH_BATTLE_TILE_H
 #define SH_BATTLE_TILE_H
 
-#include "bn_sprite_ptr.h"
-#include "bn_point.h"
+#include "sh_direction.h"
 
-const int DIRECTION_N = 0;
-const int DIRECTION_E = 1;
-const int DIRECTION_S = 2;
-const int DIRECTION_W = 3;
+#include <bn_sprite_ptr.h>
+#include <bn_point.h>
 
 
 namespace sh
@@ -15,7 +12,8 @@ namespace sh
 	enum class tile_owner{
 		EMPTY	= 0,
 		PLAYER	= 1,
-		FOE		= 2
+		FOE		= 2,
+		DEBUG	= 3
 	};
 
 
@@ -39,6 +37,8 @@ namespace sh
 		void set_dark(bool dark);
 		void set_owner(tile_owner owner_id);
 		tile_owner get_owner();
+		battle_tile* get_neighbor(direction dir);
+		battle_tile* get_neighbor(int dir);
 		void set_base(bool base);
 
 		void update_sprite();
