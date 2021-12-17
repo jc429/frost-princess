@@ -1,7 +1,8 @@
 #ifndef SH_BATTLE_PORTRAIT_H
 #define SH_BATTLE_PORTRAIT_H
 
-#include "bn_sprite_ptr.h"
+#include <bn_sprite_ptr.h>
+
 
 namespace sh
 {

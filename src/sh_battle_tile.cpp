@@ -11,6 +11,8 @@
 #include "bn_sprite_items_crown.h"
 
 #define COLORBLIND_MODE true
+#define COLORBLIND_TILE_OFFSET 8
+
 
 namespace sh{
 
@@ -73,7 +75,7 @@ namespace sh{
 	{
 		int tile_idx = (int)owner * 2;
 		tile_idx += (is_dark ? 1 : 0);
-		tile_idx += (COLORBLIND_MODE ? 8 : 0);
+		tile_idx += (COLORBLIND_MODE ? COLORBLIND_TILE_OFFSET : 0);
 		sprite.set_tiles(bn::sprite_items::board_tile.tiles_item().create_tiles(tile_idx));
 	}
 }

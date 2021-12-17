@@ -20,7 +20,7 @@ namespace sh
 	#define BOARD_POS_Y -16
 	#define TILE_WIDTH 13
 	#define TILES_START 52
-	const int NUM_PREVIEW_TILES = 5;
+	const int NUM_PREVIEW_TILES = 4;
 
 	class battle_board
 	{

@@ -30,6 +30,8 @@ namespace sh
 		void set_max_sp(int max_sp);
 		void clear_sp();
 		void set_flame_visible(bool visible);
+		bn::sprite_ptr &get_flame_sprite();
+
 	};
 
 }

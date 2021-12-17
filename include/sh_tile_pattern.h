@@ -22,11 +22,13 @@ namespace sh{
 		Z_4,			// 4 tiles in a Z shape
 		SQUARE,			// 4 tiles in a 2x2 square
 
+		/* UNSUPPORTED */
 		// S_5,			// 5 tiles in a S shape
 		// Z_5,			// 5 tiles in a Z shape
 		// T_5,			// 5 tiles in a T pattern
-		// CROSS,			// 5 tiles in a + pattern
-		// X				// 5 tiles in an X pattern
+		// CROSS,		// 5 tiles in a + pattern
+		// X			// 5 tiles in an X pattern
+		/***************/
 
 		SPECIAL_SINGLE
 

@@ -102,8 +102,10 @@ namespace sh
 					{
 						bn::point mov(0,0);
 						battle_tile *tile = board.get_tile(pos);
-						for(int dir = 0; dir < 4; dir++)
+						int d = random.get_int(0,3);	// sample directions in a random order
+						for(int x = 0; x < 4; x++)
 						{
+							int dir = (x + d) % 4;
 							if(tile->get_neighbor(dir) != NULL && tile->get_neighbor(dir)->get_owner() != tile_owner::FOE)
 							{
 								direction move_dir = directions::int_to_dir(dir);

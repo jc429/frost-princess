@@ -16,7 +16,6 @@ namespace sh
 		DEBUG	= 3
 	};
 
-
 	class battle_tile
 	{
 	private:

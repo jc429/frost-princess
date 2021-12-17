@@ -18,6 +18,7 @@
 #include "variable_8x16_sprite_font.h"
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
+#include "bn_regular_bg_items_battle_bg_wood.h"
 #include "bn_regular_bg_items_battle_board.h"
 #include "bn_regular_bg_items_btl_player_phase.h"
 #include "bn_regular_bg_items_btl_enemy_phase.h"
@@ -27,6 +28,7 @@
 #include "bn_sprite_items_cursor_card.h"
 #include "bn_sprite_items_cursor_tile.h"
 #include "bn_sprite_items_crown.h"
+#include "bn_sprite_items_skill_meter_flame.h"
 
 
 
@@ -34,19 +36,20 @@
 namespace sh{
 
 	#define BTL_PORTRAIT_X 94
-	#define BTL_PORTRAIT_Y 58
+	#define BTL_PORTRAIT_Y 54
 	#define BTL_DECK_PLA_X -50
 	#define BTL_DECK_PLA_Y 62
 
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	bn::vector<bn::sprite_ptr, 32> text_sprites;
+	static bn::vector<bn::sprite_animate_action<4>, 2> skill_flame_animations;
 
 	battle_scene::battle_scene() :
-		_battle_bg (bn::regular_bg_items::battle_bg.create_bg(0, 0)),
-		_cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
-		_cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16)),
-		_cursor_card_idle_action (bn::create_sprite_animate_action_forever(_cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1)),
-		_cursor_tile_idle_action (bn::create_sprite_animate_action_forever(_cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1)),
+		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
+		// _cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
+		// _cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16)),
+		// _cursor_card_idle_action (bn::create_sprite_animate_action_forever(_cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1)),
+		// _cursor_tile_idle_action (bn::create_sprite_animate_action_forever(_cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1)),
 		preview_transparency_action (bn::blending_transparency_alpha_loop_action(30,0.2)),
 		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
 		player_deck (battle_deck(BTL_DECK_PLA_X,BTL_DECK_PLA_Y)),
@@ -73,24 +76,27 @@ namespace sh{
 		selected_card = 0;
 
 		// skill meters
-		_skill_meters.push_back(skill_meter(bn::fixed_point(-110, 33), true, bn::fixed_point(-76, 28), false));
-		_skill_meters.push_back(skill_meter(bn::fixed_point(78, -33), true, bn::fixed_point(76, -38), true));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(-110, 25), true, bn::fixed_point(-78, 20), false));
+		skill_flame_animations.push_back(bn::create_sprite_animate_action_forever(_skill_meters.back().get_flame_sprite(), 4, bn::sprite_items::skill_meter_flame.tiles_item(), 0, 1, 2, 3));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(78, -25), true, bn::fixed_point(78, -30), true));
+		skill_flame_animations.push_back(bn::create_sprite_animate_action_forever(_skill_meters.back().get_flame_sprite(), 4, bn::sprite_items::skill_meter_flame.tiles_item(), 0, 1, 2, 3));
 
 		// build cursors
+		battle_cursor.set_visible(false);
 		
 		//bn::sprite_ptr cursor_card_sprite = (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y));
 		//_cursor_card_idle_action = bn::create_sprite_animate_action_forever(cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
-		_cursor_card_sprite.set_position(cards_x[0], cards_y);
-		_cursor_card_sprite.set_bg_priority(1);
-		_cursor_card_sprite.set_z_order(-100);
-		_cursor_card_sprite.set_visible(false);
+		// _cursor_card_sprite.set_position(cards_x[0], cards_y);
+		// _cursor_card_sprite.set_bg_priority(1);
+		// _cursor_card_sprite.set_z_order(-100);
+		// _cursor_card_sprite.set_visible(false);
 
 		//bn::sprite_ptr cursor_tile_sprite = (bn::sprite_items::cursor_tile.create_sprite(0, -16));
 		//_cursor_tile_idle_action = bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
-		_cursor_tile_sprite.set_position(0, -16);
-		_cursor_tile_sprite.set_bg_priority(1);
-		_cursor_tile_sprite.set_z_order(-100);
-		_cursor_tile_sprite.set_visible(false);
+		// _cursor_tile_sprite.set_position(0, -16);
+		// _cursor_tile_sprite.set_bg_priority(1);
+		// _cursor_tile_sprite.set_z_order(-100);
+		// _cursor_tile_sprite.set_visible(false);
 
 		// set the phase announcement bgs
 		// bn::regular_bg_ptr player_phase = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
@@ -153,10 +159,16 @@ namespace sh{
 		action_manager::update_sprite_move_actions();
 		// burn a random number each update
 		unsigned int burn = random.get();
-		burn = burn * 0;
+
+		for(auto it = skill_flame_animations.begin(), end = skill_flame_animations.end(); it != end; ++it)
+		{
+			it->update();
+		}
+
 		// update animations
-		_cursor_card_idle_action.update();
-		_cursor_tile_idle_action.update();
+		battle_cursor.update();
+		// _cursor_card_idle_action.update();
+		// _cursor_tile_idle_action.update();
 
 		player_deck.update();
 		foe_deck.update();
@@ -168,8 +180,8 @@ namespace sh{
 		}
 		
 		// slowly pan bg
-		_battle_bg.set_x(_battle_bg.x() - 0.25);
-		_battle_bg.set_y(_battle_bg.y() - 0.25);
+		// _battle_bg.set_x(_battle_bg.x() - 0.25);
+		// _battle_bg.set_y(_battle_bg.y() - 0.25);
 
 		// update transparency 
 		preview_transparency_action.update();
@@ -205,11 +217,14 @@ namespace sh{
 		bool turn_over = false;
 
 		turn_state = turn_state::PLAYER_CARD_SELECT;
-		_cursor_tile_sprite.set_visible(false);
-		_cursor_card_sprite.set_visible(true);
+		select_tile(4,4);
+		
+		set_battle_cursor_card_mode();
+		battle_cursor.set_visible(true);
+		// _cursor_tile_sprite.set_visible(false);
+		// _cursor_card_sprite.set_visible(true);
 		board.set_preview_orientation(direction::NORTH);
 
-		select_tile(4,4);
 
 		while(!turn_over)
 		{
@@ -234,8 +249,9 @@ namespace sh{
 				if(bn::keypad::a_pressed())
 				{
 					bn::sound_items::blip_high.play();
-					_cursor_card_sprite.set_visible(false);
-					_cursor_tile_sprite.set_visible(true);
+					set_battle_cursor_tile_mode();
+					// _cursor_card_sprite.set_visible(false);
+					// _cursor_tile_sprite.set_visible(true);
 					board.update_preview_tiles();
 					board.set_preview_pattern(battle_cards.at(selected_card).get_pattern());
 					board.show_preview_tiles();
@@ -248,12 +264,14 @@ namespace sh{
 				else if(bn::keypad::left_pressed())
 				{
 					selected_card = (selected_card + (MAX_CARDS_HAND - 1)) % MAX_CARDS_HAND;
-					_cursor_card_sprite.set_x(cards_x[selected_card]);
+					battle_cursor.set_position(card_positions.at(selected_card));
+					// _cursor_card_sprite.set_x(cards_x[selected_card]);
 				}
 				else if(bn::keypad::right_pressed())
 				{
 					selected_card = (selected_card + 1) % MAX_CARDS_HAND;
-					_cursor_card_sprite.set_x(cards_x[selected_card]);
+					battle_cursor.set_position(card_positions.at(selected_card));
+					// _cursor_card_sprite.set_x(cards_x[selected_card]);
 				}
 
 
@@ -275,18 +293,21 @@ namespace sh{
 				if(bn::keypad::select_pressed())
 				{
 					board.set_preview_pattern(tile_patterns::next_tile_pattern(board.preview_pattern));
-					_cursor_tile_sprite.set_position(board.selected_tile->get_position());
+					battle_cursor.set_position(board.selected_tile->get_position());
+					// _cursor_tile_sprite.set_position(board.selected_tile->get_position());
 				}
 
 				if(bn::keypad::l_pressed())
 				{
 					battle_tile *tile = board.rotate_preview_CCW();
-					_cursor_tile_sprite.set_position(tile->get_position());
+					battle_cursor.set_position(tile->get_position());
+					// _cursor_tile_sprite.set_position(tile->get_position());
 				}
 				if(bn::keypad::r_pressed())
 				{
 					battle_tile *tile = board.rotate_preview_CW();
-					_cursor_tile_sprite.set_position(tile->get_position());
+					battle_cursor.set_position(tile->get_position());
+					// _cursor_tile_sprite.set_position(tile->get_position());
 				}
 
 				if(bn::keypad::left_pressed())
@@ -308,7 +329,8 @@ namespace sh{
 				if(mov_x != 0 || mov_y != 0)
 				{
 					battle_tile *tile = board.move_selected_tile(mov_x, mov_y);
-					_cursor_tile_sprite.set_position(tile->get_position());
+					battle_cursor.set_position(tile->get_position());
+					// _cursor_tile_sprite.set_position(tile->get_position());
 					bn::sound_items::blip_soft.play();
 				}
 
@@ -323,8 +345,9 @@ namespace sh{
 						bn::sound_items::blip_high.play();
 						// switch back to card cursor
 						board.hide_preview_tiles();
-						_cursor_tile_sprite.set_visible(false);
-						_cursor_card_sprite.set_visible(false);
+						battle_cursor.set_visible(false);
+						// _cursor_tile_sprite.set_visible(false);
+						// _cursor_card_sprite.set_visible(false);
 
 						// TODO: replace later with discard + draw next turn
 						bn::fixed_point pos = battle_cards.at(selected_card).get_position();
@@ -348,8 +371,9 @@ namespace sh{
 					// cancel back to card cursor
 					bn::sound_items::blip_low.play();
 					board.hide_preview_tiles();
-					_cursor_tile_sprite.set_visible(false);
-					_cursor_card_sprite.set_visible(true);
+					set_battle_cursor_card_mode();
+					// _cursor_tile_sprite.set_visible(false);
+					// _cursor_card_sprite.set_visible(true);
 					bn::fixed_point pos = battle_cards.at(selected_card).get_position();
 					pos.set_y(cards_y);
 					battle_cards.at(selected_card).set_position(pos);
@@ -367,8 +391,9 @@ namespace sh{
 	void battle_scene::swap_turns()
 	{
 		board.hide_preview_tiles();
-		_cursor_tile_sprite.set_visible(false);
-		_cursor_card_sprite.set_visible(false);
+		battle_cursor.set_visible(false);
+		// _cursor_tile_sprite.set_visible(false);
+		// _cursor_card_sprite.set_visible(false);
 		if(current_player == tile_owner::FOE)
 		{
 			current_player = tile_owner::PLAYER;
@@ -417,12 +442,26 @@ namespace sh{
 	void battle_scene::select_tile(int x, int y)
 	{
 		board.set_selected_tile(x, y);
-		_cursor_tile_sprite.set_position(board.get_selected_tile()->get_position());
+		battle_cursor.set_position(board.get_selected_tile()->get_position());
+		// _cursor_tile_sprite.set_position(board.get_selected_tile()->get_position());
 	}
 
 	void battle_scene::select_tile(bn::point pos)
 	{
 		select_tile(pos.x(), pos.y());
+	}
+
+	
+	void battle_scene::set_battle_cursor_card_mode()
+	{
+		battle_cursor.set_size(bn::point(16,24));
+		battle_cursor.set_position(card_positions.at(selected_card));
+	}
+
+	void battle_scene::set_battle_cursor_tile_mode()
+	{
+		battle_cursor.set_size(bn::point(8,8));
+		battle_cursor.set_position(board.get_selected_tile()->get_position());
 	}
 
 }

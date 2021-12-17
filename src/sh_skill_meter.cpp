@@ -37,6 +37,7 @@ namespace sh
 			builder.set_z_order(-10);
 			_sprites.push_back(builder.release_build());
 		}
+		
 
 		update_sprite();
 	}
@@ -93,4 +94,8 @@ namespace sh
 		_sprites.back().set_visible(visible);
 	}
 
+	bn::sprite_ptr &skill_meter::get_flame_sprite()
+	{
+		return _sprites.back();
+	}
 }
