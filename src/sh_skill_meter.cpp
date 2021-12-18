@@ -19,7 +19,7 @@ namespace sh
 		_fill_amt = 0.25;
 		if(anchor_left)
 			pos.set_x(pos.x() + _fill_amt);
-		_current_sp = 40;
+		_current_sp = 0;
 		_max_sp = 40;
 		{
 			bn::sprite_builder builder(bn::sprite_items::skill_meter_fill);
@@ -51,6 +51,11 @@ namespace sh
 	bn::fixed skill_meter::fill_percent()
 	{
 		return _fill_amt;
+	}
+
+	bool skill_meter::meter_filled()
+	{
+		return (_current_sp >= _max_sp);
 	}
 
 	void skill_meter::set_current_sp(int current_sp)

@@ -6,9 +6,11 @@
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
 #include <bn_regular_bg_ptr.h>
+#include <bn_sprite_builder.h>
 #include <bn_vector.h>
 
 #include "bn_regular_bg_items_battle_board.h"
+#include "bn_sprite_items_board_tile.h"
 #include "bn_sprite_items_preview_tile.h"
 
 
@@ -39,14 +41,20 @@ namespace sh{
 		hide_preview_tiles();
 
 		// populate board with tiles
-		// signifies whether to darken a tile or not (alternates after every placement)
-		bool tile_dark = true;
+		// set up sprite builder
+		bn::sprite_builder builder(bn::sprite_items::board_tile);
+		builder.set_bg_priority(2);
+		builder.set_z_order(500);
+		
+		bool tile_dark = true;	// signifies whether to darken a tile or not (alternates after every placement)
 		for(int i = 0; i < BOARD_WIDTH; i++)
 		{
 			for(int j = 0; j < BOARD_HEIGHT; j++)
 			{
+				tile_sprites.push_back(builder.build());
 				tiles.push_back(battle_tile((i*BOARD_HEIGHT)+j));
 				battle_tile *tile = &tiles.back();
+				tile->set_sprite_ptr(&tile_sprites.back());
 				tile->coordinates = bn::point(i,j);
 				int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * i);
 				int y = (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * j);
@@ -238,6 +246,30 @@ namespace sh{
 	battle_tile* battle_board::set_selected_tile(bn::point pos)
 	{
 		return set_selected_tile(pos.x(), pos.y());
+	}
+
+	void battle_board::clear_tile_sprites()
+	{
+		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
+		{
+			it->clear_sprite_ptr();
+		}
+		tile_sprites.clear();
+	}
+
+	void battle_board::regen_tile_sprites()
+	{
+		clear_tile_sprites();
+		// set up sprite builder
+		bn::sprite_builder builder(bn::sprite_items::board_tile);
+		builder.set_bg_priority(2);
+		builder.set_z_order(500);
+		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
+		{
+			tile_sprites.push_back(builder.build());
+			it->set_sprite_ptr(&tile_sprites.back());
+			it->update_sprite();
+		}
 	}
 	
 	bn::fixed_point battle_board::grid_to_world_pos(bn::point pos)
@@ -556,6 +588,50 @@ namespace sh{
 			get_tile(pos.x(), pos.y())->set_owner(owner);
 		}
 		return true;
+	}
+
+	bool battle_board::use_special_action(tile_owner owner)
+	{
+		if(owner != tile_owner::EMPTY && selected_tile->get_owner() == owner)
+		{
+			battle_tile *tile = selected_tile;
+			for(int i = 0; i < 5; i++)
+			{
+				if(tile == NULL)
+					break;
+				tile->set_owner(owner);
+				tile = tile->get_neighbor(direction::NORTH);
+			}
+			tile = selected_tile;
+			for(int i = 0; i < 5; i++)
+			{
+				if(tile == NULL)
+					break;
+				tile->set_owner(owner);
+				tile = tile->get_neighbor(direction::EAST);
+			}
+			tile = selected_tile;
+			for(int i = 0; i < 5; i++)
+			{
+				if(tile == NULL)
+					break;
+				tile->set_owner(owner);
+				tile = tile->get_neighbor(direction::SOUTH);
+			}
+			tile = selected_tile;
+			for(int i = 0; i < 5; i++)
+			{
+				if(tile == NULL)
+					break;
+				tile->set_owner(owner);
+				tile = tile->get_neighbor(direction::WEST);
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	int battle_board::count_tiles_with_owner(tile_owner owner)

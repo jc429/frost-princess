@@ -5,6 +5,7 @@
 
 #include <bn_sprite_ptr.h>
 #include <bn_point.h>
+#include <bn_fixed_point.h>
 
 
 namespace sh
@@ -22,12 +23,14 @@ namespace sh
 		tile_owner owner;
 		bool is_dark;
 		bool is_base;
+		bn::sprite_ptr *sprite_ptr;
+		bn::fixed_point _position;
 
 	public:
 		int tile_id;
 		bn::point coordinates;
-		bn::sprite_ptr sprite;
-		battle_tile* neighbors[4];
+		//bn::sprite_ptr sprite;
+		battle_tile *neighbors[4];
 		
 
 		battle_tile(int id);
@@ -39,8 +42,10 @@ namespace sh
 		battle_tile* get_neighbor(direction dir);
 		battle_tile* get_neighbor(int dir);
 		void set_base(bool base);
-
 		void update_sprite();
+		void set_sprite_ptr(bn::sprite_ptr *ptr);
+		void clear_sprite_ptr();
+		bn::sprite_ptr *get_sprite();
 	};
 
 

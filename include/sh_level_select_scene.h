@@ -2,6 +2,7 @@
 #define SH_LEVEL_SELECT
 
 #include "sh_scene.h"
+#include "sh_cursor.h"
 
 #include <bn_regular_bg_ptr.h>
 #include <bn_sprite_ptr.h>
@@ -13,12 +14,17 @@ namespace sh
 	{
 	private:
 		bn::regular_bg_ptr title_bg;
+		bn::vector<bn::fixed_point, 9> panel_positions;
 		bn::vector<bn::sprite_ptr, 9> portrait_frames;
 
+		cursor level_select_cursor;
+		int selected_panel;
 	public:
-
 		level_select_scene();
+		~level_select_scene() = default;
+
 		void update();
+		void select_panel(int panel_id);
 	};
 
 }

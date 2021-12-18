@@ -3,10 +3,12 @@
 #include "sh_battle_deck.h"
 
 #include <bn_core.h>
+#include <bn_fixed.h>
 #include <bn_fixed_point.h>
 #include <bn_log.h>
 #include <bn_regular_bg_ptr.h>
 #include <bn_sound_items.h>
+#include <bn_string.h>
 
 #include "sh_action_manager.h"
 #include "sh_random.h"
@@ -14,7 +16,6 @@
 #include <bn_blending_actions.h>
 #include <bn_sprite_animate_actions.h>
 // text & fonts
-#include <bn_string.h>
 #include "variable_8x16_sprite_font.h"
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
@@ -25,8 +26,8 @@
 // sprites
 #include "bn_sprite_items_portrait_frame.h"
 #include "bn_sprite_items_card_blank.h"
-#include "bn_sprite_items_cursor_card.h"
-#include "bn_sprite_items_cursor_tile.h"
+// #include "bn_sprite_items_cursor_card.h"
+// #include "bn_sprite_items_cursor_tile.h"
 #include "bn_sprite_items_crown.h"
 #include "bn_sprite_items_skill_meter_flame.h"
 
@@ -110,16 +111,16 @@ namespace sh{
 		player_base->set_owner(tile_owner::PLAYER);
 		player_base->set_base(true);
 		pl_crown.set_position(player_base->get_position());
-		pl_crown.set_bg_priority(player_base->sprite.bg_priority());
-		pl_crown.set_z_order(player_base->sprite.z_order() - 10);
+		pl_crown.set_bg_priority(player_base->get_sprite()->bg_priority());
+		pl_crown.set_z_order(player_base->get_sprite()->z_order() - 10);
 
 		bn::sprite_ptr foe_crown = bn::sprite_items::crown.create_sprite(0,0);
 		foe_base = board.get_tile(BOARD_WIDTH-2, 1);
 		foe_base->set_owner(tile_owner::FOE);
 		foe_base->set_base(true);
 		foe_crown.set_position(foe_base->get_position());
-		foe_crown.set_bg_priority(foe_base->sprite.bg_priority());
-		foe_crown.set_z_order(foe_base->sprite.z_order() - 10);
+		foe_crown.set_bg_priority(foe_base->get_sprite()->bg_priority());
+		foe_crown.set_z_order(foe_base->get_sprite()->z_order() - 10);
 
 
 		player_portrait.set_player_id(0);
@@ -215,6 +216,7 @@ namespace sh{
 		turn_state turn_state = turn_state::INTRO;
 		current_player = tile_owner::PLAYER;
 		bool turn_over = false;
+		bool using_special_skill = false;
 
 		turn_state = turn_state::PLAYER_CARD_SELECT;
 		select_tile(4,4);
@@ -243,6 +245,7 @@ namespace sh{
 
 			int mov_x = 0;
 			int mov_y = 0;
+			
 			switch(turn_state)
 			{
 			case turn_state::PLAYER_CARD_SELECT:
@@ -273,13 +276,29 @@ namespace sh{
 					battle_cursor.set_position(card_positions.at(selected_card));
 					// _cursor_card_sprite.set_x(cards_x[selected_card]);
 				}
-
+				else if(bn::keypad::l_pressed())
+				{
+					if(_skill_meters.front().meter_filled())
+					{
+						// use player skill
+						using_special_skill = true;
+						set_battle_cursor_tile_mode();
+						board.set_preview_pattern(tile_pattern::SPECIAL_SINGLE);
+						board.show_preview_tiles();
+						turn_state = turn_state::PLAYER_TILE_PLACEMENT;
+					}
+				}
 
 				{
-					if(bn::keypad::l_held())
-					{
-						_skill_meters.front().add_sp(-1);
-					}
+					// if(bn::keypad::l_pressed())
+					// {
+					// 	board.clear_tile_sprites();
+					// }
+					// if(bn::keypad::r_pressed())
+					// {
+					// 	board.regen_tile_sprites();
+					// }
+
 					if(bn::keypad::r_held())
 					{
 						_skill_meters.front().add_sp(1);
@@ -290,20 +309,20 @@ namespace sh{
 
 				break;
 			case turn_state::PLAYER_TILE_PLACEMENT:
-				if(bn::keypad::select_pressed())
-				{
-					board.set_preview_pattern(tile_patterns::next_tile_pattern(board.preview_pattern));
-					battle_cursor.set_position(board.selected_tile->get_position());
-					// _cursor_tile_sprite.set_position(board.selected_tile->get_position());
-				}
+				// if(bn::keypad::select_pressed())
+				// {
+				// 	board.set_preview_pattern(tile_patterns::next_tile_pattern(board.preview_pattern));
+				// 	battle_cursor.set_position(board.selected_tile->get_position());
+				// 	// _cursor_tile_sprite.set_position(board.selected_tile->get_position());
+				// }
 
-				if(bn::keypad::l_pressed())
+				if(bn::keypad::l_pressed() && !using_special_skill)
 				{
 					battle_tile *tile = board.rotate_preview_CCW();
 					battle_cursor.set_position(tile->get_position());
 					// _cursor_tile_sprite.set_position(tile->get_position());
 				}
-				if(bn::keypad::r_pressed())
+				if(bn::keypad::r_pressed() && !using_special_skill)
 				{
 					battle_tile *tile = board.rotate_preview_CW();
 					battle_cursor.set_position(tile->get_position());
@@ -326,6 +345,7 @@ namespace sh{
 				{
 					mov_y++;
 				}
+
 				if(mov_x != 0 || mov_y != 0)
 				{
 					battle_tile *tile = board.move_selected_tile(mov_x, mov_y);
@@ -336,34 +356,54 @@ namespace sh{
 
 				if(bn::keypad::a_pressed())
 				{
-					bool success = board.mark_tiles(current_player);
-					if(success)
+					if(using_special_skill)
 					{
-						update_tile_counts();
-						// gain SP dependent on .... something
-						_skill_meters.front().add_sp(5);
-						bn::sound_items::blip_high.play();
-						// switch back to card cursor
-						board.hide_preview_tiles();
-						battle_cursor.set_visible(false);
-						// _cursor_tile_sprite.set_visible(false);
-						// _cursor_card_sprite.set_visible(false);
-
-						// TODO: replace later with discard + draw next turn
-						bn::fixed_point pos = battle_cards.at(selected_card).get_position();
-						pos.set_y(cards_y);
-						battle_cards.at(selected_card).set_position(pos);
-						// do not discard if special single
-						if(battle_cards.at(selected_card).get_pattern() != tile_pattern::SPECIAL_SINGLE)
+						bool success = board.use_special_action(current_player);
+						if(success)
 						{
-							battle_cards.at(selected_card).discard();
-
+							_skill_meters.front().clear_sp();
+							bn::sound_items::blip_high.play();
+							// switch back to card cursor
+							board.hide_preview_tiles();
+							battle_cursor.set_visible(false);
+							turn_over = true;
 						}
-						//
-						turn_over = true;
+						else
+						{
+							bn::sound_items::blip_low.play();
+						}
 					}
-					else{
-						bn::sound_items::blip_low.play();
+					else	// if(!using_special_skill)
+					{
+						bool success = board.mark_tiles(current_player);
+						if(success)
+						{
+							update_tile_counts();
+							// gain SP dependent on .... something
+							_skill_meters.front().add_sp(5);
+							bn::sound_items::blip_high.play();
+							// switch back to card cursor
+							board.hide_preview_tiles();
+							battle_cursor.set_visible(false);
+							// _cursor_tile_sprite.set_visible(false);
+							// _cursor_card_sprite.set_visible(false);
+
+							// TODO: replace later with discard + draw next turn
+							bn::fixed_point pos = battle_cards.at(selected_card).get_position();
+							pos.set_y(cards_y);
+							battle_cards.at(selected_card).set_position(pos);
+							// do not discard if special single
+							if(battle_cards.at(selected_card).get_pattern() != tile_pattern::SPECIAL_SINGLE)
+							{
+								battle_cards.at(selected_card).discard();
+
+							}
+							//
+							turn_over = true;
+						}
+						else{	// if(!success)
+							bn::sound_items::blip_low.play();
+						}
 					}
 				}
 				else if(bn::keypad::b_pressed())
@@ -371,6 +411,7 @@ namespace sh{
 					// cancel back to card cursor
 					bn::sound_items::blip_low.play();
 					board.hide_preview_tiles();
+					using_special_skill = false;
 					set_battle_cursor_card_mode();
 					// _cursor_tile_sprite.set_visible(false);
 					// _cursor_card_sprite.set_visible(true);

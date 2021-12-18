@@ -6,7 +6,7 @@
 #include "sh_scene.h"
 #include "sh_logo_scene.h"
 #include "sh_title_scene.h"
-#include "sh_level_select.h"
+#include "sh_level_select_scene.h"
 #include "sh_battle_scene.h"
 
 

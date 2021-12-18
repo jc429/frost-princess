@@ -16,8 +16,7 @@
 
 namespace sh{
 
-	battle_tile::battle_tile(int id) :
-		sprite (bn::sprite_items::board_tile.create_sprite((bn::fixed)0, (bn::fixed)0))
+	battle_tile::battle_tile(int id)
 	{
 		tile_id = id;
 		owner = tile_owner::EMPTY;
@@ -25,17 +24,22 @@ namespace sh{
 		{
 			neighbors[i] = NULL;
 		}
-		sprite.set_bg_priority(2);
-		sprite.set_z_order(500);
+		// if(sprite_ptr != NULL)
+		// {
+		// 	sprite_ptr->set_bg_priority(2);
+		// 	sprite_ptr->set_z_order(500);
+		// }
 	}
 
 	void battle_tile::set_position(int x, int y)
 	{
-		sprite.set_position(x, y);
+		_position = bn::fixed_point(x,y);
+		if(sprite_ptr != NULL)
+			sprite_ptr->set_position(x, y);
 	}
 	bn::fixed_point battle_tile::get_position()
 	{
-		return sprite.position();
+		return _position;
 	}
 
 	void battle_tile::set_dark(bool dark)
@@ -73,9 +77,28 @@ namespace sh{
 
 	void battle_tile::update_sprite()
 	{
-		int tile_idx = (int)owner * 2;
-		tile_idx += (is_dark ? 1 : 0);
-		tile_idx += (COLORBLIND_MODE ? COLORBLIND_TILE_OFFSET : 0);
-		sprite.set_tiles(bn::sprite_items::board_tile.tiles_item().create_tiles(tile_idx));
+		if(sprite_ptr != NULL)
+		{
+			sprite_ptr->set_position(_position);
+			int tile_idx = (int)owner * 2;
+			tile_idx += (is_dark ? 1 : 0);
+			tile_idx += (COLORBLIND_MODE ? COLORBLIND_TILE_OFFSET : 0);
+			sprite_ptr->set_tiles(bn::sprite_items::board_tile.tiles_item().create_tiles(tile_idx));
+		}
+	}
+	
+	void battle_tile::set_sprite_ptr(bn::sprite_ptr *ptr)
+	{
+		sprite_ptr = ptr;
+	}
+
+	void battle_tile::clear_sprite_ptr()
+	{
+		sprite_ptr = NULL;
+	}
+
+	bn::sprite_ptr *battle_tile::get_sprite()
+	{
+		return sprite_ptr;
 	}
 }

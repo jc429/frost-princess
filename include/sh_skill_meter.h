@@ -25,6 +25,7 @@ namespace sh
 		skill_meter(bn::fixed_point meter_pos, bool anchor_left, bn::fixed_point flame_pos, bool mirror_flame);
 		void set_position(bn::point pos);
 		bn::fixed fill_percent();
+		bool meter_filled();
 		void set_current_sp(int current_sp);
 		void add_sp(int amt);
 		void set_max_sp(int max_sp);

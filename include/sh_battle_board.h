@@ -27,6 +27,7 @@ namespace sh
 	private:
 		bn::regular_bg_ptr board_bg;
 		bn::vector<battle_tile, 81> tiles;
+		bn::vector<bn::sprite_ptr, 81> tile_sprites;
 		bn::vector<bn::point, NUM_PREVIEW_TILES> preview_tile_offsets;
 		bn::vector<bn::sprite_ptr, NUM_PREVIEW_TILES> preview_tiles;
 		bool preview_tile_active[NUM_PREVIEW_TILES];
@@ -51,6 +52,9 @@ namespace sh
 		battle_tile* set_selected_tile(int pos_x, int pos_y);
 		battle_tile* set_selected_tile(bn::point pos);
 
+		void clear_tile_sprites();
+		void regen_tile_sprites();
+
 		static bn::fixed_point grid_to_world_pos(bn::point pos);
 		bn::point get_rotated_pos(bn::point src);
 
@@ -63,6 +67,7 @@ namespace sh
 		void show_preview_tiles();
 
 		bool mark_tiles(tile_owner owner);
+		bool use_special_action(tile_owner owner);
 		int count_tiles_with_owner(tile_owner owner);
 
 		bool get_preview_tile_active(int preview_tile_id);
