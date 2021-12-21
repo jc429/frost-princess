@@ -9,12 +9,13 @@
 #include <bn_random.h>
 #include <bn_vector.h>
 
-#include "sh_scene.h"
 #include "sh_battle_board.h"
 #include "sh_battle_card.h"
 #include "sh_battle_deck.h"
 #include "sh_battle_portrait.h"
+#include "sh_character.h"
 #include "sh_cursor.h"
+#include "sh_scene.h"
 #include "sh_skill_meter.h"
 
 
@@ -58,10 +59,12 @@ namespace sh
 
 		bn::vector<skill_meter, 2> _skill_meters;
 
+		character_id player_character;
 		battle_portrait player_portrait;
 		battle_deck player_deck;
 		battle_tile *player_base;
 
+		character_id foe_character;
 		battle_portrait foe_portrait;
 		battle_deck foe_deck;	
 		battle_tile *foe_base;
@@ -76,6 +79,7 @@ namespace sh
 		void update();
 		void battle_start();
 		void player_turn();
+		void end_turn();
 		void swap_turns();
 		void set_turn_number(int turn);
 		void update_tile_counts();
@@ -84,6 +88,7 @@ namespace sh
 		//sh_battle_foe_ai.cpp
 		void foe_turn();
 		void foe_action_update();
+		bool foe_ai_check_tile_valid(battle_tile *tile);
 
 	public:
 		battle_scene();

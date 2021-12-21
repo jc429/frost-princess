@@ -140,10 +140,12 @@ namespace sh{
 
 			player_turn();
 			// check for dead zones
+			end_turn();
 			swap_turns();
 
 			foe_turn();
 			// check for dead zones
+			end_turn();
 			swap_turns();
 
 		}
@@ -428,13 +430,15 @@ namespace sh{
 		}
 	}
 
-
-	void battle_scene::swap_turns()
+	void battle_scene::end_turn()
 	{
 		board.hide_preview_tiles();
 		battle_cursor.set_visible(false);
-		// _cursor_tile_sprite.set_visible(false);
-		// _cursor_card_sprite.set_visible(false);
+		board.turn_update();
+	}
+
+	void battle_scene::swap_turns()
+	{
 		if(current_player == tile_owner::FOE)
 		{
 			current_player = tile_owner::PLAYER;

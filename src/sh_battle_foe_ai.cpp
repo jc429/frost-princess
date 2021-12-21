@@ -39,7 +39,7 @@ namespace sh
 				tile_checked[active_tile->tile_id] = true;
 				for(int i = 0; i < 4; i++)
 				{
-					battle_tile *neighbor = active_tile->neighbors[i];
+					battle_tile *neighbor = active_tile->get_neighbor(i);
 					if(neighbor != NULL)
 					{
 						if(tile_checked[neighbor->tile_id])
@@ -122,9 +122,9 @@ namespace sh
 
 				if(!preview_moved)
 					break;
-			}
 
 			
+			}
 
 			select_tile(selected_tile->coordinates);
 			bool success = board.mark_tiles(current_player);
@@ -153,5 +153,13 @@ namespace sh
 		{
 			update();
 		}
+	}
+
+	bool battle_scene::foe_ai_check_tile_valid(battle_tile *tile)
+	{
+		return(tile != NULL 
+			&& tile->get_owner() != tile_owner::FOE
+			&& tile->get_condition() == tile_condition::NORMAL
+		);
 	}
 }

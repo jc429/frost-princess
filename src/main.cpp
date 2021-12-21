@@ -3,6 +3,7 @@
 #include <bn_keypad.h>
 #include <bn_bg_palettes.h>
 
+#include "sh_character.h"
 #include "sh_scene.h"
 #include "sh_logo_scene.h"
 #include "sh_title_scene.h"

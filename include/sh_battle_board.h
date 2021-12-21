@@ -20,6 +20,12 @@ namespace sh
 	#define BOARD_POS_Y -16
 	#define TILE_WIDTH 13
 	#define TILES_START 52
+
+	#define TILE_SPRITE_LAYER 2
+	/* tile sprites should range in priority from 400 to 500 */
+	#define TILE_SPRITE_PRIO_BASE 500
+	#define TILE_SPRITE_PRIO_INC 10
+
 	const int NUM_PREVIEW_TILES = 4;
 
 	class battle_board
@@ -44,6 +50,8 @@ namespace sh
 
 
 		battle_board();
+		void turn_update();
+
 		battle_tile* get_tile(int x, int y);
 		battle_tile* get_tile(bn::point pos);
 		battle_tile* move_selected_tile(int dir_x, int dir_y);

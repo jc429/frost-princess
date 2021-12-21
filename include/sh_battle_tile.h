@@ -17,6 +17,12 @@ namespace sh
 		DEBUG	= 3
 	};
 
+	enum class tile_condition{
+		NORMAL	= 0,
+		FROZEN	= 1,
+		BURNED	= 2
+	};
+
 	class battle_tile
 	{
 	private:
@@ -25,15 +31,18 @@ namespace sh
 		bool is_base;
 		bn::sprite_ptr *sprite_ptr;
 		bn::fixed_point _position;
+		bn::fixed_point _sprite_offset;
+		battle_tile *neighbors[4];
+		tile_condition _current_condition;
+		int _condition_timer;
 
 	public:
 		int tile_id;
 		bn::point coordinates;
-		//bn::sprite_ptr sprite;
-		battle_tile *neighbors[4];
-		
 
 		battle_tile(int id);
+		void turn_update();
+
 		void set_position(int x, int y);
 		bn::fixed_point get_position();
 		void set_dark(bool dark);
@@ -41,7 +50,11 @@ namespace sh
 		tile_owner get_owner();
 		battle_tile* get_neighbor(direction dir);
 		battle_tile* get_neighbor(int dir);
+		void set_neighbor(direction dir, battle_tile *tile);
 		void set_base(bool base);
+		void set_condition(tile_condition condition, int duration);
+		void clear_condition();
+		tile_condition get_condition();
 		void update_sprite();
 		void set_sprite_ptr(bn::sprite_ptr *ptr);
 		void clear_sprite_ptr();

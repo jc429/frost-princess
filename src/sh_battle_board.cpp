@@ -43,42 +43,52 @@ namespace sh{
 		// populate board with tiles
 		// set up sprite builder
 		bn::sprite_builder builder(bn::sprite_items::board_tile);
-		builder.set_bg_priority(2);
-		builder.set_z_order(500);
+		builder.set_bg_priority(TILE_SPRITE_LAYER);
+		builder.set_z_order(TILE_SPRITE_PRIO_BASE);
 		
 		bool tile_dark = true;	// signifies whether to darken a tile or not (alternates after every placement)
-		for(int i = 0; i < BOARD_WIDTH; i++)
+		for(int row = 0; row < BOARD_HEIGHT; row++)
 		{
-			for(int j = 0; j < BOARD_HEIGHT; j++)
+			// builder.set_z_order(TILE_SPRITE_PRIO_BASE + (row * TILE_SPRITE_PRIO_INC));
+			for(int col = 0; col < BOARD_WIDTH; col++)
 			{
 				tile_sprites.push_back(builder.build());
-				tiles.push_back(battle_tile((i*BOARD_HEIGHT)+j));
+				tiles.push_back(battle_tile((col*BOARD_HEIGHT)+row));
 				battle_tile *tile = &tiles.back();
 				tile->set_sprite_ptr(&tile_sprites.back());
-				tile->coordinates = bn::point(i,j);
-				int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * i);
-				int y = (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * j);
+				tile->coordinates = bn::point(col,row);
+				int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * col);
+				int y = (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * row);
 				tile->set_position(x,y);
 				tile->set_dark(tile_dark);
 				tile_dark = !tile_dark;
-				if(i > 0)
+				if(col > 0)
 				{
-					battle_tile* neighbor = get_tile(i - 1, j);
-					tile->neighbors[(int)direction::WEST] = neighbor;
-					neighbor->neighbors[(int)direction::EAST] = tile;
+					battle_tile *neighbor = get_tile(col - 1, row);
+					tile->set_neighbor(direction::WEST, neighbor);
+					neighbor->set_neighbor(direction::EAST, tile);
 				}
-				if(j > 0)
+				if(row > 0)
 				{
-					battle_tile* neighbor = get_tile(i, j-1);
-					tile->neighbors[(int)direction::NORTH] = neighbor;
-					neighbor->neighbors[(int)direction::SOUTH] = tile;
+					battle_tile *neighbor = get_tile(col, row-1);
+					tile->set_neighbor(direction::NORTH, neighbor);
+					neighbor->set_neighbor(direction::SOUTH, tile);
 				}
+				tile->update_sprite();
 			}
 		}
 
 		//put selection cursor in center
 		select_tile(4,4);
 
+	}
+
+	void battle_board::turn_update()
+	{
+		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
+		{
+			it->turn_update();
+		}
 	}
 
 	battle_tile* battle_board::select_tile(int tile_x, int tile_y)
@@ -98,7 +108,7 @@ namespace sh{
 	{
 		x = x % BOARD_WIDTH;
 		y = y % BOARD_HEIGHT;
-		int idx = (x * BOARD_HEIGHT) + y;
+		int idx = x + (y * BOARD_HEIGHT);
 		return &tiles.at(idx);
 	}
 
@@ -110,7 +120,7 @@ namespace sh{
 
 	battle_tile* battle_board::move_selected_tile(int dir_x, int dir_y)
 	{
-		if(dir_x < 0 && selected_tile->neighbors[(int)direction::WEST] != NULL)
+		if(dir_x < 0 && selected_tile->get_neighbor(direction::WEST) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -123,10 +133,10 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[(int)direction::WEST];
+				selected_tile = selected_tile->get_neighbor(direction::WEST);
 			}
 		}
-		if(dir_x > 0 && selected_tile->neighbors[(int)direction::EAST] != NULL)
+		if(dir_x > 0 && selected_tile->get_neighbor(direction::EAST) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -139,10 +149,10 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[(int)direction::EAST];
+				selected_tile = selected_tile->get_neighbor(direction::EAST);
 			}
 		}
-		if(dir_y < 0 && selected_tile->neighbors[(int)direction::NORTH] != NULL)
+		if(dir_y < 0 && selected_tile->get_neighbor(direction::NORTH) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -155,10 +165,10 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[(int)direction::NORTH];
+				selected_tile = selected_tile->get_neighbor(direction::NORTH);
 			}
 		}
-		if(dir_y > 0 && selected_tile->neighbors[(int)direction::SOUTH] != NULL)
+		if(dir_y > 0 && selected_tile->get_neighbor(direction::SOUTH) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -171,7 +181,7 @@ namespace sh{
 			}
 			if(safe)
 			{
-				selected_tile = selected_tile->neighbors[(int)direction::SOUTH];
+				selected_tile = selected_tile->get_neighbor(direction::SOUTH);
 			}
 		}
 
@@ -262,8 +272,8 @@ namespace sh{
 		clear_tile_sprites();
 		// set up sprite builder
 		bn::sprite_builder builder(bn::sprite_items::board_tile);
-		builder.set_bg_priority(2);
-		builder.set_z_order(500);
+		builder.set_bg_priority(TILE_SPRITE_LAYER);
+		builder.set_z_order(TILE_SPRITE_PRIO_BASE);
 		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
 		{
 			tile_sprites.push_back(builder.build());
@@ -563,10 +573,15 @@ namespace sh{
 					continue;
 				}
 				bn::point pos = selection_pos + preview_tile_offsets.at(i);
-				battle_tile* tile = get_tile(pos.x(), pos.y());
+				battle_tile* tile = get_tile(pos);
+				if(tile->get_owner() != owner && tile->get_condition() != tile_condition::NORMAL)
+				{
+					return false;
+				}
+				// check that tile pattern is neighboring a tile we own
 				for(int j = 0; j < 4; j++)
 				{
-					if(tile->neighbors[j]->get_owner() == owner)
+					if(tile->get_neighbor(j)->get_owner() == owner)
 					{
 						neighbors_self = true;
 						break;
@@ -595,11 +610,13 @@ namespace sh{
 		if(owner != tile_owner::EMPTY && selected_tile->get_owner() == owner)
 		{
 			battle_tile *tile = selected_tile;
+			int duration = 4;
 			for(int i = 0; i < 5; i++)
 			{
 				if(tile == NULL)
 					break;
 				tile->set_owner(owner);
+				tile->set_condition(tile_condition::FROZEN, duration);
 				tile = tile->get_neighbor(direction::NORTH);
 			}
 			tile = selected_tile;
@@ -608,6 +625,7 @@ namespace sh{
 				if(tile == NULL)
 					break;
 				tile->set_owner(owner);
+				tile->set_condition(tile_condition::FROZEN, duration);
 				tile = tile->get_neighbor(direction::EAST);
 			}
 			tile = selected_tile;
@@ -616,6 +634,7 @@ namespace sh{
 				if(tile == NULL)
 					break;
 				tile->set_owner(owner);
+				tile->set_condition(tile_condition::FROZEN, duration);
 				tile = tile->get_neighbor(direction::SOUTH);
 			}
 			tile = selected_tile;
@@ -624,6 +643,7 @@ namespace sh{
 				if(tile == NULL)
 					break;
 				tile->set_owner(owner);
+				tile->set_condition(tile_condition::FROZEN, duration);
 				tile = tile->get_neighbor(direction::WEST);
 			}
 			return true;
