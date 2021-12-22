@@ -2,23 +2,35 @@
 
 #include <bn_fixed.h>
 #include <bn_point.h>
-#include <bn_sprite_ptr.h>
+#include <bn_sprite_animate_actions.h>
 #include <bn_sprite_builder.h>
+#include <bn_sprite_ptr.h>
+#include <bn_vector.h>
 
+#include "bn_sprite_items_skill_meter_button.h"
 #include "bn_sprite_items_skill_meter_fill.h"
 #include "bn_sprite_items_skill_meter_flame.h"
 
 namespace sh
 {
+	#define SPR_METER 0
+	#define SPR_FLAME 1
+	#define SPR_BUTTON 2
 
-	skill_meter::skill_meter(bn::fixed_point meter_pos, bool anchor_left, bn::fixed_point flame_pos, bool mirror_flame)
+	static bn::vector<bn::sprite_animate_action<4>, 2> skill_flame_animations;
+	static bn::vector<bn::sprite_animate_action<2>, 2> skill_button_animations;
+	
+
+	skill_meter::skill_meter(bn::fixed_point meter_pos, bool player_side, bn::fixed_point flame_pos)
 	{
 		bn::fixed_point pos = meter_pos;
 		_position = meter_pos;
-		_anchor_left = anchor_left;
+		_anchor_left = player_side;
 		_fill_amt = 0.25;
-		if(anchor_left)
-			pos.set_x(pos.x() + _fill_amt);
+		if(player_side)
+			pos.set_x(pos.x() + (16*_fill_amt));
+		else
+			pos.set_x(pos.x() + 40 - (16*_fill_amt));
 		_current_sp = 0;
 		_max_sp = 40;
 		{
@@ -32,14 +44,34 @@ namespace sh
 		{
 			bn::sprite_builder builder(bn::sprite_items::skill_meter_flame);
 			builder.set_position(flame_pos);
-			builder.set_horizontal_flip(mirror_flame);
+			builder.set_horizontal_flip(!player_side);
 			builder.set_bg_priority(1);
 			builder.set_z_order(-10);
 			_sprites.push_back(builder.release_build());
+			skill_flame_animations.push_back(bn::create_sprite_animate_action_forever(_sprites.at(SPR_FLAME), 4, bn::sprite_items::skill_meter_flame.tiles_item(), 0, 1, 2, 3));
+		}
+		if(player_side){
+			bn::sprite_builder builder(bn::sprite_items::skill_meter_button);
+			builder.set_position(pos + bn::fixed_point(-6,-7));
+			builder.set_bg_priority(1);
+			builder.set_z_order(-10);
+			_sprites.push_back(builder.release_build());
+			skill_button_animations.push_back(bn::create_sprite_animate_action_forever(_sprites.at(SPR_BUTTON), 16, bn::sprite_items::skill_meter_button.tiles_item(), 0, 1));
 		}
 		
-
 		update_sprite();
+	}
+
+	void update_skill_meter_animations()
+	{
+		for(auto it = skill_flame_animations.begin(), end = skill_flame_animations.end(); it != end; ++it)
+		{
+			it->update();
+		}
+		for(auto it = skill_button_animations.begin(), end = skill_button_animations.end(); it != end; ++it)
+		{
+			it->update();
+		}
 	}
 
 	void skill_meter::set_position(bn::point pos)
@@ -88,19 +120,25 @@ namespace sh
 	{
 		bn::fixed fill_amt = bn::clamp(((bn::fixed)_current_sp / (bn::fixed)bn::max(_max_sp, 1)), (bn::fixed)0, (bn::fixed)1);
 		bn::fixed_point pos = _position;
-		pos.set_x(pos.x() + (16*fill_amt));
-		_sprites.front().set_position(pos);
-		_sprites.front().set_horizontal_scale(bn::max(fill_amt, (bn::fixed)0.01));
+		if(_anchor_left)
+			pos.set_x(pos.x() + (16*fill_amt));
+		else
+			pos.set_x((pos.x() + 40) - (32*_fill_amt));
+		_sprites.at(SPR_METER).set_position(pos);
+		_sprites.at(SPR_METER).set_horizontal_scale(bn::max(fill_amt, (bn::fixed)0.01));
 		set_flame_visible((_current_sp == _max_sp));
+		set_button_prompt_visible((_current_sp == _max_sp));
 	}
 
 	void skill_meter::set_flame_visible(bool visible)
 	{
-		_sprites.back().set_visible(visible);
+		_sprites.at(SPR_FLAME).set_visible(visible);
 	}
 
-	bn::sprite_ptr &skill_meter::get_flame_sprite()
+	void skill_meter::set_button_prompt_visible(bool visible)
 	{
-		return _sprites.back();
+		if(_sprites.size() > SPR_BUTTON)
+			_sprites.at(SPR_BUTTON).set_visible(visible);
 	}
+
 }

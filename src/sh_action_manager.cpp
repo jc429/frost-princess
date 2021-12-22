@@ -5,7 +5,7 @@
 
 namespace sh{
 
-	static bn::vector<bn::sprite_move_to_action, 10> sprite_move_actions;
+	static bn::vector<bn::sprite_move_to_action, 16> sprite_move_actions;
 
 	bn::sprite_move_to_action *action_manager::register_move_action(
 		const bn::sprite_ptr& sprite,

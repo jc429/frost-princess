@@ -49,10 +49,6 @@ namespace sh
 	{
 	private:
 		bn::regular_bg_ptr _battle_bg;
-		// bn::sprite_ptr _cursor_card_sprite;
-		// bn::sprite_ptr _cursor_tile_sprite;
-		// bn::sprite_animate_action<2> _cursor_card_idle_action;
-		// bn::sprite_animate_action<2> _cursor_tile_idle_action;
 		cursor battle_cursor;
 		battle_board board;
 		bn::blending_transparency_alpha_loop_action preview_transparency_action;
@@ -76,7 +72,6 @@ namespace sh
 		int selected_card;
 		int turn_count;
 
-		void update();
 		void battle_start();
 		void player_turn();
 		void end_turn();
@@ -93,6 +88,8 @@ namespace sh
 	public:
 		battle_scene();
 		~battle_scene();
+		void update() override;
+		
 		void select_tile(int x, int y);
 		void select_tile(bn::point pos);
 		void set_battle_cursor_card_mode();

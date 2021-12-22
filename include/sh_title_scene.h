@@ -11,13 +11,14 @@ namespace sh
 
 	class title_scene : public scene
 	{
-	public:
+	private:
 		bn::regular_bg_ptr title_bg;
 		bn::regular_bg_ptr title_snow_a;
 		bn::regular_bg_ptr title_snow_b;
 
+	public:
 		title_scene();
-		void update();
+		void update() override;
 	};
 
 }

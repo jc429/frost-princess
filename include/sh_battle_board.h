@@ -2,8 +2,9 @@
 #define SH_BATTLE_BOARD_H
 
 #include "sh_battle_tile.h"
-#include "sh_tile_pattern.h"
 #include "sh_direction.h"
+#include "sh_tile_pattern.h"
+#include "sh_scene.h"
 
 #include <bn_sprite_ptr.h>
 #include <bn_regular_bg_ptr.h>
@@ -48,6 +49,7 @@ namespace sh
 		tile_pattern preview_pattern;
 		direction preview_orientation;
 
+		scene *current_scene;
 
 		battle_board();
 		void turn_update();
@@ -76,7 +78,9 @@ namespace sh
 
 		bool mark_tiles(tile_owner owner);
 		bool use_special_action(tile_owner owner);
-		int count_tiles_with_owner(tile_owner owner);
+
+		void shift_row(int row_id, direction dir);
+		void shift_col(int col_id, direction dir);
 
 		bool get_preview_tile_active(int preview_tile_id);
 		int get_preview_size();
@@ -84,6 +88,7 @@ namespace sh
 		bn::point get_preview_tile_offset(int preview_tile_id);
 		tile_owner get_tile_owner(int pos_x, int pos_y);
 		tile_owner get_tile_owner(bn::point pos);
+		int count_tiles_with_owner(tile_owner owner);
 	};
 }
 

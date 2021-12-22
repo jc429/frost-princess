@@ -13,7 +13,7 @@ namespace sh
 	{
 	private:
 		bool _anchor_left;
-		bn::vector<bn::sprite_ptr, 2> _sprites;
+		bn::vector<bn::sprite_ptr, 3> _sprites;
 		bn::fixed_point _position;
 		bn::fixed _fill_amt;
 		int _current_sp;
@@ -22,7 +22,7 @@ namespace sh
 		void update_sprite();
 
 	public:
-		skill_meter(bn::fixed_point meter_pos, bool anchor_left, bn::fixed_point flame_pos, bool mirror_flame);
+		skill_meter(bn::fixed_point meter_pos, bool player_side, bn::fixed_point flame_pos);
 		void set_position(bn::point pos);
 		bn::fixed fill_percent();
 		bool meter_filled();
@@ -31,10 +31,11 @@ namespace sh
 		void set_max_sp(int max_sp);
 		void clear_sp();
 		void set_flame_visible(bool visible);
-		bn::sprite_ptr &get_flame_sprite();
+		void set_button_prompt_visible(bool visible);
 
 	};
 
+	void update_skill_meter_animations();
 }
 
 #endif //SH_SKILL_METER_H

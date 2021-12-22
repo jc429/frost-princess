@@ -42,20 +42,25 @@ namespace sh
 
 		battle_tile(int id);
 		void turn_update();
+		void update_sprite();
 
+		void set_dark(bool dark);
+		void set_base(bool base);
+		
 		void set_position(int x, int y);
 		bn::fixed_point get_position();
-		void set_dark(bool dark);
+
 		void set_owner(tile_owner owner_id);
 		tile_owner get_owner();
+
+		void set_neighbor(direction dir, battle_tile *tile);
 		battle_tile* get_neighbor(direction dir);
 		battle_tile* get_neighbor(int dir);
-		void set_neighbor(direction dir, battle_tile *tile);
-		void set_base(bool base);
+
 		void set_condition(tile_condition condition, int duration);
 		void clear_condition();
 		tile_condition get_condition();
-		void update_sprite();
+
 		void set_sprite_ptr(bn::sprite_ptr *ptr);
 		void clear_sprite_ptr();
 		bn::sprite_ptr *get_sprite();

@@ -22,8 +22,8 @@ namespace sh
 	public:
 		level_select_scene();
 		~level_select_scene() = default;
+		void update() override;
 
-		void update();
 		void select_panel(int panel_id);
 	};
 

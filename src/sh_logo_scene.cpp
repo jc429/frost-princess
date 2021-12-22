@@ -30,4 +30,9 @@ namespace sh
 		fade_to_black();
 	}
 
+	void logo_scene::update()
+	{
+		
+	}
+
 }

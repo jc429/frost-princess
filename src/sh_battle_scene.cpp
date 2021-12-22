@@ -43,7 +43,6 @@ namespace sh{
 
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	bn::vector<bn::sprite_ptr, 32> text_sprites;
-	static bn::vector<bn::sprite_animate_action<4>, 2> skill_flame_animations;
 
 	battle_scene::battle_scene() :
 		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
@@ -60,6 +59,7 @@ namespace sh{
 		// make sure textgen is set up before writing any text
 		text_generator.set_bg_priority(1);
 		text_generator.set_z_order(-500);
+		board.current_scene = this;
 
 		type = scene_type::BATTLE;
 		bool game_over = false;
@@ -77,10 +77,8 @@ namespace sh{
 		selected_card = 0;
 
 		// skill meters
-		_skill_meters.push_back(skill_meter(bn::fixed_point(-110, 25), true, bn::fixed_point(-78, 20), false));
-		skill_flame_animations.push_back(bn::create_sprite_animate_action_forever(_skill_meters.back().get_flame_sprite(), 4, bn::sprite_items::skill_meter_flame.tiles_item(), 0, 1, 2, 3));
-		_skill_meters.push_back(skill_meter(bn::fixed_point(78, -25), true, bn::fixed_point(78, -30), true));
-		skill_flame_animations.push_back(bn::create_sprite_animate_action_forever(_skill_meters.back().get_flame_sprite(), 4, bn::sprite_items::skill_meter_flame.tiles_item(), 0, 1, 2, 3));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(-110, 25), true, bn::fixed_point(-78, 20)));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(78, -25), false, bn::fixed_point(78, -30)));
 
 		// build cursors
 		battle_cursor.set_visible(false);
@@ -163,10 +161,9 @@ namespace sh{
 		// burn a random number each update
 		unsigned int burn = random.get();
 
-		for(auto it = skill_flame_animations.begin(), end = skill_flame_animations.end(); it != end; ++it)
-		{
-			it->update();
-		}
+		update_skill_meter_animations();
+
+		
 
 		// update animations
 		battle_cursor.update();
@@ -291,19 +288,27 @@ namespace sh{
 					}
 				}
 
+				// Debug Inputs
 				{
-					// if(bn::keypad::l_pressed())
-					// {
-					// 	board.clear_tile_sprites();
-					// }
-					// if(bn::keypad::r_pressed())
-					// {
-					// 	board.regen_tile_sprites();
-					// }
+					if(bn::keypad::l_pressed())
+					{
+						board.shift_col(3, direction::SOUTH);
+					}
+					if(bn::keypad::r_pressed())
+					{
+						board.shift_col(3, direction::NORTH);
+					}
+
+					if(bn::keypad::l_held())
+					{
+						_skill_meters.front().add_sp(-1);
+						_skill_meters.back().add_sp(-1);
+					}
 
 					if(bn::keypad::r_held())
 					{
 						_skill_meters.front().add_sp(1);
+						_skill_meters.back().add_sp(1);
 					}
 				}
 

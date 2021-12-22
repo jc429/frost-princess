@@ -14,6 +14,7 @@ namespace sh
 		bn::regular_bg_ptr logo_bg;
 
 		logo_scene();
+		void update();
 	};
 
 }

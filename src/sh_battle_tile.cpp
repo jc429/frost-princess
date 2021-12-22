@@ -44,75 +44,7 @@ namespace sh{
 		}
 		update_sprite();
 	}
-
-	void battle_tile::set_position(int x, int y)
-	{
-		_position = bn::fixed_point(x,y);
-		if(sprite_ptr != NULL)
-			sprite_ptr->set_position(_position + _sprite_offset);
-	}
-	bn::fixed_point battle_tile::get_position()
-	{
-		return _position;
-	}
-
-	void battle_tile::set_dark(bool dark)
-	{
-		is_dark = dark;
-		update_sprite();
-	}
-
-	void battle_tile::set_owner(tile_owner owner_id)
-	{
-		owner = owner_id;
-		update_sprite();
-	}
-
-	tile_owner battle_tile::get_owner()
-	{
-		return owner;
-	}
 	
-	battle_tile* battle_tile::get_neighbor(direction dir)
-	{
-		return get_neighbor(directions::dir_to_int(dir));
-	}
-
-	battle_tile* battle_tile::get_neighbor(int dir)
-	{
-		dir = bn::clamp(dir, 0, 4);
-		return neighbors[dir];
-	}
-
-	void battle_tile::set_neighbor(direction dir, battle_tile *tile)
-	{
-		neighbors[directions::dir_to_int(dir)] = tile;
-	}
-
-	void battle_tile::set_base(bool base)
-	{
-		is_base = base;
-	}
-
-	void battle_tile::set_condition(tile_condition condition, int duration)
-	{
-		_current_condition = condition;
-		_condition_timer = duration;
-		update_sprite();
-	}
-
-	void battle_tile::clear_condition()
-	{
-		_current_condition = tile_condition::NORMAL;
-		_condition_timer = 0;
-		update_sprite();
-	}
-
-	tile_condition battle_tile::get_condition()
-	{
-		return _current_condition;
-	}
-
 	void battle_tile::update_sprite()
 	{
 		const bn::sprite_tiles_item *tile_set;
@@ -141,6 +73,77 @@ namespace sh{
 			sprite_ptr->set_position(_position + _sprite_offset);
 		}
 	}
+	
+	void battle_tile::set_dark(bool dark)
+	{
+		is_dark = dark;
+		update_sprite();
+	}
+
+	void battle_tile::set_base(bool base)
+	{
+		is_base = base;
+		update_sprite();
+	}
+
+	void battle_tile::set_position(int x, int y)
+	{
+		_position = bn::fixed_point(x,y);
+		if(sprite_ptr != NULL)
+			sprite_ptr->set_position(_position + _sprite_offset);
+	}
+	
+	bn::fixed_point battle_tile::get_position()
+	{
+		return _position;
+	}
+
+	void battle_tile::set_owner(tile_owner owner_id)
+	{
+		owner = owner_id;
+		update_sprite();
+	}
+
+	tile_owner battle_tile::get_owner()
+	{
+		return owner;
+	}
+
+	void battle_tile::set_neighbor(direction dir, battle_tile *tile)
+	{
+		neighbors[directions::dir_to_int(dir)] = tile;
+	}
+	
+	battle_tile* battle_tile::get_neighbor(direction dir)
+	{
+		return get_neighbor(directions::dir_to_int(dir));
+	}
+
+	battle_tile* battle_tile::get_neighbor(int dir)
+	{
+		dir = bn::clamp(dir, 0, 4);
+		return neighbors[dir];
+	}
+
+	void battle_tile::set_condition(tile_condition condition, int duration)
+	{
+		_current_condition = condition;
+		_condition_timer = duration;
+		update_sprite();
+	}
+
+	void battle_tile::clear_condition()
+	{
+		_current_condition = tile_condition::NORMAL;
+		_condition_timer = 0;
+		update_sprite();
+	}
+
+	tile_condition battle_tile::get_condition()
+	{
+		return _current_condition;
+	}
+
 	
 	void battle_tile::set_sprite_ptr(bn::sprite_ptr *ptr)
 	{

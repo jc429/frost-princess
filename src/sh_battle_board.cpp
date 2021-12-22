@@ -1,6 +1,7 @@
 #include "sh_battle_tile.h"
 #include "sh_battle_board.h"
 #include "sh_direction.h"
+#include "sh_action_manager.h"
 
 #include <bn_blending.h>
 #include <bn_fixed.h>
@@ -21,8 +22,8 @@ namespace sh{
 	battle_board::battle_board() :
 		board_bg(bn::regular_bg_items::battle_board.create_bg((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y))
 	{
+		current_scene = NULL;
 		board_bg.set_priority(2);
-		
 
 		preview_orientation = direction::NORTH;
 		preview_pattern = tile_pattern::SINGLE;
@@ -654,18 +655,135 @@ namespace sh{
 		}
 	}
 
-	int battle_board::count_tiles_with_owner(tile_owner owner)
+	// shifts a row of tiles on the board in [dir] direction by [amount] tiles
+	void battle_board::shift_row(int row_id, direction dir)
 	{
-		int count = 0;
-		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
+		if(dir != direction::WEST && dir != direction::EAST)
 		{
-			battle_tile& tile = *it;
-			if(tile.get_owner() == owner)
-				count++;
+			return;
 		}
-		return count;
+		row_id = bn::clamp(row_id,0,BOARD_HEIGHT);
+		bn::vector<battle_tile*,BOARD_WIDTH> row_tiles;
+		for(int i = 0; i < BOARD_WIDTH; i++)
+		{
+			row_tiles.push_back(get_tile(i,row_id));
+		}
+		//adjust which sprite is attached to which tile
+		if(dir == direction::EAST)
+		{
+			bn::sprite_ptr *temp = row_tiles.back()->get_sprite();
+			for(auto it = row_tiles.end(), begin = row_tiles.begin(); it != begin; )
+			{
+				battle_tile *tile = *it;
+				--it;
+				battle_tile *left = *it;
+				tile->set_sprite_ptr(left->get_sprite());
+				if(it == begin)
+				{
+					// hide + instantly move the sprite that would go off the board
+					row_tiles.front()->set_sprite_ptr(temp);
+					row_tiles.front()->get_sprite()->set_position(row_tiles.front()->get_position());
+					row_tiles.front()->get_sprite()->set_visible(false);
+				}
+				action_manager::register_move_action(*tile->get_sprite(), 12, tile->get_position());
+			}
+		}
+		else if(dir == direction::WEST)
+		{
+			bn::sprite_ptr *temp = row_tiles.front()->get_sprite();
+			for(auto it = row_tiles.begin(), end = row_tiles.end(); it != end; )
+			{
+				battle_tile *tile = *it;
+				++it;
+				battle_tile *right = *it;
+				tile->set_sprite_ptr(right->get_sprite());
+				if(it == end)
+				{
+					// hide + instantly move the sprite that would go off the board
+					row_tiles.back()->set_sprite_ptr(temp);
+					row_tiles.back()->get_sprite()->set_position(row_tiles.back()->get_position());
+					row_tiles.back()->get_sprite()->set_visible(false);
+				}
+				action_manager::register_move_action(*tile->get_sprite(), 12, tile->get_position());
+			}
+		}
+		// animate tiles moving
+		if(current_scene != NULL)
+		{
+			for(int i = 0; i < 12; i++)
+			{
+				current_scene->update();
+			}
+		}
+		// reset the sprite we turned invisible before
+		row_tiles.front()->get_sprite()->set_visible(true);
+		row_tiles.back()->get_sprite()->set_visible(true);
 	}
 
+	// shifts a column of tiles on the board in [dir] direction by [amount] tiles
+	void battle_board::shift_col(int col_id, direction dir)
+	{
+		if(dir != direction::NORTH && dir != direction::SOUTH)
+		{
+			return;
+		}
+		col_id = bn::clamp(col_id,0,BOARD_WIDTH);
+		bn::vector<battle_tile*,BOARD_HEIGHT> col_tiles;
+		for(int i = 0; i < BOARD_HEIGHT; i++)
+		{
+			col_tiles.push_back(get_tile(col_id,i));
+		}
+		//adjust which sprite is attached to which tile
+		if(dir == direction::SOUTH)
+		{
+			bn::sprite_ptr *temp = col_tiles.back()->get_sprite();
+			for(auto it = col_tiles.end(), begin = col_tiles.begin(); it != begin; )
+			{
+				battle_tile *tile = *it;
+				--it;
+				battle_tile *above = *it;
+				tile->set_sprite_ptr(above->get_sprite());
+				if(it == begin)
+				{
+					// hide + instantly move the sprite that would go off the board
+					col_tiles.front()->set_sprite_ptr(temp);
+					col_tiles.front()->get_sprite()->set_position(col_tiles.front()->get_position());
+					col_tiles.front()->get_sprite()->set_visible(false);
+				}
+				action_manager::register_move_action(*tile->get_sprite(), 12, tile->get_position());
+			}
+		}
+		else if(dir == direction::NORTH)
+		{
+			bn::sprite_ptr *temp = col_tiles.front()->get_sprite();
+			for(auto it = col_tiles.begin(), end = col_tiles.end(); it != end; )
+			{
+				battle_tile *tile = *it;
+				++it;
+				battle_tile *below = *it;
+				tile->set_sprite_ptr(below->get_sprite());
+				if(it == end)
+				{
+					// hide + instantly move the sprite that would go off the board
+					col_tiles.back()->set_sprite_ptr(temp);
+					col_tiles.back()->get_sprite()->set_position(col_tiles.back()->get_position());
+					col_tiles.back()->get_sprite()->set_visible(false);
+				}
+				action_manager::register_move_action(*tile->get_sprite(), 12, tile->get_position());
+			}
+		}
+		// animate tiles moving
+		if(current_scene != NULL)
+		{
+			for(int i = 0; i < 12; i++)
+			{
+				current_scene->update();
+			}
+		}
+		// reset the sprite we turned invisible before
+		col_tiles.front()->get_sprite()->set_visible(true);
+		col_tiles.back()->get_sprite()->set_visible(true);
+	}
 
 	bool battle_board::get_preview_tile_active(int preview_tile_id)
 	{
@@ -703,5 +821,17 @@ namespace sh{
 	tile_owner battle_board::get_tile_owner(bn::point pos)
 	{
 		return get_tile(pos)->get_owner();
+	}
+
+	int battle_board::count_tiles_with_owner(tile_owner owner)
+	{
+		int count = 0;
+		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
+		{
+			battle_tile& tile = *it;
+			if(tile.get_owner() == owner)
+				count++;
+		}
+		return count;
 	}
 }
