@@ -42,5 +42,12 @@ namespace sh
 		}
 	}
 
+	void scene::wait_for_update_cycles(int num_updates)
+	{
+		for(int i = 0; i < num_updates; i++)
+		{
+			update();
+		}
+	}
 
 }

@@ -1,6 +1,7 @@
 #include "sh_battle_scene.h"
 #include "sh_battle_tile.h"
 #include "sh_battle_deck.h"
+#include "sh_effects.h"
 
 #include <bn_core.h>
 #include <bn_fixed.h>
@@ -42,7 +43,7 @@ namespace sh{
 	#define BTL_DECK_PLA_Y 62
 
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
-	bn::vector<bn::sprite_ptr, 32> text_sprites;
+	bn::vector<bn::sprite_ptr, 12> text_sprites;
 
 	battle_scene::battle_scene() :
 		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
@@ -162,7 +163,7 @@ namespace sh{
 		unsigned int burn = random.get();
 
 		update_skill_meter_animations();
-
+		effects::update_effect_animations();
 		
 
 		// update animations
@@ -292,11 +293,12 @@ namespace sh{
 				{
 					if(bn::keypad::l_pressed())
 					{
-						board.shift_col(3, direction::SOUTH);
+						board.shift_row_or_col(3, direction::SOUTH);
 					}
 					if(bn::keypad::r_pressed())
 					{
-						board.shift_col(3, direction::NORTH);
+						board.shift_row_or_col(3, direction::NORTH);
+						//effects::create_effect_at_position(effects::effect_id::SHINE, bn::fixed_point(60, 30));
 					}
 
 					if(bn::keypad::l_held())

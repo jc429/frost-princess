@@ -73,6 +73,13 @@ namespace sh{
 			sprite_ptr->set_position(_position + _sprite_offset);
 		}
 	}
+
+	void battle_tile::copy_properties(battle_tile *other)
+	{
+		sprite_ptr = other->get_sprite();
+		_sprite_offset = other->get_sprite_offset();
+		owner = other->get_owner();
+	}
 	
 	void battle_tile::set_dark(bool dark)
 	{
@@ -88,14 +95,40 @@ namespace sh{
 
 	void battle_tile::set_position(int x, int y)
 	{
-		_position = bn::fixed_point(x,y);
-		if(sprite_ptr != NULL)
-			sprite_ptr->set_position(_position + _sprite_offset);
+		bn::fixed_point pos = bn::fixed_point(x,y);
+		set_position(pos);
+	}
+
+	void battle_tile::set_position(bn::fixed_point pos)
+	{
+		_position = pos;
+		set_sprite_position(pos);
 	}
 	
 	bn::fixed_point battle_tile::get_position()
 	{
 		return _position;
+	}
+
+	void battle_tile::set_sprite_offset(bn::fixed_point offset)
+	{
+		_sprite_offset = offset;
+	}
+
+	bn::fixed_point battle_tile::get_sprite_offset()
+	{
+		return _sprite_offset;
+	}
+	
+	void battle_tile::set_sprite_position(bn::fixed_point pos)
+	{
+		if(sprite_ptr != NULL)
+			sprite_ptr->set_position(pos + _sprite_offset);
+	}
+	
+	bn::fixed_point battle_tile::get_sprite_position()
+	{
+		return _position + _sprite_offset;
 	}
 
 	void battle_tile::set_owner(tile_owner owner_id)

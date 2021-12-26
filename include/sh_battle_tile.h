@@ -44,11 +44,20 @@ namespace sh
 		void turn_update();
 		void update_sprite();
 
+		void copy_properties(battle_tile *other);
+
 		void set_dark(bool dark);
 		void set_base(bool base);
 		
 		void set_position(int x, int y);
+		void set_position(bn::fixed_point pos);
 		bn::fixed_point get_position();
+
+		void set_sprite_offset(bn::fixed_point offset);
+		bn::fixed_point get_sprite_offset();
+
+		void set_sprite_position(bn::fixed_point pos);
+		bn::fixed_point get_sprite_position();
 
 		void set_owner(tile_owner owner_id);
 		tile_owner get_owner();

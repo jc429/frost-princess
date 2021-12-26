@@ -25,6 +25,7 @@ namespace sh
 		virtual void update() = 0;
 		virtual void fade_to_black();
 		virtual void fade_from_black();
+		void wait_for_update_cycles(int num_updates);
 
 	protected:
 		scene() = default;

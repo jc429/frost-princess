@@ -3,6 +3,7 @@
 
 #include "sh_battle_tile.h"
 #include "sh_direction.h"
+#include "sh_effects.h"
 #include "sh_tile_pattern.h"
 #include "sh_scene.h"
 
@@ -53,6 +54,7 @@ namespace sh
 
 		battle_board();
 		void turn_update();
+		void refresh();
 
 		battle_tile* get_tile(int x, int y);
 		battle_tile* get_tile(bn::point pos);
@@ -64,6 +66,9 @@ namespace sh
 
 		void clear_tile_sprites();
 		void regen_tile_sprites();
+
+		void create_effect_at_tile(effects::effect_id effect, bn::point pos);
+		void create_effect_at_tile(effects::effect_id effect, battle_tile* tile);
 
 		static bn::fixed_point grid_to_world_pos(bn::point pos);
 		bn::point get_rotated_pos(bn::point src);
@@ -79,8 +84,7 @@ namespace sh
 		bool mark_tiles(tile_owner owner);
 		bool use_special_action(tile_owner owner);
 
-		void shift_row(int row_id, direction dir);
-		void shift_col(int col_id, direction dir);
+		void shift_row_or_col(int col_id, direction dir);
 
 		bool get_preview_tile_active(int preview_tile_id);
 		int get_preview_size();
@@ -89,6 +93,7 @@ namespace sh
 		tile_owner get_tile_owner(int pos_x, int pos_y);
 		tile_owner get_tile_owner(bn::point pos);
 		int count_tiles_with_owner(tile_owner owner);
+
 	};
 }
 

@@ -52,7 +52,7 @@ namespace sh
 		}
 		if(player_side){
 			bn::sprite_builder builder(bn::sprite_items::skill_meter_button);
-			builder.set_position(pos + bn::fixed_point(-6,-7));
+			builder.set_position(pos + bn::fixed_point(-8,-1));
 			builder.set_bg_priority(1);
 			builder.set_z_order(-10);
 			_sprites.push_back(builder.release_build());
