@@ -3,11 +3,18 @@
 
 #include "sh_scene.h"
 
-#include "bn_regular_bg_ptr.h"
-
+#include <bn_regular_bg_ptr.h>
+#include <bn_sprite_ptr.h>
+#include <bn_sprite_text_generator.h>
+#include <bn_vector.h>
 
 namespace sh
 {
+	enum class title_state
+	{
+		PRESS_START,
+		MAIN_MENU
+	};
 
 	class title_scene : public scene
 	{
@@ -15,10 +22,19 @@ namespace sh
 		bn::regular_bg_ptr title_bg;
 		bn::regular_bg_ptr title_snow_a;
 		bn::regular_bg_ptr title_snow_b;
+		bn::regular_bg_ptr title_overlay;
+
+		bn::sprite_text_generator text_generator;
+		bn::vector<bn::sprite_ptr, 12> text_sprites;
+
+		title_state _current_state;
+		bn::vector<bn::sprite_ptr, 8> title_sprites;
 
 	public:
 		title_scene();
 		void update() override;
+
+		void set_title_state(title_state state);
 	};
 
 }

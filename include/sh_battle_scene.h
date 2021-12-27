@@ -5,7 +5,6 @@
 #include <bn_keypad.h>
 #include <bn_sprite_ptr.h>
 #include <bn_sprite_animate_actions.h>
-#include <bn_sprite_text_generator.h>
 #include <bn_random.h>
 #include <bn_vector.h>
 

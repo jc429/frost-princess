@@ -2,7 +2,9 @@
 #include "sh_random.h"
 
 #include <bn_core.h>
+#include <bn_sprite_text_generator.h>
 #include <bn_string.h>
+
 #include "variable_8x16_sprite_font.h"
 
 namespace sh

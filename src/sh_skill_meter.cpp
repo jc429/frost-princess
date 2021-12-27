@@ -118,14 +118,27 @@ namespace sh
 
 	void skill_meter::update_sprite()
 	{
-		bn::fixed fill_amt = bn::clamp(((bn::fixed)_current_sp / (bn::fixed)bn::max(_max_sp, 1)), (bn::fixed)0, (bn::fixed)1);
 		bn::fixed_point pos = _position;
+		bn::fixed sp_ratio = bn::clamp(((bn::fixed)_current_sp / (bn::fixed)bn::max(_max_sp, 1)), (bn::fixed)0, (bn::fixed)1);
+		// remap sp_ratio from [0-1] to [1-32] (pixel width of meter)
+		bn::fixed fill_width = (sp_ratio * 16) * (bn::fixed)0.0625;
+		_sprites.at(SPR_METER).set_horizontal_scale(bn::max(fill_width, (bn::fixed)0.03125));
+		// bn::max((sp_ratio * 32).floor_integer(), 1) * (bn::fixed)0.03125;
+		// bn::fixed fill_amt = (sp_ratio / (bn::fixed)0.0625) * (bn::fixed)0.0625;
+	 
+		
+		int fill_offset;
 		if(_anchor_left)
-			pos.set_x(pos.x() + (16*fill_amt));
+		{
+			fill_offset = (sp_ratio * 16).floor_integer();
+		}
 		else
-			pos.set_x((pos.x() + 40) - (32*_fill_amt));
+		{
+			fill_offset = 32 - (sp_ratio * 16).ceil_integer();
+		}
+	
+		pos.set_x(pos.x() + fill_offset);
 		_sprites.at(SPR_METER).set_position(pos);
-		_sprites.at(SPR_METER).set_horizontal_scale(bn::max(fill_amt, (bn::fixed)0.01));
 		set_flame_visible((_current_sp == _max_sp));
 		set_button_prompt_visible((_current_sp == _max_sp));
 	}

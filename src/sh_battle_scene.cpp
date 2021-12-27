@@ -1,6 +1,8 @@
 #include "sh_battle_scene.h"
-#include "sh_battle_tile.h"
 #include "sh_battle_deck.h"
+#include "sh_battle_tile.h"
+#include "sh_debug.h"
+#include "sh_audio.h"
 #include "sh_effects.h"
 
 #include <bn_core.h>
@@ -8,7 +10,6 @@
 #include <bn_fixed_point.h>
 #include <bn_log.h>
 #include <bn_regular_bg_ptr.h>
-#include <bn_sound_items.h>
 #include <bn_string.h>
 
 #include "sh_action_manager.h"
@@ -17,6 +18,7 @@
 #include <bn_blending_actions.h>
 #include <bn_sprite_animate_actions.h>
 // text & fonts
+#include <bn_sprite_text_generator.h>
 #include "variable_8x16_sprite_font.h"
 // backgrounds
 #include "bn_regular_bg_items_battle_bg.h"
@@ -31,7 +33,6 @@
 // #include "bn_sprite_items_cursor_tile.h"
 #include "bn_sprite_items_crown.h"
 #include "bn_sprite_items_skill_meter_flame.h"
-
 
 
 
@@ -128,7 +129,8 @@ namespace sh{
 		// init text generator
 		// bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 		// bn::vector<bn::sprite_ptr, 32> text_sprites;
-
+		
+		audio::play_track(track_id::BATTLE_BGM);
 		
 		fade_from_black();
 
@@ -251,7 +253,7 @@ namespace sh{
 			case turn_state::PLAYER_CARD_SELECT:
 				if(bn::keypad::a_pressed())
 				{
-					bn::sound_items::blip_high.play();
+					audio::play_sound(sound_id::BLIP_HIGH);
 					set_battle_cursor_tile_mode();
 					// _cursor_card_sprite.set_visible(false);
 					// _cursor_tile_sprite.set_visible(true);
@@ -290,15 +292,20 @@ namespace sh{
 				}
 
 				// Debug Inputs
+				if(debug::DEBUG_ENABLED)
 				{
 					if(bn::keypad::l_pressed())
 					{
 						board.shift_row_or_col(3, direction::SOUTH);
+						// _skill_meters.front().add_sp(-1);
+						// _skill_meters.back().add_sp(-1);
+
 					}
 					if(bn::keypad::r_pressed())
 					{
 						board.shift_row_or_col(3, direction::NORTH);
-						//effects::create_effect_at_position(effects::effect_id::SHINE, bn::fixed_point(60, 30));
+						// _skill_meters.front().add_sp(1);
+						// _skill_meters.back().add_sp(1);
 					}
 
 					if(bn::keypad::l_held())
@@ -360,7 +367,8 @@ namespace sh{
 					battle_tile *tile = board.move_selected_tile(mov_x, mov_y);
 					battle_cursor.set_position(tile->get_position());
 					// _cursor_tile_sprite.set_position(tile->get_position());
-					bn::sound_items::blip_soft.play();
+					audio::play_sound(sound_id::BLIP_SOFT);
+					
 				}
 
 				if(bn::keypad::a_pressed())
@@ -371,7 +379,7 @@ namespace sh{
 						if(success)
 						{
 							_skill_meters.front().clear_sp();
-							bn::sound_items::blip_high.play();
+							audio::play_sound(sound_id::BLIP_HIGH);
 							// switch back to card cursor
 							board.hide_preview_tiles();
 							battle_cursor.set_visible(false);
@@ -379,7 +387,7 @@ namespace sh{
 						}
 						else
 						{
-							bn::sound_items::blip_low.play();
+							audio::play_sound(sound_id::BLIP_LOW);
 						}
 					}
 					else	// if(!using_special_skill)
@@ -390,7 +398,7 @@ namespace sh{
 							update_tile_counts();
 							// gain SP dependent on .... something
 							_skill_meters.front().add_sp(5);
-							bn::sound_items::blip_high.play();
+							audio::play_sound(sound_id::BLIP_HIGH);
 							// switch back to card cursor
 							board.hide_preview_tiles();
 							battle_cursor.set_visible(false);
@@ -411,14 +419,14 @@ namespace sh{
 							turn_over = true;
 						}
 						else{	// if(!success)
-							bn::sound_items::blip_low.play();
+							audio::play_sound(sound_id::BLIP_LOW);
 						}
 					}
 				}
 				else if(bn::keypad::b_pressed())
 				{
 					// cancel back to card cursor
-					bn::sound_items::blip_low.play();
+					audio::play_sound(sound_id::BLIP_LOW);
 					board.hide_preview_tiles();
 					using_special_skill = false;
 					set_battle_cursor_card_mode();
