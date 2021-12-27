@@ -54,7 +54,8 @@ namespace sh
 		builder.set_z_order(-500);
 		builder.set_position(pos);
 		title_sprites.push_back(builder.release_build());
-
+		title_cursor = &title_sprites.back();
+		title_cursor->set_visible(false);
 		
 		// Skip Level Select for Demo
 		set_next_scene(scene_type::BATTLE);
@@ -78,13 +79,39 @@ namespace sh
 					set_title_state(title_state::MAIN_MENU);
 				}
 				break;
+				
 			case title_state::MAIN_MENU:
+				if(bn::keypad::down_pressed())
+				{
+					set_cursor_selection(current_menu_selection + 1);
+				}
+				else if(bn::keypad::up_pressed())
+				{
+					set_cursor_selection(current_menu_selection - 1);
+				}
 				if(bn::keypad::a_pressed())
 				{
-					text_sprites.clear();
-					audio::stop_current_track();
-					fade_to_black();
-					exit_scene = true;
+
+					switch(current_menu_selection)
+					{
+					case 0:
+					case 1:
+						set_next_scene(scene_type::BATTLE);
+						exit_scene = true;
+						break;
+					case 2:
+						set_next_scene(scene_type::OPTIONS);
+						exit_scene = true;
+						break;
+					default:
+						break;
+					}
+					if(exit_scene)
+					{
+						text_sprites.clear();
+						audio::stop_current_track();
+						fade_to_black();
+					}
 				}
 				else if(bn::keypad::b_pressed())
 				{
@@ -120,6 +147,7 @@ namespace sh
 		switch (_current_state)
 		{
 		case title_state::PRESS_START:
+			title_cursor->set_visible(false);
 			text_sprites.clear();
 			text_generator.set_center_alignment();
 			text_pos = bn::fixed_point(0, 60);
@@ -127,19 +155,36 @@ namespace sh
 			break;
 		case title_state::MAIN_MENU:
 			text_sprites.clear();
+			title_menu_cursor_pos.clear();
 			text_generator.set_left_alignment();
-			text_pos = bn::fixed_point(-25, 40);
+			text_pos = bn::fixed_point(-25, 36);
+			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "Continue", text_sprites);
-			text_pos.set_y(text_pos.y()+10);
+			text_pos.set_y(text_pos.y()+11);
+			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "New Game", text_sprites);
-			text_pos.set_y(text_pos.y()+10);
+			text_pos.set_y(text_pos.y()+11);
+			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "Options", text_sprites);
-			text_pos.set_y(text_pos.y()+10);
+			text_pos.set_y(text_pos.y()+11);
+			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "Credits", text_sprites);
+			set_cursor_selection(0);
+			title_cursor->set_visible(true);
 			break;
 		default:
 			break;
 		}
+	}
+
+	void title_scene::set_cursor_selection(int selection)
+	{
+		current_menu_selection = ((selection + TITLE_MENU_ITEMS) % TITLE_MENU_ITEMS);
+		if(current_menu_selection < title_menu_cursor_pos.size())
+		{
+			title_cursor->set_position(title_menu_cursor_pos.at(current_menu_selection));
+		}
+
 	}
 
 }

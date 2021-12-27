@@ -50,8 +50,11 @@ namespace sh
 			case sound_id::BLIP_SOFT:
 				bn::sound_items::blip_soft.play();
 				break;
+			case sound_id::UNSELECTABLE:
+				bn::sound_items::unselectable.play(1);
+				break;
 			case sound_id::WEWEWEW:
-				bn::sound_items::wewewew.play();
+				bn::sound_items::wewewew.play(1);
 				break;
 			
 			default:

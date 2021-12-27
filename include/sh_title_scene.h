@@ -3,6 +3,7 @@
 
 #include "sh_scene.h"
 
+#include <bn_fixed_point.h>
 #include <bn_regular_bg_ptr.h>
 #include <bn_sprite_ptr.h>
 #include <bn_sprite_text_generator.h>
@@ -15,6 +16,8 @@ namespace sh
 		PRESS_START,
 		MAIN_MENU
 	};
+
+	#define TITLE_MENU_ITEMS 4
 
 	class title_scene : public scene
 	{
@@ -29,12 +32,15 @@ namespace sh
 
 		title_state _current_state;
 		bn::vector<bn::sprite_ptr, 8> title_sprites;
-
+		bn::sprite_ptr *title_cursor;
+		int current_menu_selection;
+		bn::vector<bn::fixed_point, TITLE_MENU_ITEMS>	title_menu_cursor_pos;
 	public:
 		title_scene();
 		void update() override;
 
 		void set_title_state(title_state state);
+		void set_cursor_selection(int selection);
 	};
 
 }

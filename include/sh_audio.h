@@ -20,6 +20,7 @@ namespace sh
 		BLIP_HIGH,
 		BLIP_LOW,
 		BLIP_SOFT,
+		UNSELECTABLE,
 		WEWEWEW,
 	};
 

@@ -93,6 +93,9 @@ namespace sh
 		void select_tile(bn::point pos);
 		void set_battle_cursor_card_mode();
 		void set_battle_cursor_tile_mode();
+
+		void open_pause_menu();
+		void close_pause_menu();
 	};
 
 }

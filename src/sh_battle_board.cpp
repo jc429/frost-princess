@@ -627,7 +627,7 @@ namespace sh{
 		return true;
 	}
 
-	bool battle_board::use_special_action(tile_owner owner)
+	bool battle_board::use_special_action(tile_owner owner, special_action_pattern pattern)
 	{
 		if(owner != tile_owner::EMPTY && selected_tile->get_owner() == owner)
 		{

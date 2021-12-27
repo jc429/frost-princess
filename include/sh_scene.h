@@ -12,6 +12,7 @@ namespace sh
 		TITLE,
 		LEVEL_SELECT,
 		BATTLE,
+		OPTIONS,
 		CREDITS
 	};
 

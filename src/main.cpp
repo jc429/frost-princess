@@ -9,6 +9,8 @@
 #include "sh_title_scene.h"
 #include "sh_level_select_scene.h"
 #include "sh_battle_scene.h"
+#include "sh_options_scene.h"
+#include "sh_credits_scene.h"
 
 
 static sh::scene_type next_scene_type;
@@ -28,23 +30,27 @@ int main()
 		{
 		case sh::scene_type::LOGO:
 			sh::logo_scene();
-			bn::core::update();
 			break;
 		case sh::scene_type::TITLE:
 			sh::title_scene();
-			bn::core::update();
 			break;
 		case sh::scene_type::LEVEL_SELECT:
 			sh::level_select_scene();
-			bn::core::update();
 			break;
 		case sh::scene_type::BATTLE:
 			sh::battle_scene();
-			bn::core::update();
+			break;
+		case sh::scene_type::OPTIONS:
+			sh::options_scene();
+			break;
+		case sh::scene_type::CREDITS:
+			sh::credits_scene();
 			break;
 		default:
 			break;
 		}
+
+		bn::core::update();
 	}
 }
 

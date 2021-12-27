@@ -23,6 +23,12 @@ namespace sh
 
 		bn::vector<battle_tile*, 80> foe_neighboring_tiles;
 		foe_neighboring_tiles.clear();
+
+		if(_skill_meters.back().meter_filled())
+		{
+			
+		}
+
 		// identify tiles neighboring current spread
 		{
 			bool tile_checked[81];
@@ -76,15 +82,15 @@ namespace sh
 		if(foe_neighboring_tiles.empty())
 		{
 			// if neighboring nothing, return
-			return;
+			//return;
 		}
 		
-		text_generator.generate(70, -10, bn::to_string<2>(foe_neighboring_tiles.size()), text_sprites);
+		// text_generator.generate(70, -10, bn::to_string<2>(foe_neighboring_tiles.size()), text_sprites);
 
 		// TODO: make better than random selection maybe
 		int r = random.get_int(0, foe_neighboring_tiles.size());
 		battle_tile *selected_tile = foe_neighboring_tiles.at(r);
-		text_generator.generate(70, 0, bn::to_string<4>(selected_tile->coordinates.x()) + "," + bn::to_string<4>(selected_tile->coordinates.y()), text_sprites);
+		// text_generator.generate(70, 0, bn::to_string<4>(selected_tile->coordinates.x()) + "," + bn::to_string<4>(selected_tile->coordinates.y()), text_sprites);
 		if(selected_tile != NULL)
 		{
 			board.show_preview_tiles();

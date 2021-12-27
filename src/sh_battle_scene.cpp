@@ -9,6 +9,7 @@
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
 #include <bn_log.h>
+#include <bn_regular_bg_builder.h>
 #include <bn_regular_bg_ptr.h>
 #include <bn_string.h>
 
@@ -26,6 +27,7 @@
 #include "bn_regular_bg_items_battle_board.h"
 #include "bn_regular_bg_items_btl_player_phase.h"
 #include "bn_regular_bg_items_btl_enemy_phase.h"
+#include "bn_regular_bg_items_pause_menu.h"
 // sprites
 #include "bn_sprite_items_portrait_frame.h"
 #include "bn_sprite_items_card_blank.h"
@@ -232,23 +234,16 @@ namespace sh{
 
 		while(!turn_over)
 		{
-			if(bn::keypad::start_pressed())
-			{
-				// fade_to_black();
-				// fade_from_black();
-				player_deck.shuffle();
-				
-				for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
-				{
-					battle_card& card = *it;
-					card.flip();
-				}
-			}
+			
 
 			int mov_x = 0;
 			int mov_y = 0;
 			
-			switch(turn_state)
+			if(bn::keypad::start_pressed())
+			{
+				open_pause_menu();
+			}
+			else switch(turn_state)
 			{
 			case turn_state::PLAYER_CARD_SELECT:
 				if(bn::keypad::a_pressed())
@@ -375,7 +370,7 @@ namespace sh{
 				{
 					if(using_special_skill)
 					{
-						bool success = board.use_special_action(current_player);
+						bool success = board.use_special_action(current_player, special_action_pattern::CROSS_5);
 						if(success)
 						{
 							_skill_meters.front().clear_sp();
@@ -387,7 +382,7 @@ namespace sh{
 						}
 						else
 						{
-							audio::play_sound(sound_id::BLIP_LOW);
+							audio::play_sound(sound_id::UNSELECTABLE);
 						}
 					}
 					else	// if(!using_special_skill)
@@ -419,7 +414,7 @@ namespace sh{
 							turn_over = true;
 						}
 						else{	// if(!success)
-							audio::play_sound(sound_id::BLIP_LOW);
+							audio::play_sound(sound_id::UNSELECTABLE);
 						}
 					}
 				}
@@ -524,4 +519,43 @@ namespace sh{
 		battle_cursor.set_position(board.get_selected_tile()->get_position());
 	}
 
+	void battle_scene::open_pause_menu()
+	{
+		text_sprites.clear();
+		board.clear_tile_sprites();
+		bn::regular_bg_ptr pause_bg = bn::regular_bg_items::pause_menu.create_bg(0, 0);
+		pause_bg.set_priority(0);
+		text_generator.set_bg_priority(0);
+		text_generator.set_center_alignment();
+		bn::fixed_point pos(0,-69);		// nice
+		text_generator.generate(pos, "-Paused-", text_sprites);
+		text_generator.set_left_alignment();
+		pos = bn::fixed_point(-40, -30);
+		text_generator.generate(pos, "Resume", text_sprites);
+		pos.set_y(pos.y() + 11);
+		text_generator.generate(pos, "Quit", text_sprites);
+
+		bool menu_open = true;
+		while(menu_open)
+		{
+			if(bn::keypad::b_pressed())
+			{
+				menu_open = false;
+			}
+			else if(bn::keypad::a_pressed())
+			{
+
+			}
+
+			bn::core::update();
+		}
+		pause_bg.set_visible(false);
+		board.regen_tile_sprites();
+		update_text();
+	}
+
+	void battle_scene::close_pause_menu()
+	{
+		
+	}
 }

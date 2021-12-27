@@ -30,6 +30,12 @@ namespace sh
 
 	const int NUM_PREVIEW_TILES = 4;
 
+	
+	enum class special_action_pattern
+	{
+		CROSS_5,
+	};
+
 	class battle_board
 	{
 	private:
@@ -82,7 +88,7 @@ namespace sh
 		void show_preview_tiles();
 
 		bool mark_tiles(tile_owner owner);
-		bool use_special_action(tile_owner owner);
+		bool use_special_action(tile_owner owner, special_action_pattern pattern);
 
 		void shift_row_or_col(int col_id, direction dir);
 
