@@ -95,7 +95,8 @@ namespace sh
 		void set_battle_cursor_tile_mode();
 
 		void open_pause_menu();
-		void close_pause_menu();
+
+		void end_battle();
 	};
 
 }

@@ -24,7 +24,7 @@ namespace sh
 				bn::music_items::icemoon.play(0.5, true);
 				break;
 			case track_id::BATTLE_BGM:
-				bn::music_items::jk_valium.play(0.4, true);
+				bn::music_items::jk_valium.play(0.24, true);
 				break;
 			
 			default:

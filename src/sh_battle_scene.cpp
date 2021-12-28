@@ -4,6 +4,7 @@
 #include "sh_debug.h"
 #include "sh_audio.h"
 #include "sh_effects.h"
+#include "sh_menu.h"
 
 #include <bn_core.h>
 #include <bn_fixed.h>
@@ -47,6 +48,7 @@ namespace sh{
 
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	bn::vector<bn::sprite_ptr, 12> text_sprites;
+	static bool battle_over = false;
 
 	battle_scene::battle_scene() :
 		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
@@ -66,16 +68,17 @@ namespace sh{
 		board.current_scene = this;
 
 		type = scene_type::BATTLE;
-		bool game_over = false;
+		battle_over = false;
 		
 		// build bg
 		_battle_bg.set_priority(3);
 
 		// place hand cards
+		bn::fixed_point card_spawn_pos(BTL_DECK_PLA_X, BTL_DECK_PLA_Y - 2);
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
 			card_positions.push_back(bn::point(cards_x[i], cards_y));
-			battle_cards.push_back(battle_card(BTL_DECK_PLA_X, BTL_DECK_PLA_Y));
+			battle_cards.push_back(battle_card(card_spawn_pos));
 		}
 		battle_cards.at(MAX_CARDS_HAND - 1).set_pattern(tile_pattern::SPECIAL_SINGLE);
 		selected_card = 0;
@@ -87,18 +90,6 @@ namespace sh{
 		// build cursors
 		battle_cursor.set_visible(false);
 		
-		//bn::sprite_ptr cursor_card_sprite = (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y));
-		//_cursor_card_idle_action = bn::create_sprite_animate_action_forever(cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1);
-		// _cursor_card_sprite.set_position(cards_x[0], cards_y);
-		// _cursor_card_sprite.set_bg_priority(1);
-		// _cursor_card_sprite.set_z_order(-100);
-		// _cursor_card_sprite.set_visible(false);
-
-		//bn::sprite_ptr cursor_tile_sprite = (bn::sprite_items::cursor_tile.create_sprite(0, -16));
-		//_cursor_tile_idle_action = bn::create_sprite_animate_action_forever(cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1);
-		// _cursor_tile_sprite.set_position(0, -16);
-		// _cursor_tile_sprite.set_bg_priority(1);
-		// _cursor_tile_sprite.set_z_order(-100);
 		// _cursor_tile_sprite.set_visible(false);
 
 		// set the phase announcement bgs
@@ -138,7 +129,7 @@ namespace sh{
 
 		battle_start();
 
-		while(!game_over)
+		while(!battle_over)
 		{
 
 			player_turn();
@@ -313,6 +304,10 @@ namespace sh{
 					{
 						_skill_meters.front().add_sp(1);
 						_skill_meters.back().add_sp(1);
+					}
+					if(bn::keypad::select_held())
+					{
+						battle_cards.at(2).flip();
 					}
 				}
 
@@ -523,39 +518,17 @@ namespace sh{
 	{
 		text_sprites.clear();
 		board.clear_tile_sprites();
-		bn::regular_bg_ptr pause_bg = bn::regular_bg_items::pause_menu.create_bg(0, 0);
-		pause_bg.set_priority(0);
-		text_generator.set_bg_priority(0);
-		text_generator.set_center_alignment();
-		bn::fixed_point pos(0,-69);		// nice
-		text_generator.generate(pos, "-Paused-", text_sprites);
-		text_generator.set_left_alignment();
-		pos = bn::fixed_point(-40, -30);
-		text_generator.generate(pos, "Resume", text_sprites);
-		pos.set_y(pos.y() + 11);
-		text_generator.generate(pos, "Quit", text_sprites);
 
-		bool menu_open = true;
-		while(menu_open)
-		{
-			if(bn::keypad::b_pressed())
-			{
-				menu_open = false;
-			}
-			else if(bn::keypad::a_pressed())
-			{
-
-			}
-
-			bn::core::update();
-		}
-		pause_bg.set_visible(false);
+		menu pause_menu(menu_type::PAUSE_MENU, 0, text_generator);
+		
 		board.regen_tile_sprites();
 		update_text();
 	}
 
-	void battle_scene::close_pause_menu()
+
+
+	void battle_scene::end_battle()
 	{
-		
+		battle_over = true;
 	}
 }

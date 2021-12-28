@@ -74,7 +74,7 @@ namespace sh
 			switch(_current_state)
 			{
 			case title_state::PRESS_START:
-				if(bn::keypad::any_pressed())
+				if(bn::keypad::start_pressed() || bn::keypad::a_pressed())
 				{
 					set_title_state(title_state::MAIN_MENU);
 				}

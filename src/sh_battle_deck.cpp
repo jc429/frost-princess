@@ -14,7 +14,8 @@ namespace sh
 		sprite(bn::sprite_items::card_deck.create_sprite((bn::fixed)pos_x,(bn::fixed)pos_y)),
 		anim_shuffle(bn::create_sprite_animate_action_once(sprite, 2, bn::sprite_items::card_deck.tiles_item(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 	{
-		sprite.set_bg_priority(0);
+		sprite.set_bg_priority(2);
+		sprite.set_z_order(10);
 	}
 
 	void battle_deck::shuffle()

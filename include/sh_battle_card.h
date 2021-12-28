@@ -4,11 +4,11 @@
 #include "sh_tile_pattern.h"
 
 
-#include <bn_sprite_animate_actions.h>
-#include <bn_sprite_actions.h>
-#include <bn_sprite_ptr.h>
-#include <bn_point.h>
 #include <bn_fixed_point.h>
+#include <bn_sprite_actions.h>
+#include <bn_sprite_animate_actions.h>
+#include <bn_sprite_ptr.h>
+#include <bn_vector.h>
 
 namespace sh
 {
@@ -18,15 +18,18 @@ namespace sh
 	{
 	private:
 		tile_pattern _current_pattern;
-		bn::sprite_ptr _card_sprite;
-		bn::sprite_ptr _pattern_sprite;
-		bn::sprite_animate_action<9> _anim_flip;
+		// bn::sprite_ptr _card_sprite;
+		// bn::sprite_ptr _pattern_sprite;
+		bn::vector<bn::sprite_ptr, 2> _sprites;
+		bn::vector<bn::sprite_animate_action<8>, 1> _anims;
+		//bn::sprite_animate_action<9> _anim_flip;
 		bn::fixed_point _position;
+		bool _is_flipping;
 		bool _is_faceup;
 
 	public:
-		battle_card(int x, int y);
-		virtual ~battle_card() = default;
+		battle_card(bn::fixed_point pos);
+		virtual ~battle_card();
 		void update();
 
 		void set_position(bn::fixed_point pos);

@@ -2,6 +2,7 @@
 #include "sh_action_manager.h"
 
 #include <bn_fixed.h>
+#include <bn_sprite_builder.h>
 #include <bn_sprite_tiles.h>
 #include <bn_sprite_tiles_ptr.h>
 
@@ -12,44 +13,66 @@ namespace sh
 {
 
 
-
-	battle_card::battle_card(int x, int y) :
-		_card_sprite (bn::sprite_items::card_blank.create_sprite(x,y)),
-		_pattern_sprite (bn::sprite_items::tile_patterns.create_sprite(x,y)),
-		_anim_flip (bn::create_sprite_animate_action_once(_card_sprite, 2, bn::sprite_items::card_blank.tiles_item(), 0, 0, 0, 0, 0, 0, 0, 0, 0))
+	battle_card::battle_card(bn::fixed_point pos) 
 	{
-		_position = bn::point(x,y);
+		_position = pos;
 		_is_faceup = false;
-		_card_sprite.set_bg_priority(1);
-		_card_sprite.set_z_order(450);
-		_pattern_sprite.set_bg_priority(1);
-		_pattern_sprite.set_z_order(440);
+		_is_flipping = false;
+
+		{
+			bn::sprite_builder builder(bn::sprite_items::card_blank);
+			builder.set_bg_priority(2);
+			builder.set_z_order(-10);
+			builder.set_position(pos);
+			_sprites.push_back(builder.release_build());
+		}
+		{
+			bn::sprite_builder builder(bn::sprite_items::tile_patterns);
+			builder.set_bg_priority(2);
+			builder.set_z_order(-20);
+			builder.set_position(pos);
+			_sprites.push_back(builder.release_build());
+		}
+		// _anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 0, 0, 0, 0, 0, 0, 0, 0, 0));
+
 		set_pattern(tile_pattern::SINGLE);
 		set_pattern(tile_patterns::random_tile_pattern());
 
 		set_facedown_immediate();
 	}
+
+	battle_card::~battle_card()
+	{
+		_sprites.clear();
+	}
 	
 	void battle_card::update()
 	{
-		if(!_anim_flip.done())
+		for(auto it = _anims.begin(), end = _anims.end(); it != end; ++it)
 		{
-			_anim_flip.update();
-			if(_anim_flip.done() && _is_faceup)
+			if(!it->done())
 			{
-				_pattern_sprite.set_visible(true);
+				it->update();
+				if(it->done())
+				{
+					_is_flipping = false;
+					_sprites.back().set_visible(_is_faceup);
+				//	it = _anims.erase(it);
+				//	end = _anims.end();
+				}
 			}
 		}
 		
 	}
-	
 
 
 	void battle_card::set_position(bn::fixed_point pos)
 	{
 		_position = pos;
-		_card_sprite.set_position(pos);
-		_pattern_sprite.set_position(pos);
+		for(auto it = _sprites.begin(), end = _sprites.end(); it != end; ++it)
+		{
+			it->set_position(pos);
+		}
 	}
 
 	bn::fixed_point battle_card::get_position()
@@ -60,15 +83,17 @@ namespace sh
 	void battle_card::move_to_destination(bn::fixed_point pos)
 	{
 		_position = pos;
-		action_manager::register_move_action(_card_sprite, 40, pos);
-		action_manager::register_move_action(_pattern_sprite, 40, pos);
+		for(auto it = _sprites.begin(), end = _sprites.end(); it != end; ++it)
+		{
+			action_manager::register_move_action(*it, 40, pos);
+		}
 	}
 
 	void battle_card::set_pattern(tile_pattern pattern)
 	{
 		_current_pattern = pattern;
 		int tile_idx = tile_patterns::get_tile_index(pattern);
-		_pattern_sprite.set_tiles(bn::sprite_items::tile_patterns.tiles_item().create_tiles(tile_idx));
+		_sprites.back().set_tiles(bn::sprite_items::tile_patterns.tiles_item().create_tiles(tile_idx));
 	}
 
 	tile_pattern battle_card::get_pattern()
@@ -78,9 +103,16 @@ namespace sh
 
 	void battle_card::flip()
 	{
-		_pattern_sprite.set_visible(false);
-		_anim_flip = bn::create_sprite_animate_action_once(_card_sprite, 2, bn::sprite_items::card_blank.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7, 0);
+		if(_is_flipping)
+		{
+			return;
+		}
+
+		_sprites.back().set_visible(false);
+		_anims.clear();
+		_anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 1, 2, 3, 4, 5, 6, 7, 0));
 		_is_faceup = !_is_faceup;
+		_is_flipping = true;
 	}
 
 	void battle_card::flip_facedown()
@@ -102,13 +134,15 @@ namespace sh
 	void battle_card::set_facedown_immediate()
 	{
 		_is_faceup = false;
-		_pattern_sprite.set_visible(false);
+		_is_flipping = false;
+		_sprites.back().set_visible(_is_faceup);
 	}
 
 	void battle_card::set_faceup_immediate()
 	{
 		_is_faceup = true;
-		_pattern_sprite.set_visible(true);
+		_is_flipping = false;
+		_sprites.back().set_visible(_is_faceup);
 	}
 
 	void battle_card::discard()
