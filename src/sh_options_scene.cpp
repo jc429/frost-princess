@@ -73,7 +73,7 @@ namespace sh
 				// save settings
 				game_settings::set_music_volume(menu_sliders.at(0).get_value());
 				game_settings::set_sfx_volume(menu_sliders.at(1).get_value());
-				set_next_scene(scene_type::TITLE);
+				scene_management::set_next_scene(scene_type::TITLE);
 				text_sprites.clear();
 				exit_scene = true;
 				fade_to_black();

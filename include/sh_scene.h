@@ -20,7 +20,9 @@ namespace sh
 	{
 	public:
 		scene_type type;
+		bool scene_done = false;
 
+		scene();
 		virtual ~scene() = default;
 	//	[[nodiscard]]
 		virtual void update() = 0;
@@ -28,11 +30,17 @@ namespace sh
 		virtual void fade_from_black();
 		void wait_for_update_cycles(int num_updates);
 
-	protected:
-		scene() = default;
 	};
 
-	void set_next_scene(sh::scene_type scene_type);
+	
+	namespace scene_management
+	{
+		void register_current_scene(scene *scene);
+		void set_next_scene(scene_type scene_type);
+		scene_type get_next_scene_type();
+		void exit_current_scene();
+		void exit_current_scene(scene_type next_scene);
+	}
 }
 
 

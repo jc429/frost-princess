@@ -58,8 +58,8 @@ namespace sh
 		title_cursor->set_visible(false);
 		
 		// Skip Level Select for Demo
-		set_next_scene(scene_type::BATTLE);
-		// set_next_scene(scene_type::LEVEL_SELECT);
+		scene_management::set_next_scene(scene_type::BATTLE);
+		// scene_management::set_next_scene(scene_type::LEVEL_SELECT);
 
 		audio::play_track(track_id::TITLE);
 		
@@ -96,11 +96,11 @@ namespace sh
 					{
 					case 0:
 					case 1:
-						set_next_scene(scene_type::BATTLE);
+						scene_management::set_next_scene(scene_type::BATTLE);
 						exit_scene = true;
 						break;
 					case 2:
-						set_next_scene(scene_type::OPTIONS);
+						scene_management::set_next_scene(scene_type::OPTIONS);
 						exit_scene = true;
 						break;
 					default:

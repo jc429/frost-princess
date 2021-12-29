@@ -21,6 +21,7 @@ namespace sh
 	enum class menu_action_id
 	{
 		CLOSE_MENU,
+		EXIT_SCENE,
 	};
 
 	struct menu_item
@@ -29,11 +30,13 @@ namespace sh
 		menu_action_id _action_id;
 		bn::fixed_point _position;
 		bn::string<16> _text;
+		void (*_menu_action)();
 
 		menu_item(bn::fixed_point pos, menu_action_id action_id, bn::string<16> text);
+		void set_menu_action(void (*func)());
 
-		bool input_confirm_action();
-		bool input_direction_action(direction dir);
+		// bool input_confirm_action();
+		// bool input_direction_action(direction dir);
 	};
 
 	class menu
@@ -57,6 +60,7 @@ namespace sh
 		
 		void move_cursor(direction dir);
 		void select_item(int item_index);
+		void perform_action(menu_action_id action_id);
 		void close_menu();
 	};
 }

@@ -13,7 +13,6 @@
 #include "sh_credits_scene.h"
 
 
-static sh::scene_type next_scene_type;
 
 int main()
 {
@@ -22,11 +21,10 @@ int main()
 	
 	bn::bg_palettes::set_transparent_color(bn::color(16, 24, 24));
 
-	next_scene_type = sh::scene_type::LOGO;
 
 	while(true)
 	{
-		switch(next_scene_type)
+		switch(sh::scene_management::get_next_scene_type())
 		{
 		case sh::scene_type::LOGO:
 			sh::logo_scene();
@@ -56,8 +54,5 @@ int main()
 
 namespace sh
 {
-	void set_next_scene(sh::scene_type scene_type)
-	{
-		next_scene_type = scene_type;
-	}
+
 }

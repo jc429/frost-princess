@@ -1,4 +1,5 @@
 #include "sh_menu.h"
+#include "sh_scene.h"
 
 #include <bn_core.h>
 #include <bn_fixed_point.h>
@@ -21,6 +22,12 @@ namespace sh
 		_position = pos;
 		_action_id = action_id;
 		_text = text;
+		_menu_action = NULL;
+	}
+	
+	void menu_item::set_menu_action(void (*func)())
+	{
+		_menu_action = func;
 	}
 
 	menu::menu(menu_type type, int bg_layer, bn::sprite_text_generator &text_generator) :
@@ -49,7 +56,7 @@ namespace sh
 				pos = bn::fixed_point(-40, -30);
 				_menu_items.push_back(menu_item(pos, menu_action_id::CLOSE_MENU, "Resume"));
 				pos.set_y(pos.y() + _item_offset_y);
-				_menu_items.push_back(menu_item(pos, menu_action_id::CLOSE_MENU, "Quit"));
+				_menu_items.push_back(menu_item(pos, menu_action_id::EXIT_SCENE, "Quit"));
 
 			}
 			break;
@@ -90,7 +97,11 @@ namespace sh
 		}
 		else if(bn::keypad::a_pressed())
 		{
-			
+			// if(_menu_items.at(_selection_id)._menu_action != NULL)
+			// {
+			// 	_menu_items.at(_selection_id)._menu_action();
+			// }
+			perform_action(_menu_items.at(_selection_id)._action_id);
 		}
 		if(bn::keypad::down_pressed())
 		{
@@ -126,6 +137,23 @@ namespace sh
 		_selection_id = bn::clamp(item_index, 0, _menu_items.size());
 		_cursor_sprite.set_position(_menu_items.at(_selection_id)._position + _cursor_offset);
 	}
+
+	void menu::perform_action(menu_action_id action_id)
+	{
+		switch (action_id)
+		{
+		case menu_action_id::CLOSE_MENU:
+			close_menu();
+			break;
+		case menu_action_id::EXIT_SCENE:
+			scene_management::exit_current_scene(scene_type::TITLE);
+			close_menu();
+			break;
+		default:
+			break;
+		}
+	}
+
 
 	void menu::close_menu()
 	{

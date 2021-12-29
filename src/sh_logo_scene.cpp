@@ -14,7 +14,7 @@ namespace sh
 	{
 		type = scene_type::LOGO;
 
-		set_next_scene(scene_type::TITLE);
+		scene_management::set_next_scene(scene_type::TITLE);
 		
 		logo_bg.set_blending_enabled(true);
 		fade_from_black();

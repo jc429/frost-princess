@@ -65,6 +65,11 @@ namespace sh
 		
 	}
 
+	void battle_card::set_visible(bool visible)
+	{
+		_sprites.front().set_visible(visible);
+		_sprites.back().set_visible(visible && _is_faceup);
+	}
 
 	void battle_card::set_position(bn::fixed_point pos)
 	{
@@ -110,7 +115,14 @@ namespace sh
 
 		_sprites.back().set_visible(false);
 		_anims.clear();
-		_anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 1, 2, 3, 4, 5, 6, 7, 0));
+		if(_is_faceup)
+		{
+			_anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 0,1,2,3,4,5,6,7,8));
+		}
+		else
+		{
+			_anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 8,7,6,5,4,3,2,1,0));
+		}
 		_is_faceup = !_is_faceup;
 		_is_flipping = true;
 	}
@@ -135,6 +147,7 @@ namespace sh
 	{
 		_is_faceup = false;
 		_is_flipping = false;
+		_sprites.front().set_tiles(bn::sprite_items::card_blank.tiles_item(), 8);
 		_sprites.back().set_visible(_is_faceup);
 	}
 
@@ -142,6 +155,7 @@ namespace sh
 	{
 		_is_faceup = true;
 		_is_flipping = false;
+		_sprites.front().set_tiles(bn::sprite_items::card_blank.tiles_item(), 0);
 		_sprites.back().set_visible(_is_faceup);
 	}
 

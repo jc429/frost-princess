@@ -31,7 +31,7 @@ namespace sh
 		level_select_cursor.set_position(panel_positions.at(4));
 		level_select_cursor.set_size(bn::point(48,40));
 
-		set_next_scene(scene_type::BATTLE);
+		scene_management::set_next_scene(scene_type::BATTLE);
 		fade_from_black();
 
 		select_panel(4);

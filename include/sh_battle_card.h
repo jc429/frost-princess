@@ -21,7 +21,7 @@ namespace sh
 		// bn::sprite_ptr _card_sprite;
 		// bn::sprite_ptr _pattern_sprite;
 		bn::vector<bn::sprite_ptr, 2> _sprites;
-		bn::vector<bn::sprite_animate_action<8>, 1> _anims;
+		bn::vector<bn::sprite_animate_action<9>, 1> _anims;
 		//bn::sprite_animate_action<9> _anim_flip;
 		bn::fixed_point _position;
 		bool _is_flipping;
@@ -32,6 +32,7 @@ namespace sh
 		virtual ~battle_card();
 		void update();
 
+		void set_visible(bool visible);
 		void set_position(bn::fixed_point pos);
 		bn::fixed_point get_position();
 		void move_to_destination(bn::fixed_point pos);
@@ -44,6 +45,7 @@ namespace sh
 		void set_facedown_immediate();
 		void set_faceup_immediate();
 		void discard();
+		
 	};
 
 }

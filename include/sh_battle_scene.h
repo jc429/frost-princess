@@ -52,11 +52,12 @@ namespace sh
 		battle_board board;
 		bn::blending_transparency_alpha_loop_action preview_transparency_action;
 
+		bn::vector<ui_meter, 2> _health_meters;
 		bn::vector<skill_meter, 2> _skill_meters;
 
 		character_id player_character;
 		battle_portrait player_portrait;
-		battle_deck player_deck;
+		battle_deck_with_sprite player_deck;
 		battle_tile *player_base;
 
 		character_id foe_character;
@@ -71,7 +72,10 @@ namespace sh
 		int selected_card;
 		int turn_count;
 
+		void reset_battle();
 		void battle_start();
+
+
 		void player_turn();
 		void end_turn();
 		void swap_turns();

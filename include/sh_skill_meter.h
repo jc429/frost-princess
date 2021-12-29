@@ -1,6 +1,8 @@
 #ifndef SH_SKILL_METER_H
 #define SH_SKILL_METER_H
 
+#include "sh_ui_meter.h"
+
 #include <bn_fixed.h>
 #include <bn_point.h>
 #include <bn_fixed_point.h>
@@ -9,27 +11,17 @@
 
 namespace sh
 {
-	class skill_meter
+	class skill_meter : public ui_meter
 	{
 	private:
-		bool _anchor_left;
-		bn::vector<bn::sprite_ptr, 3> _sprites;
-		bn::fixed_point _position;
-		bn::fixed _fill_amt;
-		int _current_sp;
-		int _max_sp;
-
-		void update_sprite();
+		bn::vector<bn::sprite_ptr, 2> _skill_meter_sprites;
+		
+	protected:
+		void update_sprite() override;
 
 	public:
-		skill_meter(bn::fixed_point meter_pos, bool player_side, bn::fixed_point flame_pos);
-		void set_position(bn::point pos);
-		bn::fixed fill_percent();
-		bool meter_filled();
-		void set_current_sp(int current_sp);
-		void add_sp(int amt);
-		void set_max_sp(int max_sp);
-		void clear_sp();
+		skill_meter(bn::fixed_point pos, int max_val, bool anchor_left, bn::fixed_point flame_offset, bool button_prompt);
+		
 		void set_flame_visible(bool visible);
 		void set_button_prompt_visible(bool visible);
 

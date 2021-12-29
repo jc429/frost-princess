@@ -39,7 +39,11 @@
 
 
 
-namespace sh{
+namespace sh
+{
+	
+	#define PLAYER_SIDE	0
+	#define FOE_SIDE	1
 
 	#define BTL_PORTRAIT_X 94
 	#define BTL_PORTRAIT_Y 54
@@ -48,7 +52,6 @@ namespace sh{
 
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	bn::vector<bn::sprite_ptr, 12> text_sprites;
-	static bool battle_over = false;
 
 	battle_scene::battle_scene() :
 		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
@@ -58,9 +61,8 @@ namespace sh{
 		// _cursor_tile_idle_action (bn::create_sprite_animate_action_forever(_cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1)),
 		preview_transparency_action (bn::blending_transparency_alpha_loop_action(30,0.2)),
 		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
-		player_deck (battle_deck(BTL_DECK_PLA_X,BTL_DECK_PLA_Y)),
-		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y)),
-		foe_deck (battle_deck(180,120))	// HIDE OFFSCREEN
+		player_deck (battle_deck_with_sprite(bn::fixed_point(BTL_DECK_PLA_X,BTL_DECK_PLA_Y))),
+		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y))
 	{
 		// make sure textgen is set up before writing any text
 		text_generator.set_bg_priority(1);
@@ -68,13 +70,13 @@ namespace sh{
 		board.current_scene = this;
 
 		type = scene_type::BATTLE;
-		battle_over = false;
+		scene_done = false;
 		
 		// build bg
 		_battle_bg.set_priority(3);
 
 		// place hand cards
-		bn::fixed_point card_spawn_pos(BTL_DECK_PLA_X, BTL_DECK_PLA_Y - 2);
+		bn::fixed_point card_spawn_pos(BTL_DECK_PLA_X, BTL_DECK_PLA_Y - 3);
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
 			card_positions.push_back(bn::point(cards_x[i], cards_y));
@@ -83,9 +85,13 @@ namespace sh{
 		battle_cards.at(MAX_CARDS_HAND - 1).set_pattern(tile_pattern::SPECIAL_SINGLE);
 		selected_card = 0;
 
+		// health meters
+		_health_meters.push_back(ui_meter(bn::fixed_point(-109, 18), meter_type::HP, 40, true));
+		_health_meters.push_back(ui_meter(bn::fixed_point(77, -25), meter_type::HP, 40, true));
 		// skill meters
-		_skill_meters.push_back(skill_meter(bn::fixed_point(-110, 25), true, bn::fixed_point(-78, 20)));
-		_skill_meters.push_back(skill_meter(bn::fixed_point(78, -25), false, bn::fixed_point(78, -30)));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(-109, 25), 40, true, bn::fixed_point(32, -5), true));
+		_skill_meters.push_back(skill_meter(bn::fixed_point(77, -18), 40, true, bn::fixed_point(-0, -5), false));
+		// _skill_meters.push_back(skill_meter(bn::fixed_point(77, -25), false, bn::fixed_point(0, -5)));
 
 		// build cursors
 		battle_cursor.set_visible(false);
@@ -129,13 +135,17 @@ namespace sh{
 
 		battle_start();
 
-		while(!battle_over)
+		while(!scene_done)
 		{
 
 			player_turn();
 			// check for dead zones
 			end_turn();
 			swap_turns();
+
+			//check between turns too
+			if(scene_done)
+				break;
 
 			foe_turn();
 			// check for dead zones
@@ -148,6 +158,7 @@ namespace sh{
 
 	battle_scene::~battle_scene()
 	{
+		text_sprites.clear();
 		action_manager::clear_sprite_move_actions();
 	}
 	
@@ -185,24 +196,53 @@ namespace sh{
 		bn::core::update();
 	}
 
+	void battle_scene::reset_battle()
+	{
+		turn_count = 0;
+		for(auto it = _health_meters.begin(), end = _health_meters.end(); it != end; ++it)
+		{
+			it->fill();
+		}
+		for(auto it = _skill_meters.begin(), end = _skill_meters.end(); it != end; ++it)
+		{
+			it->clear();
+		}
+		player_deck.reset();
+		foe_deck.reset();
+	}
+
 	void battle_scene::battle_start()
 	{
+		reset_battle();
+		player_deck.randomize();
+		foe_deck.randomize();
+		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+		{
+			it->set_visible(false);
+		}
+
+		for(int i = 0; i < 3; i++)
+		{
+			player_deck.shuffle();
+			wait_for_update_cycles(28);
+		}
+		wait_for_update_cycles(12);
+
 		turn_count = 1;
 		current_player = tile_owner::PLAYER;
 		set_turn_number(1);
 
-		for(int i = 0; i < battle_cards.size(); i++)
-		{
-			battle_cards.at(i).move_to_destination(card_positions.at(i));
-		}
-		for(int t = 0; t < 45; t++)
-		{
-			update();
-		}
 		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
 		{
-			battle_card& card = *it;
-			card.flip_faceup();
+			it->set_visible(true);
+			it->move_to_destination(card_positions.at(it - battle_cards.begin()));
+		}
+		
+		wait_for_update_cycles(45);
+
+		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+		{
+			it->flip_faceup();
 		}
 	}
 
@@ -223,7 +263,7 @@ namespace sh{
 		board.set_preview_orientation(direction::NORTH);
 
 
-		while(!turn_over)
+		while(!turn_over && !scene_done)
 		{
 			
 
@@ -296,14 +336,14 @@ namespace sh{
 
 					if(bn::keypad::l_held())
 					{
-						_skill_meters.front().add_sp(-1);
-						_skill_meters.back().add_sp(-1);
+						_skill_meters.front().add_val(-1);
+						_skill_meters.back().add_val(-1);
 					}
 
 					if(bn::keypad::r_held())
 					{
-						_skill_meters.front().add_sp(1);
-						_skill_meters.back().add_sp(1);
+						_skill_meters.front().add_val(1);
+						_skill_meters.back().add_val(1);
 					}
 					if(bn::keypad::select_held())
 					{
@@ -368,7 +408,7 @@ namespace sh{
 						bool success = board.use_special_action(current_player, special_action_pattern::CROSS_5);
 						if(success)
 						{
-							_skill_meters.front().clear_sp();
+							_skill_meters.front().clear();
 							audio::play_sound(sound_id::BLIP_HIGH);
 							// switch back to card cursor
 							board.hide_preview_tiles();
@@ -387,7 +427,7 @@ namespace sh{
 						{
 							update_tile_counts();
 							// gain SP dependent on .... something
-							_skill_meters.front().add_sp(5);
+							_skill_meters.front().add_val(5);
 							audio::play_sound(sound_id::BLIP_HIGH);
 							// switch back to card cursor
 							board.hide_preview_tiles();
@@ -529,6 +569,6 @@ namespace sh{
 
 	void battle_scene::end_battle()
 	{
-		battle_over = true;
+		scene_done = true;
 	}
 }

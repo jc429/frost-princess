@@ -11,7 +11,10 @@
 namespace sh
 {
 
-
+	scene::scene()
+	{
+		scene_management::register_current_scene(this);
+	}
 	
 	void scene::fade_to_black()
 	{
@@ -48,6 +51,42 @@ namespace sh
 		{
 			update();
 		}
+	}
+
+	namespace scene_management
+	{
+		static scene_type _next_scene_type;
+		static scene *_current_scene = NULL;
+
+		void register_current_scene(scene *scene)
+		{
+			_current_scene = scene;
+		}
+
+		void set_next_scene(sh::scene_type scene_type)
+		{
+			_next_scene_type = scene_type;
+		}
+
+		scene_type get_next_scene_type()
+		{
+			return _next_scene_type;
+		}
+
+		void exit_current_scene()
+		{
+			if(_current_scene != NULL)
+			{
+				_current_scene->scene_done = true;
+			}
+		}
+
+		void exit_current_scene(scene_type next_scene)
+		{
+			set_next_scene(next_scene);
+			exit_current_scene();
+		}
+
 	}
 
 }

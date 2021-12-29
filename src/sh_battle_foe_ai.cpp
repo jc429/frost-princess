@@ -139,7 +139,7 @@ namespace sh
 			if(success)
 			{
 				update_tile_counts();
-				_skill_meters.back().add_sp(5);
+				_skill_meters.back().add_val(5);
 			}
 			else
 			{

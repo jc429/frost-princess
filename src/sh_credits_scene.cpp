@@ -42,7 +42,7 @@ namespace sh
 		{
 			if(bn::keypad::b_pressed())
 			{
-				set_next_scene(scene_type::TITLE);
+				scene_management::set_next_scene(scene_type::TITLE);
 				exit_scene = true;
 				fade_to_black();
 			}
