@@ -77,11 +77,12 @@ namespace sh
 		_battle_bg.set_priority(3);
 
 		// place hand cards
-		bn::fixed_point card_spawn_pos(BTL_DECK_PLA_X, BTL_DECK_PLA_Y - 3);
+		bn::fixed_point card_spawn_pos = player_deck.get_card_pos();
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
 		{
 			card_positions.push_back(bn::point(cards_x[i], cards_y));
-			battle_cards.push_back(battle_card(card_spawn_pos));
+			battle_cards.push_back(battle_card(card_positions.back()));
+			battle_cards.back().set_position(card_spawn_pos);
 		}
 		battle_cards.at(MAX_CARDS_HAND - 1).set_pattern(tile_pattern::SPECIAL_SINGLE);
 		selected_card = 0;
@@ -243,11 +244,10 @@ namespace sh
 		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
 		{
 			it->set_visible(true);
-			it->move_to_destination(card_positions.at(it - battle_cards.begin()));
+			// it->move_to_destination(it->get_hand_position());
+			player_deck.draw_card_with_animation(*this, *it);
 		}
 		
-		wait_for_update_cycles(45);
-
 		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
 		{
 			it->flip_faceup();
@@ -451,7 +451,10 @@ namespace sh
 							if(battle_cards.at(selected_card).get_pattern() != tile_pattern::SPECIAL_SINGLE)
 							{
 								battle_cards.at(selected_card).discard();
+								wait_for_update_cycles(36);
 
+								player_deck.draw_card_with_animation(*this, battle_cards.at(selected_card));
+								battle_cards.at(selected_card).flip_faceup();
 							}
 							//
 							turn_over = true;

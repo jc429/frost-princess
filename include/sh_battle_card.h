@@ -13,6 +13,10 @@
 namespace sh
 {
 
+	#define Z_ORDER_CARD		-10
+	#define Z_ORDER_PTRN		-11
+	#define Z_ORDER_CARD_RAISED	-15
+	#define Z_ORDER_PTRN_RAISED	-16
 
 	class battle_card
 	{
@@ -23,7 +27,8 @@ namespace sh
 		bn::vector<bn::sprite_ptr, 2> _sprites;
 		bn::vector<bn::sprite_animate_action<9>, 1> _anims;
 		//bn::sprite_animate_action<9> _anim_flip;
-		bn::fixed_point _position;
+		bn::fixed_point _hand_position;
+		bn::fixed_point _current_position;
 		bool _is_flipping;
 		bool _is_faceup;
 
@@ -35,7 +40,9 @@ namespace sh
 		void set_visible(bool visible);
 		void set_position(bn::fixed_point pos);
 		bn::fixed_point get_position();
-		void move_to_destination(bn::fixed_point pos);
+		bn::fixed_point get_hand_position();
+		void move_to_destination(bn::fixed_point pos, int duration);
+		void set_raised(bool raised);
 
 		void set_pattern(tile_pattern pattern);
 		tile_pattern get_pattern();

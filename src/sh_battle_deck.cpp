@@ -1,6 +1,8 @@
 #include "sh_battle_deck.h"
 #include "sh_random.h"
+#include "sh_scene.h"
 
+#include <bn_deque.h>
 #include <bn_fixed_point.h>
 #include <bn_sprite_animate_actions.h>
 #include <bn_sprite_ptr.h>
@@ -72,13 +74,24 @@ namespace sh
 		randomize();
 	}
 
-
+	tile_pattern battle_deck::draw_card()
+	{
+		if(card_ids.empty())
+		{
+			return tile_pattern::EMPTY;
+		}
+		int card_id = card_ids.front();
+		card_ids.pop_front();
+		return card_patterns.at(card_id);
+	}
 
 	/*********************************************************/
 
 	battle_deck_with_sprite::battle_deck_with_sprite(bn::fixed_point pos) :
 		sprite(bn::sprite_items::card_deck.create_sprite(pos))
 	{
+		_position = pos;
+		_top_card_offset = bn::fixed_point(0,-3);
 		sprite.set_bg_priority(2);
 		sprite.set_z_order(10);
 		sprite.set_position(pos);
@@ -116,4 +129,22 @@ namespace sh
 		anims.push_back(bn::create_sprite_animate_action_once(sprite, 2, bn::sprite_items::card_deck.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7, 0, 0));
 	}
 
+	tile_pattern battle_deck_with_sprite::draw_card_with_animation(scene &scene, battle_card &card)
+	{
+		tile_pattern pattern = draw_card();
+		card.set_facedown_immediate();
+		card.set_position(get_card_pos());
+		int dist_x = (card.get_hand_position().x() - get_card_pos().x()).floor_integer();
+		dist_x = bn::max(dist_x, -dist_x) / 2;
+		int duration = bn::min(dist_x, 30);
+		card.move_to_destination(card.get_hand_position(), duration);
+		scene.wait_for_update_cycles(duration+5);
+		card.set_raised(false);
+		return pattern;
+	}
+
+	bn::fixed_point battle_deck_with_sprite::get_card_pos()
+	{
+		return _position + _top_card_offset;
+	}
 }

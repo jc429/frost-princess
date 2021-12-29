@@ -13,24 +13,25 @@ namespace sh
 {
 
 
-	battle_card::battle_card(bn::fixed_point pos) 
+	battle_card::battle_card(bn::fixed_point hand_position) 
 	{
-		_position = pos;
+		_hand_position = hand_position;
+		_current_position = hand_position;
 		_is_faceup = false;
 		_is_flipping = false;
 
 		{
 			bn::sprite_builder builder(bn::sprite_items::card_blank);
 			builder.set_bg_priority(2);
-			builder.set_z_order(-10);
-			builder.set_position(pos);
+			builder.set_z_order(Z_ORDER_CARD);
+			builder.set_position(_current_position);
 			_sprites.push_back(builder.release_build());
 		}
 		{
 			bn::sprite_builder builder(bn::sprite_items::tile_patterns);
 			builder.set_bg_priority(2);
-			builder.set_z_order(-20);
-			builder.set_position(pos);
+			builder.set_z_order(Z_ORDER_PTRN);
+			builder.set_position(_current_position);
 			_sprites.push_back(builder.release_build());
 		}
 		// _anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 0, 0, 0, 0, 0, 0, 0, 0, 0));
@@ -43,6 +44,7 @@ namespace sh
 
 	battle_card::~battle_card()
 	{
+		_anims.clear();
 		_sprites.clear();
 	}
 	
@@ -73,7 +75,7 @@ namespace sh
 
 	void battle_card::set_position(bn::fixed_point pos)
 	{
-		_position = pos;
+		_current_position = pos;
 		for(auto it = _sprites.begin(), end = _sprites.end(); it != end; ++it)
 		{
 			it->set_position(pos);
@@ -82,17 +84,31 @@ namespace sh
 
 	bn::fixed_point battle_card::get_position()
 	{
-		return _position;
+		return _current_position;
 	}
 
-	void battle_card::move_to_destination(bn::fixed_point pos)
+	bn::fixed_point battle_card::get_hand_position()
 	{
-		_position = pos;
+		return _hand_position;
+	}
+
+	void battle_card::move_to_destination(bn::fixed_point pos, int duration)
+	{
+		// bn::fixed_point distance = _current_position - pos;
+		_current_position = pos;
+		set_raised(true);
 		for(auto it = _sprites.begin(), end = _sprites.end(); it != end; ++it)
 		{
-			action_manager::register_move_action(*it, 40, pos);
+			action_manager::register_move_action(*it, duration, pos);
 		}
 	}
+
+	void battle_card::set_raised(bool raised)
+	{
+		_sprites.front().set_z_order(raised ? Z_ORDER_CARD_RAISED : Z_ORDER_CARD);
+		_sprites.back().set_z_order(raised ? Z_ORDER_PTRN_RAISED : Z_ORDER_PTRN);
+	}
+
 
 	void battle_card::set_pattern(tile_pattern pattern)
 	{
@@ -161,9 +177,11 @@ namespace sh
 
 	void battle_card::discard()
 	{
-		bn::fixed_point pos = _position;
+		bn::fixed_point pos = _current_position;
 		pos.set_y(pos.y() + 40);
 		//move_to_destination(pos);
+		move_to_destination(pos, 20);
 		set_pattern(tile_patterns::random_tile_pattern());
 	}
+
 }

@@ -1,22 +1,24 @@
 #ifndef SH_BATTLE_DECK_H
 #define SH_BATTLE_DECK_H
 
+#include <bn_deque.h>
 #include <bn_fixed_point.h>
 #include <bn_sprite_animate_actions.h>
 #include <bn_sprite_ptr.h>
 #include <bn_vector.h>
 
-#include "sh_tile_pattern.h"
 #include "sh_battle_card.h"
+#include "sh_tile_pattern.h"
+#include "sh_scene.h"
 
 namespace sh
 {
-	#define CARD_COUNT 20
+	#define CARD_COUNT 32
 	class battle_deck
 	{
 	protected:
 		// the actual "deck" that gets shuffled and drawn from
-		bn::vector<int, CARD_COUNT> card_ids;
+		bn::deque<int, CARD_COUNT> card_ids;
 		// maps card ids to their associated tile patterns
 		bn::vector<tile_pattern, CARD_COUNT> card_patterns;
 
@@ -31,12 +33,15 @@ namespace sh
 		void reset();
 		void randomize();
 		virtual void shuffle();
+		virtual tile_pattern draw_card();
 	};
 
 
 	class battle_deck_with_sprite : public battle_deck
 	{
 	private:
+		bn::fixed_point _position;
+		bn::fixed_point _top_card_offset;
 		bn::sprite_ptr sprite;
 		bn::vector<bn::sprite_animate_action<10>, 1> anims;
 
@@ -46,6 +51,9 @@ namespace sh
 		void update() override;
 		
 		void shuffle() override;
+		tile_pattern draw_card_with_animation(scene &scene, battle_card &card);
+
+		bn::fixed_point get_card_pos();
 	};
 }
 
