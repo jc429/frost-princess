@@ -23,7 +23,7 @@ namespace sh
 		bool scene_done = false;
 
 		scene();
-		virtual ~scene() = default;
+		virtual ~scene();
 	//	[[nodiscard]]
 		virtual void update() = 0;
 		virtual void fade_to_black();

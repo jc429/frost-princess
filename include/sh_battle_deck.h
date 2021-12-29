@@ -23,7 +23,7 @@ namespace sh
 	public:
 		
 		battle_deck();
-		virtual ~battle_deck() = default;
+		virtual ~battle_deck();
 		virtual void update();
 
 		void init_card_patterns();
@@ -42,7 +42,7 @@ namespace sh
 
 	public:
 		battle_deck_with_sprite(bn::fixed_point pos);
-		virtual ~battle_deck_with_sprite() = default;
+		virtual ~battle_deck_with_sprite();
 		void update() override;
 		
 		void shuffle() override;

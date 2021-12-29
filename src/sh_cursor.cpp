@@ -45,6 +45,7 @@ namespace sh
 	cursor::~cursor()
 	{
 		_sprites.clear();
+		_animate_actions.clear();
 	}
 
 	void cursor::update_sprite()

@@ -1,4 +1,5 @@
 #include "sh_scene.h"
+#include "sh_action_manager.h"
 
 #include "bn_blending.h"
 #include "bn_blending_fade_alpha.h"
@@ -16,6 +17,12 @@ namespace sh
 		scene_management::register_current_scene(this);
 	}
 	
+	scene::~scene()
+	{
+		action_manager::clear_sprite_move_actions();
+	}
+
+
 	void scene::fade_to_black()
 	{
 		bn::sprite_palettes_fade_to_action sprite_fade(10, 1);

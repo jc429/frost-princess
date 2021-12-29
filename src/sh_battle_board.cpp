@@ -86,6 +86,15 @@ namespace sh{
 
 	}
 
+	battle_board::~battle_board()
+	{
+		tiles.clear();
+		tile_sprites.clear();
+		preview_tile_offsets.clear();
+		preview_tiles.clear();
+	}
+
+
 	void battle_board::turn_update()
 	{
 		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)

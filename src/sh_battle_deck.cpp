@@ -24,6 +24,12 @@ namespace sh
 		shuffle();
 	}
 
+	battle_deck::~battle_deck()
+	{
+		card_ids.clear();
+		card_patterns.clear();
+	}
+
 	void battle_deck::update()
 	{
 
@@ -78,6 +84,12 @@ namespace sh
 		sprite.set_position(pos);
 		anims.clear();
 	}
+
+	battle_deck_with_sprite::~battle_deck_with_sprite()
+	{
+		anims.clear();
+	}
+
 
 	void battle_deck_with_sprite::update()
 	{

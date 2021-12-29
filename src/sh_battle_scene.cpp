@@ -67,6 +67,7 @@ namespace sh
 		// make sure textgen is set up before writing any text
 		text_generator.set_bg_priority(1);
 		text_generator.set_z_order(-500);
+		text_sprites.clear();
 		board.current_scene = this;
 
 		type = scene_type::BATTLE;
@@ -158,7 +159,11 @@ namespace sh
 
 	battle_scene::~battle_scene()
 	{
+		_health_meters.clear();
+		_skill_meters.clear();
 		text_sprites.clear();
+		card_positions.clear();
+		battle_cards.clear();
 		action_manager::clear_sprite_move_actions();
 	}
 	
@@ -167,8 +172,11 @@ namespace sh
 		action_manager::update_sprite_move_actions();
 		// burn a random number each update
 		unsigned int burn = random.get();
-
-		update_skill_meter_animations();
+		
+		for(auto it = _skill_meters.begin(), end = _skill_meters.end(); it != end; ++it)
+		{
+			it->update();
+		}
 		effects::update_effect_animations();
 		
 

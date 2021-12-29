@@ -16,8 +16,7 @@ namespace sh
 	#define SPR_FLAME 0
 	#define SPR_BUTTON 1
 
-	static bn::vector<bn::sprite_animate_action<4>, 2> skill_flame_animations;
-	static bn::vector<bn::sprite_animate_action<2>, 2> skill_button_animations;
+	
 	
 
 	skill_meter::skill_meter(bn::fixed_point pos, int max_val, bool anchor_left, bn::fixed_point flame_offset, bool button_prompt)
@@ -46,7 +45,15 @@ namespace sh
 		update_sprite();
 	}
 
-	void update_skill_meter_animations()
+	skill_meter::~skill_meter()
+	{
+		_skill_meter_sprites.clear();
+		skill_flame_animations.clear();
+		skill_button_animations.clear();
+	}
+
+
+	void skill_meter::update()
 	{
 		for(auto it = skill_flame_animations.begin(), end = skill_flame_animations.end(); it != end; ++it)
 		{
@@ -57,8 +64,6 @@ namespace sh
 			it->update();
 		}
 	}
-
-
 
 	void skill_meter::update_sprite()
 	{

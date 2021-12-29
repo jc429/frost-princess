@@ -59,6 +59,7 @@ namespace sh
 		scene *current_scene;
 
 		battle_board();
+		~battle_board();
 		void turn_update();
 		void refresh();
 
