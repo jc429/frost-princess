@@ -13,10 +13,12 @@ namespace sh
 		{
 			NONE,
 			SHINE,
+			EXPLOSION,
 		};
 
 		bn::sprite_ptr create_effect_at_position(effect_id effect, bn::fixed_point pos);
 		void update_effect_animations();
+		bn::sprite_item get_effect_sprite(effect_id effect);
 	}
 }
 

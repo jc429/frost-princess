@@ -11,6 +11,7 @@
 
 #include "bn_sprite_items_board_tile.h"
 #include "bn_sprite_items_board_tile_frozen.h"
+#include "bn_sprite_items_board_tile_burned.h"
 #include "bn_sprite_items_crown.h"
 
 #define COLORBLIND_MODE true
@@ -54,6 +55,12 @@ namespace sh{
 		tile_idx += (COLORBLIND_MODE ? COLORBLIND_TILE_OFFSET : 0);
 		switch(_current_condition)
 		{
+		case tile_condition::BURNED:
+			_sprite_offset = bn::fixed_point(0,0);
+			tile_set = &bn::sprite_items::board_tile_burned.tiles_item();
+			palette =  &bn::sprite_items::board_tile_burned.palette_item();
+			tile_idx = 0;
+			break;
 		case tile_condition::FROZEN:
 			_sprite_offset = bn::fixed_point(0,-2);
 			tile_set = &bn::sprite_items::board_tile_frozen.tiles_item();

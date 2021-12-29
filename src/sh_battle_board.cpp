@@ -644,6 +644,7 @@ namespace sh{
 			int eff_duration = 4;
 			int num_steps = 4;
 			effects::effect_id eff_id = effects::effect_id::SHINE;
+			tile_condition condition = tile_condition::FROZEN;
 			int cycle_wait = 24;
 			battle_tile *neighbors[4];
 			for(int i = 0; i < 4; i++)
@@ -653,7 +654,7 @@ namespace sh{
 			create_effect_at_tile(eff_id, tile);
 			bn::sound_items::wewewew.play();
 			current_scene->wait_for_update_cycles(cycle_wait);
-			tile->set_condition(tile_condition::FROZEN, eff_duration);
+			tile->set_condition(condition, eff_duration);
 			tile->set_owner(owner);
 			for(int step = 0; step < num_steps; step++)
 			{
@@ -675,7 +676,7 @@ namespace sh{
 					{
 						if(neighbors[i] != NULL)
 						{
-							neighbors[i]->set_condition(tile_condition::FROZEN, eff_duration);
+							neighbors[i]->set_condition(condition, eff_duration);
 							neighbors[i]->set_owner(owner);
 							neighbors[i] = neighbors[i]->get_neighbor(i);
 						}
