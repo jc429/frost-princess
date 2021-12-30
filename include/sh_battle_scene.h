@@ -37,8 +37,8 @@ namespace sh
 		END
 	};
 	
-
-	const int MAX_CARDS_DECK = 20;
+	const int MAX_HEALTH = 40;
+	const int MAX_CARDS_DECK = 32;
 	const int MAX_CARDS_HAND = 4;
 	const int cards_x[] = {/*-48,*/ -24, 0, 24, 48};
 	const int cards_y = 64;
@@ -48,6 +48,7 @@ namespace sh
 	{
 	private:
 		bn::regular_bg_ptr _battle_bg;
+		bn::regular_bg_ptr _turn_announcement;
 		cursor battle_cursor;
 		battle_board board;
 		bn::blending_transparency_alpha_loop_action preview_transparency_action;
@@ -69,6 +70,9 @@ namespace sh
 		bn::vector<battle_card, MAX_CARDS_HAND> battle_cards;
 		bn::vector<bn::point, MAX_CARDS_HAND> card_positions;
 
+		int player_health;
+		int foe_health;
+
 		int selected_card;
 		int turn_count;
 
@@ -77,6 +81,7 @@ namespace sh
 
 
 		void player_turn();
+		void turn_intro(tile_owner player);
 		void end_turn();
 		void swap_turns();
 		void set_turn_number(int turn);
@@ -101,6 +106,8 @@ namespace sh
 		void open_pause_menu();
 
 		void end_battle();
+
+		void apply_damage_to_player(tile_owner player, int dmg);
 	};
 
 }

@@ -55,10 +55,7 @@ namespace sh
 
 	battle_scene::battle_scene() :
 		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
-		// _cursor_card_sprite (bn::sprite_items::cursor_card.create_sprite(cards_x[0], cards_y)),
-		// _cursor_tile_sprite (bn::sprite_items::cursor_tile.create_sprite(0, -16)),
-		// _cursor_card_idle_action (bn::create_sprite_animate_action_forever(_cursor_card_sprite, 16, bn::sprite_items::cursor_card.tiles_item(), 0, 1)),
-		// _cursor_tile_idle_action (bn::create_sprite_animate_action_forever(_cursor_tile_sprite, 16, bn::sprite_items::cursor_tile.tiles_item(), 0, 1)),
+		_turn_announcement (bn::regular_bg_items::btl_player_phase.create_bg(0,0)),
 		preview_transparency_action (bn::blending_transparency_alpha_loop_action(30,0.2)),
 		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
 		player_deck (battle_deck_with_sprite(bn::fixed_point(BTL_DECK_PLA_X,BTL_DECK_PLA_Y))),
@@ -84,12 +81,16 @@ namespace sh
 			battle_cards.push_back(battle_card(card_positions.back()));
 			battle_cards.back().set_position(card_spawn_pos);
 		}
-		battle_cards.at(MAX_CARDS_HAND - 1).set_pattern(tile_pattern::SPECIAL_SINGLE);
+		battle_cards.back().set_pattern(tile_pattern::SPECIAL_SINGLE);
+		battle_cards.back().set_position(battle_cards.back().get_hand_position());
+		battle_cards.back().set_visible(true);
 		selected_card = 0;
 
 		// health meters
-		_health_meters.push_back(ui_meter(bn::fixed_point(-109, 18), meter_type::HP, 40, true));
-		_health_meters.push_back(ui_meter(bn::fixed_point(77, -25), meter_type::HP, 40, true));
+		player_health = MAX_HEALTH;
+		foe_health = MAX_HEALTH;
+		_health_meters.push_back(ui_meter(bn::fixed_point(-109, 18), meter_type::HP, MAX_HEALTH, true));
+		_health_meters.push_back(ui_meter(bn::fixed_point(77, -25), meter_type::HP, MAX_HEALTH, true));
 		// skill meters
 		_skill_meters.push_back(skill_meter(bn::fixed_point(-109, 25), 40, true, bn::fixed_point(32, -5), true));
 		_skill_meters.push_back(skill_meter(bn::fixed_point(77, -18), 40, true, bn::fixed_point(-0, -5), false));
@@ -101,10 +102,10 @@ namespace sh
 		// _cursor_tile_sprite.set_visible(false);
 
 		// set the phase announcement bgs
-		// bn::regular_bg_ptr player_phase = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
-		// player_phase.set_priority(0); 
-		// player_phase.set_blending_enabled(true);
-		// player_phase.set_visible(false);
+		_turn_announcement = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
+		_turn_announcement.set_priority(0); 
+		// _turn_announcement.set_blending_enabled(true);
+		_turn_announcement.set_visible(false);
 		
 		// set base tiles
 		bn::sprite_ptr pl_crown = bn::sprite_items::crown.create_sprite(0,0);
@@ -139,7 +140,7 @@ namespace sh
 
 		while(!scene_done)
 		{
-
+			turn_intro(tile_owner::PLAYER);
 			player_turn();
 			// check for dead zones
 			end_turn();
@@ -149,6 +150,7 @@ namespace sh
 			if(scene_done)
 				break;
 
+			turn_intro(tile_owner::FOE);
 			foe_turn();
 			// check for dead zones
 			end_turn();
@@ -218,6 +220,8 @@ namespace sh
 		}
 		player_deck.reset();
 		foe_deck.reset();
+		player_health = MAX_HEALTH;
+		foe_health = MAX_HEALTH;
 	}
 
 	void battle_scene::battle_start()
@@ -225,7 +229,12 @@ namespace sh
 		reset_battle();
 		player_deck.randomize();
 		foe_deck.randomize();
-		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+		battle_cards.back().set_position(battle_cards.back().get_hand_position());
+		battle_cards.back().set_visible(true);
+		
+		auto second_last = battle_cards.end();
+		--second_last;
+		for(auto it = battle_cards.begin(); it != second_last; ++it)
 		{
 			it->set_visible(false);
 		}
@@ -241,17 +250,21 @@ namespace sh
 		current_player = tile_owner::PLAYER;
 		set_turn_number(1);
 
-		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+		
+		for(auto it = battle_cards.begin(); it != second_last; ++it)
 		{
 			it->set_visible(true);
 			// it->move_to_destination(it->get_hand_position());
 			player_deck.draw_card_with_animation(*this, *it);
 		}
-		
+
 		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
 		{
 			it->flip_faceup();
 		}
+
+		
+		wait_for_update_cycles(30);
 	}
 
 	void battle_scene::player_turn()
@@ -330,14 +343,14 @@ namespace sh
 				{
 					if(bn::keypad::l_pressed())
 					{
-						board.shift_row_or_col(3, direction::SOUTH);
+						// board.shift_row_or_col(3, direction::SOUTH);
 						// _skill_meters.front().add_sp(-1);
 						// _skill_meters.back().add_sp(-1);
 
 					}
 					if(bn::keypad::r_pressed())
 					{
-						board.shift_row_or_col(3, direction::NORTH);
+						// board.shift_row_or_col(3, direction::NORTH);
 						// _skill_meters.front().add_sp(1);
 						// _skill_meters.back().add_sp(1);
 					}
@@ -413,7 +426,7 @@ namespace sh
 				{
 					if(using_special_skill)
 					{
-						bool success = board.use_special_action(current_player, special_action_pattern::CROSS_5);
+						bool success = board.use_special_action(current_player, special_action_pattern::STAR_3);
 						if(success)
 						{
 							_skill_meters.front().clear();
@@ -485,6 +498,27 @@ namespace sh
 			update();
 		}
 	}
+
+	
+	void battle_scene::turn_intro(tile_owner player)
+	{
+		switch(player)
+		{
+		case tile_owner::PLAYER:
+			_turn_announcement = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
+			break;
+		case tile_owner::FOE:
+			_turn_announcement = bn::regular_bg_items::btl_enemy_phase.create_bg(0,0);
+			break;
+		default:
+			break;
+		}
+		_turn_announcement.set_priority(0); 
+		_turn_announcement.set_visible(true);
+		wait_for_update_cycles(60);
+		_turn_announcement.set_visible(false);
+	}
+
 
 	void battle_scene::end_turn()
 	{
@@ -577,9 +611,30 @@ namespace sh
 	}
 
 
-
 	void battle_scene::end_battle()
 	{
 		scene_done = true;
+	}
+
+	void battle_scene::apply_damage_to_player(tile_owner player, int dmg)
+	{
+		switch (player)
+		{
+		case tile_owner::PLAYER:
+			player_health = bn::clamp(player_health-dmg, 0, MAX_HEALTH);
+			_health_meters.at(PLAYER_SIDE).set_current_val(player_health);
+			break;
+		case tile_owner::FOE:
+			foe_health = bn::clamp(foe_health-dmg, 0, MAX_HEALTH);
+			_health_meters.at(FOE_SIDE).set_current_val(foe_health);
+			break;
+		default:
+			break;
+		}
+		shake();
+		audio::play_sound(sound_id::WEWEWEW);
+
+		// TODO: check if zero hp 
+
 	}
 }

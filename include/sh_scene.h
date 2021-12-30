@@ -26,10 +26,12 @@ namespace sh
 		virtual ~scene();
 	//	[[nodiscard]]
 		virtual void update() = 0;
+		void wait_for_update_cycles(int num_updates);
+		
 		virtual void fade_to_black();
 		virtual void fade_from_black();
-		void wait_for_update_cycles(int num_updates);
 
+		virtual void shake();
 	};
 
 	

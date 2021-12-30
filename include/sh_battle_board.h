@@ -34,6 +34,7 @@ namespace sh
 	enum class special_action_pattern
 	{
 		CROSS_5,
+		STAR_3,
 	};
 
 	class battle_board
@@ -56,7 +57,7 @@ namespace sh
 		tile_pattern preview_pattern;
 		direction preview_orientation;
 
-		scene *current_scene;
+		class battle_scene *current_scene;
 
 		battle_board();
 		~battle_board();

@@ -1,5 +1,6 @@
 #include "sh_battle_tile.h"
 #include "sh_battle_board.h"
+#include "sh_battle_scene.h"
 #include "sh_direction.h"
 #include "sh_effects.h"
 #include "sh_action_manager.h"
@@ -631,7 +632,15 @@ namespace sh{
 				continue;
 			}
 			bn::point pos = selection_pos + preview_tile_offsets.at(i);
-			get_tile(pos.x(), pos.y())->set_owner(owner);
+			battle_tile *tile = get_tile(pos);
+			if(tile->is_base() && (tile->get_owner() != owner))
+			{
+				current_scene->apply_damage_to_player(tile->get_owner(), 5);
+			}
+			else
+			{
+				tile->set_owner(owner);
+			}
 		}
 		return true;
 	}
@@ -642,47 +651,126 @@ namespace sh{
 		{
 			battle_tile *tile = selected_tile;
 			int eff_duration = 4;
-			int num_steps = 4;
 			effects::effect_id eff_id = effects::effect_id::SHINE;
 			tile_condition condition = tile_condition::FROZEN;
 			int cycle_wait = 24;
-			battle_tile *neighbors[4];
-			for(int i = 0; i < 4; i++)
+			bn::vector<battle_tile*, 8> apply_tiles;
+			battle_tile *neighbors[8];
+			for(int i = 0; i < 8; i++)
 			{
-				neighbors[i] = tile->get_neighbor(i);
+				neighbors[i] = NULL;
 			}
+
 			create_effect_at_tile(eff_id, tile);
+			
 			bn::sound_items::wewewew.play();
 			current_scene->wait_for_update_cycles(cycle_wait);
 			tile->set_condition(condition, eff_duration);
 			tile->set_owner(owner);
-			for(int step = 0; step < num_steps; step++)
+			
+			switch(pattern)
 			{
-				bool apply_effect = false;
+			case special_action_pattern::CROSS_5:
 				for(int i = 0; i < 4; i++)
 				{
-					if(neighbors[i] == NULL)
-					{
-						continue;
-					}
-					create_effect_at_tile(eff_id,neighbors[i]);
-					apply_effect = true;
+					neighbors[i] = tile->get_neighbor(i);
 				}
-				if(apply_effect)
+				for(int step = 0; step < 4; step++)
 				{
-					bn::sound_items::wewewew.play();
-					current_scene->wait_for_update_cycles(cycle_wait);
+					apply_tiles.clear();
+
 					for(int i = 0; i < 4; i++)
 					{
 						if(neighbors[i] != NULL)
 						{
-							neighbors[i]->set_condition(condition, eff_duration);
-							neighbors[i]->set_owner(owner);
-							neighbors[i] = neighbors[i]->get_neighbor(i);
+							apply_tiles.push_back(neighbors[i]);
+						}
+					}
+					if(!apply_tiles.empty())
+					{
+						bn::sound_items::wewewew.play();
+						for(auto it = apply_tiles.begin(), end = apply_tiles.end(); it != end; ++it)
+						{
+							create_effect_at_tile(eff_id,*it);
+						}
+						current_scene->wait_for_update_cycles(cycle_wait);
+						for(int i = 0; i < 4; i++)
+						{
+							if(neighbors[i] != NULL)
+							{
+								neighbors[i]->set_condition(condition, eff_duration);
+								if(neighbors[i]->is_base() && (neighbors[i]->get_owner() != owner))
+								{
+									current_scene->apply_damage_to_player(neighbors[i]->get_owner(), 5);
+								}
+								else
+								{
+									neighbors[i]->set_owner(owner);
+								}
+								neighbors[i] = neighbors[i]->get_neighbor(i);
+							}
 						}
 					}
 				}
+				return true;
+				break;
+
+			case special_action_pattern::STAR_3:
+			
+				for(int i = 0; i < 4; i++)
+				{
+					neighbors[i] = tile->get_neighbor(i);
+					if(neighbors[i] != NULL)
+					{
+						neighbors[i+4] = neighbors[i]->get_neighbor((i+1)%4);
+					}
+				}
+				for(int step = 0; step < 2; step++)
+				{
+					apply_tiles.clear();
+					for(int i = 0; i < 8; i++)
+					{
+						if(neighbors[i] != NULL)
+						{
+							apply_tiles.push_back(neighbors[i]);
+						}
+					}
+					if(!apply_tiles.empty())
+					{
+						bn::sound_items::wewewew.play();
+						for(auto it = apply_tiles.begin(), end = apply_tiles.end(); it != end; ++it)
+						{
+							create_effect_at_tile(eff_id,*it);
+						}
+						current_scene->wait_for_update_cycles(cycle_wait);
+						for(int i = 0; i < 8; i++)
+						{
+							if(neighbors[i] != NULL)
+							{
+								neighbors[i]->set_condition(condition, eff_duration);
+								if(neighbors[i]->is_base() && (neighbors[i]->get_owner() != owner))
+								{
+									current_scene->apply_damage_to_player(neighbors[i]->get_owner(), 5);
+								}
+								else{
+									neighbors[i]->set_owner(owner);
+								}
+								neighbors[i] = neighbors[i]->get_neighbor(i%4);
+								if(neighbors[i] != NULL && i >= 4)
+								{
+									neighbors[i] = neighbors[i]->get_neighbor((i+1)%4);
+								}
+							}
+						}
+					}
+				}
+				return true;
+				break;
+
+			default:
+				break;
 			}
+			
 			return true;
 		}
 		else
@@ -691,10 +779,10 @@ namespace sh{
 		}
 	}
 
-	// shifts a row of tiles on the board in [dir] direction by [amount] tiles
 	
 
 
+	// shifts a row of tiles on the board in [dir] direction by [amount] tiles
 	// shifts a column of tiles on the board in [dir] direction by [amount] tiles
 	void battle_board::shift_row_or_col(int row_col_id, direction dir)
 	{

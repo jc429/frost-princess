@@ -27,8 +27,8 @@ namespace sh
 	{
 	private:
 		tile_owner owner;
-		bool is_dark;
-		bool is_base;
+		bool _is_dark;
+		bool _is_base;
 		bn::sprite_ptr *sprite_ptr;
 		bn::fixed_point _position;
 		bn::fixed_point _sprite_offset;
@@ -47,7 +47,9 @@ namespace sh
 		void copy_properties(battle_tile *other);
 
 		void set_dark(bool dark);
+		bool is_dark();
 		void set_base(bool base);
+		bool is_base();
 		
 		void set_position(int x, int y);
 		void set_position(bn::fixed_point pos);

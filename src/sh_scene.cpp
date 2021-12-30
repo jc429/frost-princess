@@ -22,6 +22,14 @@ namespace sh
 		action_manager::clear_sprite_move_actions();
 	}
 
+	void scene::wait_for_update_cycles(int num_updates)
+	{
+		for(int i = 0; i < num_updates; i++)
+		{
+			update();
+		}
+	}
+
 
 	void scene::fade_to_black()
 	{
@@ -52,12 +60,9 @@ namespace sh
 		}
 	}
 
-	void scene::wait_for_update_cycles(int num_updates)
+	void scene::shake()
 	{
-		for(int i = 0; i < num_updates; i++)
-		{
-			update();
-		}
+		
 	}
 
 	namespace scene_management

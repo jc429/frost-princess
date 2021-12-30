@@ -36,8 +36,8 @@ namespace sh
 		_current_state = title_state::PRESS_START;
 
 		// set up bgs
-		title_overlay.set_priority(0);
-		title_snow_a.set_priority(1);
+		title_snow_a.set_priority(0);
+		title_overlay.set_priority(1);
 		title_snow_b.set_priority(2);
 		title_bg.set_priority(3);
 		title_snow_a.set_x(24);

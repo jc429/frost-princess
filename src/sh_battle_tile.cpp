@@ -25,6 +25,7 @@ namespace sh{
 		tile_id = id;
 		owner = tile_owner::EMPTY;
 		_current_condition = tile_condition::NORMAL;
+		_is_base = false;
 		_condition_timer = 0;
 		_sprite_offset = bn::fixed_point(0,0);
 		for(int i = 0; i < 4; i++)
@@ -51,7 +52,7 @@ namespace sh{
 		const bn::sprite_tiles_item *tile_set;
 		const bn::sprite_palette_item *palette;
 		int tile_idx = (int)owner * 2;
-		tile_idx += (is_dark ? 1 : 0);
+		tile_idx += (_is_dark ? 1 : 0);
 		tile_idx += (COLORBLIND_MODE ? COLORBLIND_TILE_OFFSET : 0);
 		switch(_current_condition)
 		{
@@ -90,14 +91,23 @@ namespace sh{
 	
 	void battle_tile::set_dark(bool dark)
 	{
-		is_dark = dark;
+		_is_dark = dark;
 		update_sprite();
+	}
+	bool battle_tile::is_dark()
+	{
+		return _is_dark;
 	}
 
 	void battle_tile::set_base(bool base)
 	{
-		is_base = base;
+		_is_base = base;
 		update_sprite();
+	}
+
+	bool battle_tile::is_base()
+	{
+		return _is_base;
 	}
 
 	void battle_tile::set_position(int x, int y)
