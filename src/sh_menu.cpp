@@ -53,10 +53,25 @@ namespace sh
 				text_generator.set_center_alignment();
 				bn::fixed_point pos(0,-69);		// nice
 				text_generator.generate(pos, "-Paused-", _text_sprites);
-				pos = bn::fixed_point(-40, -30);
+				pos = bn::fixed_point(-20, -30);
 				_menu_items.push_back(menu_item(pos, menu_action_id::CLOSE_MENU, "Resume"));
 				pos.set_y(pos.y() + _item_offset_y);
 				_menu_items.push_back(menu_item(pos, menu_action_id::EXIT_SCENE, "Quit"));
+
+			}
+			break;
+		case menu_type::OPTIONS_MENU:
+			{
+				// bn::regular_bg_builder builder(bn::regular_bg_items::pause_menu);
+				// builder.set_priority(bg_layer);
+				// _menu_bgs.push_back(builder.release_build());
+
+				text_generator.set_bg_priority(bg_layer);
+				text_generator.set_center_alignment();
+				bn::fixed_point pos = bn::fixed_point(-60, -36);
+				_menu_items.push_back(menu_item(pos, menu_action_id::NONE, "Music Volume"));
+				pos.set_y(pos.y() + _item_offset_y);
+				_menu_items.push_back(menu_item(pos, menu_action_id::NONE, "SFX Volume"));
 
 			}
 			break;

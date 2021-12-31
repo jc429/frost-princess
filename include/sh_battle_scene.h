@@ -47,7 +47,8 @@ namespace sh
 	class battle_scene : public scene
 	{
 	private:
-		bn::regular_bg_ptr _battle_bg;
+		bn::regular_bg_ptr _battle_board_bg;
+		bn::regular_bg_ptr _battle_ui_bg;
 		bn::regular_bg_ptr _turn_announcement;
 		cursor battle_cursor;
 		battle_board board;
@@ -78,12 +79,11 @@ namespace sh
 
 		void reset_battle();
 		void battle_start();
-
+		void battle_end(tile_owner winner);
 
 		void player_turn();
 		void turn_intro(tile_owner player);
 		void end_turn();
-		void swap_turns();
 		void set_turn_number(int turn);
 		void update_tile_counts();
 		void update_text();
@@ -104,8 +104,6 @@ namespace sh
 		void set_battle_cursor_tile_mode();
 
 		void open_pause_menu();
-
-		void end_battle();
 
 		void apply_damage_to_player(tile_owner player, int dmg);
 	};

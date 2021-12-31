@@ -67,6 +67,14 @@ namespace sh
 		
 	}
 
+	void battle_card::set_camera(bn::camera_ptr camera)
+	{
+		for(auto it = _sprites.begin(), end = _sprites.end(); it != end; ++it)
+		{
+			it->set_camera(camera);
+		}
+	}
+
 	void battle_card::set_visible(bool visible)
 	{
 		_sprites.front().set_visible(visible);

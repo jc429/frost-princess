@@ -42,14 +42,15 @@ namespace sh
 	private:
 		bn::fixed_point _position;
 		bn::fixed_point _top_card_offset;
-		bn::sprite_ptr sprite;
-		bn::vector<bn::sprite_animate_action<10>, 1> anims;
+		bn::sprite_ptr _sprite;
+		bn::vector<bn::sprite_animate_action<10>, 1> _anims;
 
 	public:
 		battle_deck_with_sprite(bn::fixed_point pos);
 		virtual ~battle_deck_with_sprite();
 		void update() override;
 		
+		void set_camera(bn::camera_ptr camera);
 		void shuffle() override;
 		tile_pattern draw_card_with_animation(scene &scene, battle_card &card);
 

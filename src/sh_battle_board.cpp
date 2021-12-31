@@ -22,11 +22,10 @@
 
 namespace sh{
 
-	battle_board::battle_board() :
-		board_bg(bn::regular_bg_items::battle_board.create_bg((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y))
+	battle_board::battle_board(battle_scene *scene) 
+		//board_bg(bn::regular_bg_items::battle_board.create_bg((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y))
 	{
-		current_scene = NULL;
-		board_bg.set_priority(2);
+		current_scene = scene;
 
 		preview_orientation = direction::NORTH;
 		preview_pattern = tile_pattern::SINGLE;
@@ -49,6 +48,10 @@ namespace sh{
 		bn::sprite_builder builder(bn::sprite_items::board_tile);
 		builder.set_bg_priority(TILE_SPRITE_LAYER);
 		builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+		if(scene != NULL)
+		{
+			builder.set_camera(scene->get_camera());
+		}
 		
 		bool tile_dark = true;	// signifies whether to darken a tile or not (alternates after every placement)
 		for(int row = 0; row < BOARD_HEIGHT; row++)

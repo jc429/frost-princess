@@ -68,8 +68,8 @@ namespace sh
 		wait_for_update_cycles(12);
 		set_title_state(title_state::PRESS_START);
 
-		bool exit_scene = false;
-		while(!exit_scene)
+		scene_done = false;
+		while(!scene_done)
 		{
 			switch(_current_state)
 			{
@@ -95,18 +95,22 @@ namespace sh
 					switch(current_menu_selection)
 					{
 					case 0:
-					case 1:
 						scene_management::set_next_scene(scene_type::BATTLE);
-						exit_scene = true;
+						scene_done = true;
+						break;
+					case 1:
+						scene_management::set_next_scene(scene_type::OPTIONS);
+						scene_done = true;
 						break;
 					case 2:
-						scene_management::set_next_scene(scene_type::OPTIONS);
-						exit_scene = true;
+						scene_management::set_next_scene(scene_type::CREDITS);
+						scene_done = true;
 						break;
+
 					default:
 						break;
 					}
-					if(exit_scene)
+					if(scene_done)
 					{
 						text_sprites.clear();
 						audio::stop_current_track();
@@ -137,7 +141,7 @@ namespace sh
 		title_snow_b.set_y(title_snow_b.y() + 0.25);
 		title_snow_b.set_x(title_snow_b.x() - 2 + random.get_fixed(0, 1));
 		
-		bn::core::update();
+		scene::update();
 	}
 
 	void title_scene::set_title_state(title_state state)
@@ -158,9 +162,9 @@ namespace sh
 			title_menu_cursor_pos.clear();
 			text_generator.set_left_alignment();
 			text_pos = bn::fixed_point(-25, 36);
-			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
-			text_generator.generate(text_pos, "Continue", text_sprites);
-			text_pos.set_y(text_pos.y()+11);
+			// title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
+			// text_generator.generate(text_pos, "Continue", text_sprites);
+			// text_pos.set_y(text_pos.y()+11);
 			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "New Game", text_sprites);
 			text_pos.set_y(text_pos.y()+11);

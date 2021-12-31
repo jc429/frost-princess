@@ -17,11 +17,12 @@ namespace sh
 		MAIN_MENU
 	};
 
-	#define TITLE_MENU_ITEMS 4
+	
 
 	class title_scene : public scene
 	{
 	private:
+		#define TITLE_MENU_ITEMS 3
 		bn::regular_bg_ptr title_bg;
 		bn::regular_bg_ptr title_snow_a;
 		bn::regular_bg_ptr title_snow_b;

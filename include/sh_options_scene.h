@@ -22,8 +22,9 @@ namespace sh
 		bn::sprite_text_generator text_generator;
 		bn::vector<bn::sprite_ptr, 24> text_sprites;
 		bn::vector<menu_slider, 2> menu_sliders;
+		bn::sprite_ptr _cursor_sprite;
 
-		const int _row_ct = 2;
+		const int _row_ct = 3;
 		const int _y_inc = 16;
 		int selected_row = 0;
 

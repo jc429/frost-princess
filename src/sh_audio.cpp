@@ -10,10 +10,13 @@ namespace sh
 {
 	namespace audio
 	{
-		
+		static bn::fixed _music_volume_global_multiplier_ = 1;
+		static bn::fixed _music_volume_song_modifier_ = 1;
+
 		void set_volume(bn::fixed volume)
 		{
-			bn::music::set_volume(volume);
+			_music_volume_global_multiplier_ = volume;
+			bn::music::set_volume(_music_volume_global_multiplier_ * _music_volume_song_modifier_);
 		}
 		
 		void play_track(track_id track)
@@ -21,10 +24,12 @@ namespace sh
 			switch (track)
 			{
 			case track_id::TITLE:
-				bn::music_items::icemoon.play(0.5, true);
+				_music_volume_song_modifier_ = 0.5;
+				bn::music_items::icemoon.play(_music_volume_global_multiplier_ * _music_volume_song_modifier_, true);
 				break;
 			case track_id::BATTLE_BGM:
-				bn::music_items::jk_valium.play(0.24, true);
+				_music_volume_song_modifier_ = 0.24;
+				bn::music_items::jk_valium.play(_music_volume_global_multiplier_ * _music_volume_song_modifier_, true);
 				break;
 			
 			default:

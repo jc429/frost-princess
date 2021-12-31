@@ -1,7 +1,7 @@
 #include "sh_options_scene.h"
 #include "sh_game_settings.h"
+#include "sh_menu.h"
 
-#include <bn_core.h>
 #include <bn_keypad.h>
 #include <bn_regular_bg_builder.h>
 #include <bn_regular_bg_ptr.h>
@@ -19,7 +19,8 @@
 namespace sh
 {
 	options_scene::options_scene() :
-		text_generator(common::variable_8x16_sprite_font)
+		text_generator(common::variable_8x16_sprite_font),
+		_cursor_sprite (bn::sprite_items::menu_arrow.create_sprite(0,0))
 	{
 		type = scene_type::OPTIONS;
 		
@@ -37,33 +38,38 @@ namespace sh
 			builder.set_position(pos);
 			backgrounds.push_back(builder.release_build());
 		}
-
-		bn::fixed_point slider_pos(11, -35);
-		menu_sliders.push_back(menu_slider(slider_pos, 0, 9));
-		menu_sliders.back().set_value(game_settings::get_music_volume());
-		slider_pos.set_y(slider_pos.y() + 16);
-		menu_sliders.push_back(menu_slider(slider_pos, 0, 9));
-		menu_sliders.back().set_value(game_settings::get_sfx_volume());
+		_cursor_sprite.set_bg_priority(2);
 
 
+		// bn::fixed_point slider_pos(11, -35);
+		// menu_sliders.push_back(menu_slider(slider_pos, 0, 9));
+		// menu_sliders.back().set_value(game_settings::get_music_volume());
+		// slider_pos.set_y(slider_pos.y() + 16);
+		// menu_sliders.push_back(menu_slider(slider_pos, 0, 9));
+		// menu_sliders.back().set_value(game_settings::get_sfx_volume());
 
-		text_sprites.clear();
-		bn::fixed_point text_pos(-80,-37);
-		text_generator.set_bg_priority(2);
-		text_generator.set_left_alignment();
-		text_generator.generate(text_pos, "Music Volume", text_sprites);
-		text_pos.set_y(text_pos.y() + _y_inc);
-		text_generator.generate(text_pos, "SFX Volume", text_sprites);
-		text_pos.set_y(text_pos.y() + _y_inc);
-		text_generator.generate(text_pos, "Reset to Default", text_sprites);
 
-		text_pos = bn::fixed_point(0,40);
-		text_generator.set_center_alignment();
-		text_generator.generate(text_pos, "Clear Data", text_sprites);
 
-		select_option_row(0);
+		// text_sprites.clear();
+		// bn::fixed_point text_pos(-80,-37);
+		// text_generator.set_bg_priority(2);
+		// text_generator.set_left_alignment();
+		// text_generator.generate(text_pos, "Music Volume", text_sprites);
+		// text_pos.set_y(text_pos.y() + _y_inc);
+		// text_generator.generate(text_pos, "SFX Volume", text_sprites);
+		// text_pos.set_y(text_pos.y() + _y_inc);
+		// text_generator.generate(text_pos, "Reset to Default", text_sprites);
+
+		// text_pos = bn::fixed_point(0,40);
+		// text_generator.set_center_alignment();
+		// // text_generator.generate(text_pos, "Clear Data", text_sprites);
+
+		// select_option_row(0);
 
 		fade_from_black();
+
+		menu options_menu(menu_type::OPTIONS_MENU, 0, text_generator);
+
 
 		bool exit_scene = false;
 		while(!exit_scene)
@@ -79,6 +85,12 @@ namespace sh
 				fade_to_black();
 			}
 
+			else if(bn::keypad::a_pressed() && selected_row == 2)
+			{
+				menu_sliders.at(0).set_value(7);
+				menu_sliders.at(1).set_value(7);
+			}
+
 			if(bn::keypad::down_pressed())
 			{
 				selected_row = (selected_row + 1) % _row_ct;
@@ -90,11 +102,20 @@ namespace sh
 
 			if(bn::keypad::right_pressed())
 			{
-				int slider_val = menu_sliders.at(selected_row).increment();
+				if(menu_sliders.size() > selected_row)
+				{
+					int slider_val = menu_sliders.at(selected_row).increment();
+					game_settings::set_music_volume(slider_val);
+				}
+				
 			}
 			else if(bn::keypad::left_pressed())
 			{
-				int slider_val = menu_sliders.at(selected_row).decrement();
+				if(menu_sliders.size() > selected_row)
+				{
+					int slider_val = menu_sliders.at(selected_row).decrement();
+					game_settings::set_music_volume(slider_val);
+				}
 			}
 
 			update();
@@ -110,7 +131,8 @@ namespace sh
 	{
 		backgrounds.front().set_x(backgrounds.front().x() - 0.25);
 		backgrounds.front().set_y(backgrounds.front().y() - 0.25);
-		bn::core::update();
+		
+		scene::update();
 	}
 
 	void options_scene::select_option_row(int row)

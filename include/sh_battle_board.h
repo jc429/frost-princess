@@ -40,7 +40,6 @@ namespace sh
 	class battle_board
 	{
 	private:
-		bn::regular_bg_ptr board_bg;
 		bn::vector<battle_tile, 81> tiles;
 		bn::vector<bn::sprite_ptr, 81> tile_sprites;
 		bn::vector<bn::point, NUM_PREVIEW_TILES> preview_tile_offsets;
@@ -59,7 +58,7 @@ namespace sh
 
 		class battle_scene *current_scene;
 
-		battle_board();
+		battle_board(class battle_scene *scene);
 		~battle_board();
 		void turn_update();
 		void refresh();

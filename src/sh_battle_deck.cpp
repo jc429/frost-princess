@@ -88,19 +88,19 @@ namespace sh
 	/*********************************************************/
 
 	battle_deck_with_sprite::battle_deck_with_sprite(bn::fixed_point pos) :
-		sprite(bn::sprite_items::card_deck.create_sprite(pos))
+		_sprite(bn::sprite_items::card_deck.create_sprite(pos))
 	{
 		_position = pos;
 		_top_card_offset = bn::fixed_point(0,-3);
-		sprite.set_bg_priority(2);
-		sprite.set_z_order(10);
-		sprite.set_position(pos);
-		anims.clear();
+		_sprite.set_bg_priority(2);
+		_sprite.set_z_order(10);
+		_sprite.set_position(pos);
+		_anims.clear();
 	}
 
 	battle_deck_with_sprite::~battle_deck_with_sprite()
 	{
-		anims.clear();
+		_anims.clear();
 	}
 
 
@@ -108,7 +108,7 @@ namespace sh
 	{
 		battle_deck::update();
 
-		for(auto it = anims.begin(), end = anims.end(); it != end; ++it)
+		for(auto it = _anims.begin(), end = _anims.end(); it != end; ++it)
 		{
 			if(!it->done())
 			{
@@ -116,17 +116,22 @@ namespace sh
 			}
 			else
 			{
-				anims.clear();
+				_anims.clear();
 			}
 		}
+	}
+
+	void battle_deck_with_sprite::set_camera(bn::camera_ptr camera)
+	{
+		_sprite.set_camera(camera);
 	}
 	
 	void battle_deck_with_sprite::shuffle()
 	{
 		battle_deck::shuffle();
 		// TODO: check if i actually need to recreate this animation each time
-		anims.clear();
-		anims.push_back(bn::create_sprite_animate_action_once(sprite, 2, bn::sprite_items::card_deck.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7, 0, 0));
+		_anims.clear();
+		_anims.push_back(bn::create_sprite_animate_action_once(_sprite, 2, bn::sprite_items::card_deck.tiles_item(), 0, 1, 2, 3, 4, 5, 6, 7, 0, 0));
 	}
 
 	tile_pattern battle_deck_with_sprite::draw_card_with_animation(scene &scene, battle_card &card)

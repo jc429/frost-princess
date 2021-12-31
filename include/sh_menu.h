@@ -16,12 +16,15 @@ namespace sh
 	enum class menu_type
 	{
 		PAUSE_MENU,
+		OPTIONS_MENU,
 	};	
 	
 	enum class menu_action_id
 	{
+		NONE,		// pressing A on this menu item does nothing
 		CLOSE_MENU,
 		EXIT_SCENE,
+		RESET_SETTINGS,
 	};
 
 	struct menu_item

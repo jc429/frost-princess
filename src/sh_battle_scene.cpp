@@ -6,7 +6,7 @@
 #include "sh_effects.h"
 #include "sh_menu.h"
 
-#include <bn_core.h>
+#include <bn_camera_ptr.h>
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
 #include <bn_log.h>
@@ -19,15 +19,17 @@
 // graphics
 #include <bn_blending_actions.h>
 #include <bn_sprite_animate_actions.h>
+#include <bn_sprite_builder.h>
 // text & fonts
 #include <bn_sprite_text_generator.h>
 #include "variable_8x16_sprite_font.h"
 // backgrounds
-#include "bn_regular_bg_items_battle_bg.h"
-#include "bn_regular_bg_items_battle_bg_wood.h"
-#include "bn_regular_bg_items_battle_board.h"
+#include "bn_regular_bg_items_battle_bg_board_wood.h"
+#include "bn_regular_bg_items_battle_ui.h"
 #include "bn_regular_bg_items_btl_player_phase.h"
 #include "bn_regular_bg_items_btl_enemy_phase.h"
+#include "bn_regular_bg_items_btl_player_win.h"
+#include "bn_regular_bg_items_btl_player_lose.h"
 #include "bn_regular_bg_items_pause_menu.h"
 // sprites
 #include "bn_sprite_items_portrait_frame.h"
@@ -54,8 +56,10 @@ namespace sh
 	bn::vector<bn::sprite_ptr, 12> text_sprites;
 
 	battle_scene::battle_scene() :
-		_battle_bg (bn::regular_bg_items::battle_bg_wood.create_bg(0, 0)),
+		_battle_board_bg (bn::regular_bg_items::battle_bg_board_wood.create_bg(0, 0)),
+		_battle_ui_bg(bn::regular_bg_items::battle_ui.create_bg(0,0)),
 		_turn_announcement (bn::regular_bg_items::btl_player_phase.create_bg(0,0)),
+		board (battle_board(this)),
 		preview_transparency_action (bn::blending_transparency_alpha_loop_action(30,0.2)),
 		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
 		player_deck (battle_deck_with_sprite(bn::fixed_point(BTL_DECK_PLA_X,BTL_DECK_PLA_Y))),
@@ -71,8 +75,11 @@ namespace sh
 		scene_done = false;
 		
 		// build bg
-		_battle_bg.set_priority(3);
+		_battle_board_bg.set_priority(3);
+		_battle_board_bg.set_camera(_camera);
+		_battle_ui_bg.set_priority(2);
 
+		player_deck.set_camera(_camera);
 		// place hand cards
 		bn::fixed_point card_spawn_pos = player_deck.get_card_pos();
 		for(int i = 0; i < MAX_CARDS_HAND; i++)
@@ -80,6 +87,7 @@ namespace sh
 			card_positions.push_back(bn::point(cards_x[i], cards_y));
 			battle_cards.push_back(battle_card(card_positions.back()));
 			battle_cards.back().set_position(card_spawn_pos);
+			battle_cards.back().set_camera(_camera);
 		}
 		battle_cards.back().set_pattern(tile_pattern::SPECIAL_SINGLE);
 		battle_cards.back().set_position(battle_cards.back().get_hand_position());
@@ -104,26 +112,25 @@ namespace sh
 		// set the phase announcement bgs
 		_turn_announcement = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
 		_turn_announcement.set_priority(0); 
-		// _turn_announcement.set_blending_enabled(true);
+		_turn_announcement.set_blending_enabled(false);
 		_turn_announcement.set_visible(false);
 		
 		// set base tiles
-		bn::sprite_ptr pl_crown = bn::sprite_items::crown.create_sprite(0,0);
 		player_base = board.get_tile(1, BOARD_HEIGHT-2);
 		player_base->set_owner(tile_owner::PLAYER);
 		player_base->set_base(true);
-		pl_crown.set_position(player_base->get_position());
-		pl_crown.set_bg_priority(player_base->get_sprite()->bg_priority());
-		pl_crown.set_z_order(player_base->get_sprite()->z_order() - 10);
-
-		bn::sprite_ptr foe_crown = bn::sprite_items::crown.create_sprite(0,0);
 		foe_base = board.get_tile(BOARD_WIDTH-2, 1);
 		foe_base->set_owner(tile_owner::FOE);
 		foe_base->set_base(true);
-		foe_crown.set_position(foe_base->get_position());
-		foe_crown.set_bg_priority(foe_base->get_sprite()->bg_priority());
-		foe_crown.set_z_order(foe_base->get_sprite()->z_order() - 10);
-
+		
+		bn::sprite_builder builder(bn::sprite_items::crown);
+		builder.set_bg_priority(player_base->get_sprite()->bg_priority());
+		builder.set_z_order(player_base->get_sprite()->z_order() - 10);
+		builder.set_camera(_camera);
+		builder.set_position(player_base->get_position());
+		bn::sprite_ptr player_crown = builder.build();
+		builder.set_position(foe_base->get_position());
+		bn::sprite_ptr foe_crown = builder.release_build();
 
 		player_portrait.set_player_id(0);
 		foe_portrait.set_player_id(1);
@@ -144,7 +151,6 @@ namespace sh
 			player_turn();
 			// check for dead zones
 			end_turn();
-			swap_turns();
 
 			//check between turns too
 			if(scene_done)
@@ -154,7 +160,6 @@ namespace sh
 			foe_turn();
 			// check for dead zones
 			end_turn();
-			swap_turns();
 
 		}
 		fade_to_black();
@@ -196,15 +201,11 @@ namespace sh
 			battle_card& card = *it;
 			card.update();
 		}
-		
-		// slowly pan bg
-		// _battle_bg.set_x(_battle_bg.x() - 0.25);
-		// _battle_bg.set_y(_battle_bg.y() - 0.25);
 
 		// update transparency 
 		preview_transparency_action.update();
 		
-		bn::core::update();
+		scene::update();
 	}
 
 	void battle_scene::reset_battle()
@@ -249,7 +250,7 @@ namespace sh
 		turn_count = 1;
 		current_player = tile_owner::PLAYER;
 		set_turn_number(1);
-
+		select_tile(4,4); // start tile cursor at center of board
 		
 		for(auto it = battle_cards.begin(); it != second_last; ++it)
 		{
@@ -267,6 +268,35 @@ namespace sh
 		wait_for_update_cycles(30);
 	}
 
+	void battle_scene::battle_end(tile_owner winner)
+	{
+		wait_for_update_cycles(12);
+		dim_screen();
+		switch(winner)
+		{
+		case tile_owner::PLAYER:
+			_turn_announcement = bn::regular_bg_items::btl_player_win.create_bg(0,0);
+			break;
+		case tile_owner::FOE:
+			_turn_announcement = bn::regular_bg_items::btl_player_lose.create_bg(0,0);
+			break;
+		default:
+			break;
+		}
+		_turn_announcement.set_priority(0); 
+		_turn_announcement.set_visible(true);
+		wait_for_update_cycles(60);
+		while(!bn::keypad::any_pressed())
+		{
+			update();
+		}
+		
+		scene_management::set_next_scene(scene_type::TITLE);
+		scene_done = true;
+		_turn_announcement.set_visible(false);
+
+	}
+
 	void battle_scene::player_turn()
 	{
 		turn_state turn_state = turn_state::INTRO;
@@ -275,19 +305,15 @@ namespace sh
 		bool using_special_skill = false;
 
 		turn_state = turn_state::PLAYER_CARD_SELECT;
-		select_tile(4,4);
+		
 		
 		set_battle_cursor_card_mode();
 		battle_cursor.set_visible(true);
-		// _cursor_tile_sprite.set_visible(false);
-		// _cursor_card_sprite.set_visible(true);
 		board.set_preview_orientation(direction::NORTH);
 
 
 		while(!turn_over && !scene_done)
 		{
-			
-
 			int mov_x = 0;
 			int mov_y = 0;
 			
@@ -346,13 +372,14 @@ namespace sh
 						// board.shift_row_or_col(3, direction::SOUTH);
 						// _skill_meters.front().add_sp(-1);
 						// _skill_meters.back().add_sp(-1);
-
+						apply_damage_to_player(tile_owner::PLAYER, 100);
 					}
 					if(bn::keypad::r_pressed())
 					{
 						// board.shift_row_or_col(3, direction::NORTH);
 						// _skill_meters.front().add_sp(1);
 						// _skill_meters.back().add_sp(1);
+						apply_damage_to_player(tile_owner::FOE, 100);
 					}
 
 					if(bn::keypad::l_held())
@@ -502,6 +529,8 @@ namespace sh
 	
 	void battle_scene::turn_intro(tile_owner player)
 	{
+		current_player = player;
+		set_turn_number(turn_count+1);
 		switch(player)
 		{
 		case tile_owner::PLAYER:
@@ -525,19 +554,6 @@ namespace sh
 		board.hide_preview_tiles();
 		battle_cursor.set_visible(false);
 		board.turn_update();
-	}
-
-	void battle_scene::swap_turns()
-	{
-		if(current_player == tile_owner::FOE)
-		{
-			current_player = tile_owner::PLAYER;
-		}
-		else if(current_player == tile_owner::PLAYER)
-		{
-			current_player = tile_owner::FOE;
-		}
-		set_turn_number(turn_count+1);
 	}
 
 
@@ -611,11 +627,6 @@ namespace sh
 	}
 
 
-	void battle_scene::end_battle()
-	{
-		scene_done = true;
-	}
-
 	void battle_scene::apply_damage_to_player(tile_owner player, int dmg)
 	{
 		switch (player)
@@ -631,10 +642,19 @@ namespace sh
 		default:
 			break;
 		}
-		shake();
 		audio::play_sound(sound_id::WEWEWEW);
+		shake(6, 16);
 
 		// TODO: check if zero hp 
-
+		if(player_health <= 0)
+		{
+			battle_end(tile_owner::FOE);
+		}
+		else if(foe_health <= 0)
+		{
+			battle_end(tile_owner::PLAYER);
+		}
 	}
+
+
 }

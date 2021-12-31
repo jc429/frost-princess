@@ -1,7 +1,10 @@
 #ifndef SH_SCENE_H
 #define SH_SCENE_H
 
-#include "bn_optional_fwd.h"
+#include <bn_optional_fwd.h>
+#include <bn_camera_actions.h>
+#include <bn_camera_ptr.h>
+#include <bn_vector.h>
 
 namespace sh
 {
@@ -18,6 +21,9 @@ namespace sh
 
 	class scene
 	{
+	protected:
+		bn::camera_ptr _camera;
+		bn::vector<bn::camera_move_to_action, 1> _camera_actions;
 	public:
 		scene_type type;
 		bool scene_done = false;
@@ -25,13 +31,16 @@ namespace sh
 		scene();
 		virtual ~scene();
 	//	[[nodiscard]]
-		virtual void update() = 0;
+		virtual void update();
 		void wait_for_update_cycles(int num_updates);
 		
 		virtual void fade_to_black();
 		virtual void fade_from_black();
+		virtual void dim_screen();
+		virtual void undim_screen();
 
-		virtual void shake();
+		bn::camera_ptr& get_camera();
+		virtual void shake(int intensity, int duration);
 	};
 
 	

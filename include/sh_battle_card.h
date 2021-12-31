@@ -37,6 +37,7 @@ namespace sh
 		virtual ~battle_card();
 		void update();
 
+		void set_camera(bn::camera_ptr camera);
 		void set_visible(bool visible);
 		void set_position(bn::fixed_point pos);
 		bn::fixed_point get_position();
