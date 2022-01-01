@@ -6,6 +6,7 @@
 #include "sh_effects.h"
 #include "sh_menu.h"
 
+#include <bn_core.h>
 #include <bn_camera_ptr.h>
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
@@ -179,7 +180,7 @@ namespace sh
 	{
 		action_manager::update_sprite_move_actions();
 		// burn a random number each update
-		unsigned int burn = random.get();
+		volatile unsigned int burn = random.get();
 		
 		for(auto it = _skill_meters.begin(), end = _skill_meters.end(); it != end; ++it)
 		{
@@ -275,9 +276,11 @@ namespace sh
 		switch(winner)
 		{
 		case tile_owner::PLAYER:
+			audio::play_track(track_id::BATTLE_WIN);
 			_turn_announcement = bn::regular_bg_items::btl_player_win.create_bg(0,0);
 			break;
 		case tile_owner::FOE:
+			audio::play_track(track_id::BATTLE_LOSE);
 			_turn_announcement = bn::regular_bg_items::btl_player_lose.create_bg(0,0);
 			break;
 		default:
@@ -372,14 +375,14 @@ namespace sh
 						// board.shift_row_or_col(3, direction::SOUTH);
 						// _skill_meters.front().add_sp(-1);
 						// _skill_meters.back().add_sp(-1);
-						apply_damage_to_player(tile_owner::PLAYER, 100);
+						// apply_damage_to_player(tile_owner::PLAYER, 100);
 					}
 					if(bn::keypad::r_pressed())
 					{
 						// board.shift_row_or_col(3, direction::NORTH);
 						// _skill_meters.front().add_sp(1);
 						// _skill_meters.back().add_sp(1);
-						apply_damage_to_player(tile_owner::FOE, 100);
+						// apply_damage_to_player(tile_owner::FOE, 100);
 					}
 
 					if(bn::keypad::l_held())
@@ -622,6 +625,12 @@ namespace sh
 
 		menu pause_menu(menu_type::PAUSE_MENU, 0, text_generator);
 		
+		while(pause_menu.is_open())
+		{
+			pause_menu.update();
+			bn::core::update();
+		}
+
 		board.regen_tile_sprites();
 		update_text();
 	}

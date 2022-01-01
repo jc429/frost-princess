@@ -21,6 +21,7 @@ namespace sh
 		
 		void play_track(track_id track)
 		{
+			stop_current_track();
 			switch (track)
 			{
 			case track_id::TITLE:
@@ -31,6 +32,16 @@ namespace sh
 				_music_volume_song_modifier_ = 0.24;
 				bn::music_items::jk_valium.play(_music_volume_global_multiplier_ * _music_volume_song_modifier_, true);
 				break;
+			case track_id::BATTLE_WIN:
+				_music_volume_song_modifier_ = 0.8;
+				stop_current_track();
+				bn::sound_items::victory.play(_music_volume_global_multiplier_ * _music_volume_song_modifier_);
+				break;
+			case track_id::BATTLE_LOSE:
+				_music_volume_song_modifier_ = 0.8;
+				stop_current_track();
+				bn::sound_items::failure.play(_music_volume_global_multiplier_ * _music_volume_song_modifier_);
+				break;
 			
 			default:
 				break;
@@ -39,7 +50,10 @@ namespace sh
 
 		void stop_current_track()
 		{
-			bn::music::stop();
+			if(bn::music::playing())
+			{
+				bn::music::stop();
+			}
 		}
 		
 		void play_sound(sound_id sound)

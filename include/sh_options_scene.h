@@ -3,7 +3,7 @@
 
 #include "sh_scene.h"
 #include "sh_direction.h"
-#include "sh_menu_slider.h"
+#include "sh_menu.h"
 
 #include <bn_fixed_point.h>
 #include <bn_regular_bg_ptr.h>
@@ -21,19 +21,16 @@ namespace sh
 
 		bn::sprite_text_generator text_generator;
 		bn::vector<bn::sprite_ptr, 24> text_sprites;
-		bn::vector<menu_slider, 2> menu_sliders;
-		bn::sprite_ptr _cursor_sprite;
 
-		const int _row_ct = 3;
-		const int _y_inc = 16;
-		int selected_row = 0;
+		// const int _row_ct = 3;
+		// const int _y_inc = 16;
+		// int selected_row = 0;
 
 	public:
 		options_scene();
 		~options_scene();
 		void update() override;
 
-		void select_option_row(int row);
 	};
 
 }

@@ -1,5 +1,6 @@
 #include "sh_battle_scene.h"
 #include "sh_random.h"
+#include "sh_audio.h"
 
 #include <bn_core.h>
 #include <bn_sprite_text_generator.h>
@@ -21,29 +22,29 @@ namespace sh
 		board.set_preview_pattern(pattern);
 		board.set_preview_orientation(directions::random_direction());
 
-		bn::vector<battle_tile*, 80> foe_neighboring_tiles;
-		foe_neighboring_tiles.clear();
+		bn::vector<battle_tile*, 80> foe_tiles;
+		foe_tiles.clear();
+		bn::vector<battle_tile*, 80> neighboring_tiles;
+		neighboring_tiles.clear();
 
-		if(_skill_meters.back().meter_filled())
-		{
-			
-		}
+		
 
 		// identify tiles neighboring current spread
 		{
 			bool tile_checked[81];
-			bn::vector<battle_tile*, 80> foe_active_tiles;
-			foe_active_tiles.clear();
+			bn::vector<battle_tile*, 80> active_tiles;
+			active_tiles.clear();
 			for(int i = 0; i < 81; i++)
 			{
 				tile_checked[i] = false;
 			}
 
-			foe_active_tiles.push_back(foe_base);
-			while(!foe_active_tiles.empty())
+			foe_tiles.push_back(foe_base);
+			active_tiles.push_back(foe_base);
+			while(!active_tiles.empty())
 			{
-				battle_tile *active_tile = foe_active_tiles.back();
-				foe_active_tiles.pop_back();
+				battle_tile *active_tile = active_tiles.back();
+				active_tiles.pop_back();
 				tile_checked[active_tile->tile_id] = true;
 				for(int i = 0; i < 4; i++)
 				{
@@ -56,14 +57,15 @@ namespace sh
 						}
 						if(neighbor->get_owner() == tile_owner::FOE)
 						{
-							foe_active_tiles.push_back(neighbor);
+							foe_tiles.push_back(neighbor);
+							active_tiles.push_back(neighbor);
 						}
 						else
 						{
 							bool neighbor_registered = false;
-							for(int n = 0; n < foe_neighboring_tiles.size(); n++)
+							for(int n = 0; n < neighboring_tiles.size(); n++)
 							{
-								if(foe_neighboring_tiles.at(n) == neighbor)
+								if(neighboring_tiles.at(n) == neighbor)
 								{
 									neighbor_registered = true;
 									break;
@@ -71,7 +73,7 @@ namespace sh
 							}
 							if(!neighbor_registered)
 							{
-								foe_neighboring_tiles.push_back(neighbor);
+								neighboring_tiles.push_back(neighbor);
 								// neighbor->set_owner(tile_owner::DEBUG);
 							}
 						}
@@ -79,17 +81,33 @@ namespace sh
 				}
 			}
 		}
-		if(foe_neighboring_tiles.empty())
+		if(neighboring_tiles.empty())
 		{
 			// if neighboring nothing, return
 			//return;
 		}
 		
 		// text_generator.generate(70, -10, bn::to_string<2>(foe_neighboring_tiles.size()), text_sprites);
+		if(_skill_meters.back().meter_filled())
+		{
+			int r = random.get_int(0, foe_tiles.size());
+			battle_tile *selected_tile = foe_tiles.at(r);
+			board.set_selected_tile(selected_tile->coordinates);
+			board.hide_preview_tiles();
+			bool success = board.use_special_action(tile_owner::FOE, special_action_pattern::CROSS_5);
 
+			if(success)
+			{
+				_skill_meters.back().clear();
+				audio::play_sound(sound_id::BLIP_HIGH);
+				// switch back to card cursor
+				battle_cursor.set_visible(false);
+				return;
+			}
+		}
 		// TODO: make better than random selection maybe
-		int r = random.get_int(0, foe_neighboring_tiles.size());
-		battle_tile *selected_tile = foe_neighboring_tiles.at(r);
+		int r = random.get_int(0, neighboring_tiles.size());
+		battle_tile *selected_tile = neighboring_tiles.at(r);
 		// text_generator.generate(70, 0, bn::to_string<4>(selected_tile->coordinates.x()) + "," + bn::to_string<4>(selected_tile->coordinates.y()), text_sprites);
 		if(selected_tile != NULL)
 		{

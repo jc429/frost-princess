@@ -71,6 +71,7 @@ namespace sh
 		scene_done = false;
 		while(!scene_done)
 		{
+			volatile int burn = random.get();
 			switch(_current_state)
 			{
 			case title_state::PRESS_START:
@@ -164,13 +165,13 @@ namespace sh
 			text_pos = bn::fixed_point(-25, 36);
 			// title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			// text_generator.generate(text_pos, "Continue", text_sprites);
-			// text_pos.set_y(text_pos.y()+11);
+			// text_pos += bn::fixed_point(0,11);
 			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "New Game", text_sprites);
-			text_pos.set_y(text_pos.y()+11);
+			text_pos += bn::fixed_point(0,11);
 			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "Options", text_sprites);
-			text_pos.set_y(text_pos.y()+11);
+			text_pos += bn::fixed_point(0,11);
 			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
 			text_generator.generate(text_pos, "Credits", text_sprites);
 			set_cursor_selection(0);

@@ -177,8 +177,11 @@ namespace sh{
 
 	void battle_tile::set_condition(tile_condition condition, int duration)
 	{
-		_current_condition = condition;
-		_condition_timer = duration;
+		if(!_is_base)
+		{
+			_current_condition = condition;
+			_condition_timer = duration;
+		}
 		update_sprite();
 	}
 

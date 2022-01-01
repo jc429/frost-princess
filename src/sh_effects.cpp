@@ -1,5 +1,6 @@
 #include "sh_effects.h"
 
+#include <bn_fixed_point.h>
 #include <bn_sprite_animate_actions.h>
 #include <bn_sprite_builder.h>
 #include <bn_sprite_ptr.h>
@@ -19,13 +20,14 @@ namespace sh
 
 		bn::sprite_ptr create_effect_at_position(effect_id effect, bn::fixed_point pos)
 		{
-
-
+			bn::fixed_point offset(0,0);
+			if(effect == effect_id::EXPLOSION)
+				offset.set_y(-8);
 			bn::sprite_item effect_sprite = get_effect_sprite(effect);
 			bn::sprite_builder builder(effect_sprite);
 			builder.set_bg_priority(1);
 			builder.set_z_order(-500);
-			builder.set_position(pos);
+			builder.set_position(pos + offset);
 			bn::sprite_ptr spr = builder.release_build();
 			if(!effect_animations.full())
 			{

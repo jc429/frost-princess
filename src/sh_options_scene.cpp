@@ -19,10 +19,10 @@
 namespace sh
 {
 	options_scene::options_scene() :
-		text_generator(common::variable_8x16_sprite_font),
-		_cursor_sprite (bn::sprite_items::menu_arrow.create_sprite(0,0))
+		text_generator(common::variable_8x16_sprite_font)
 	{
 		type = scene_type::OPTIONS;
+		scene_done = false;
 		
 		{
 			bn::regular_bg_builder builder(bn::regular_bg_items::options_bg);
@@ -38,7 +38,6 @@ namespace sh
 			builder.set_position(pos);
 			backgrounds.push_back(builder.release_build());
 		}
-		_cursor_sprite.set_bg_priority(2);
 
 
 		// bn::fixed_point slider_pos(11, -35);
@@ -65,66 +64,74 @@ namespace sh
 		// // text_generator.generate(text_pos, "Clear Data", text_sprites);
 
 		// select_option_row(0);
+		menu options_menu(menu_type::OPTIONS_MENU, 0, text_generator);
 
 		fade_from_black();
 
-		menu options_menu(menu_type::OPTIONS_MENU, 0, text_generator);
-
-
-		bool exit_scene = false;
-		while(!exit_scene)
+		while(!scene_done)
 		{
+			options_menu.update();
 			if(bn::keypad::b_pressed())
 			{
 				// save settings
-				game_settings::set_music_volume(menu_sliders.at(0).get_value());
-				game_settings::set_sfx_volume(menu_sliders.at(1).get_value());
 				scene_management::set_next_scene(scene_type::TITLE);
 				text_sprites.clear();
-				exit_scene = true;
+				scene_done = true;
 				fade_to_black();
 			}
-
-			else if(bn::keypad::a_pressed() && selected_row == 2)
-			{
-				menu_sliders.at(0).set_value(7);
-				menu_sliders.at(1).set_value(7);
-			}
-
-			if(bn::keypad::down_pressed())
-			{
-				selected_row = (selected_row + 1) % _row_ct;
-			}
-			else if(bn::keypad::up_pressed())
-			{
-				selected_row = (selected_row + _row_ct - 1) % _row_ct;
-			}
-
-			if(bn::keypad::right_pressed())
-			{
-				if(menu_sliders.size() > selected_row)
-				{
-					int slider_val = menu_sliders.at(selected_row).increment();
-					game_settings::set_music_volume(slider_val);
-				}
-				
-			}
-			else if(bn::keypad::left_pressed())
-			{
-				if(menu_sliders.size() > selected_row)
-				{
-					int slider_val = menu_sliders.at(selected_row).decrement();
-					game_settings::set_music_volume(slider_val);
-				}
-			}
-
 			update();
 		}
+
+		// while(!scene_done)
+		// {
+		// 	if(bn::keypad::b_pressed())
+		// 	{
+		// 		// save settings
+		// 		scene_management::set_next_scene(scene_type::TITLE);
+		// 		text_sprites.clear();
+		// 		scene_done = true;
+		// 		fade_to_black();
+		// 	}
+
+		// 	else if(bn::keypad::a_pressed() && selected_row == 2)
+		// 	{
+		// 		menu_sliders.at(0).set_value(7);
+		// 		menu_sliders.at(1).set_value(7);
+		// 	}
+
+		// 	if(bn::keypad::down_pressed())
+		// 	{
+		// 		selected_row = (selected_row + 1) % _row_ct;
+		// 	}
+		// 	else if(bn::keypad::up_pressed())
+		// 	{
+		// 		selected_row = (selected_row + _row_ct - 1) % _row_ct;
+		// 	}
+
+		// 	if(bn::keypad::right_pressed())
+		// 	{
+		// 		if(menu_sliders.size() > selected_row)
+		// 		{
+		// 			int slider_val = menu_sliders.at(selected_row).increment();
+		// 			game_settings::set_music_volume(slider_val);
+		// 		}
+				
+		// 	}
+		// 	else if(bn::keypad::left_pressed())
+		// 	{
+		// 		if(menu_sliders.size() > selected_row)
+		// 		{
+		// 			int slider_val = menu_sliders.at(selected_row).decrement();
+		// 			game_settings::set_music_volume(slider_val);
+		// 		}
+		// 	}
+
+		// 	update();
+		// }
 	}
 
 	options_scene::~options_scene()
 	{
-		menu_sliders.clear();
 	}
 
 	void options_scene::update()
@@ -135,8 +142,4 @@ namespace sh
 		scene::update();
 	}
 
-	void options_scene::select_option_row(int row)
-	{
-		selected_row = (row + _row_ct) % _row_ct;
-	}
 }

@@ -650,12 +650,29 @@ namespace sh{
 
 	bool battle_board::use_special_action(tile_owner owner, special_action_pattern pattern)
 	{
+		effects::effect_id eff_id = effects::effect_id::NONE;
+		tile_condition condition = tile_condition::NORMAL;
+		switch(owner)
+		{
+		case tile_owner::PLAYER:
+			eff_id = effects::effect_id::SHINE;
+			condition = tile_condition::FROZEN;
+			break;
+		case tile_owner::FOE:
+			eff_id = effects::effect_id::EXPLOSION;
+			condition = tile_condition::BURNED;
+			break;
+
+		default:
+			break;
+		}
+
+
 		if(owner != tile_owner::EMPTY && selected_tile->get_owner() == owner)
 		{
 			battle_tile *tile = selected_tile;
 			int eff_duration = 4;
-			effects::effect_id eff_id = effects::effect_id::SHINE;
-			tile_condition condition = tile_condition::FROZEN;
+			
 			int cycle_wait = 24;
 			bn::vector<battle_tile*, 8> apply_tiles;
 			battle_tile *neighbors[8];

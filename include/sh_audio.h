@@ -12,7 +12,9 @@ namespace sh
 	enum class track_id
 	{
 		TITLE,
-		BATTLE_BGM
+		BATTLE_BGM,
+		BATTLE_WIN,
+		BATTLE_LOSE,
 	};
 
 	enum class sound_id
