@@ -19,6 +19,7 @@ namespace sh
 		_current_position = hand_position;
 		_is_faceup = false;
 		_is_flipping = false;
+		_is_discarded = false;
 
 		{
 			bn::sprite_builder builder(bn::sprite_items::card_blank);
@@ -66,6 +67,15 @@ namespace sh
 		}
 		
 	}
+
+	
+	void battle_card::reset()
+	{
+		_is_faceup = false;
+		_is_flipping = false;
+		_is_discarded = false;
+	}
+
 
 	void battle_card::set_camera(bn::camera_ptr camera)
 	{
@@ -185,11 +195,18 @@ namespace sh
 
 	void battle_card::discard()
 	{
+		_is_discarded = true;
 		bn::fixed_point pos = _current_position;
 		pos.set_y(pos.y() + 40);
 		//move_to_destination(pos);
 		move_to_destination(pos, 20);
 		set_pattern(tile_patterns::random_tile_pattern());
 	}
+
+	bool battle_card::is_discarded()
+	{
+		return _is_discarded;
+	}
+
 
 }

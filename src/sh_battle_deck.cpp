@@ -136,6 +136,7 @@ namespace sh
 
 	tile_pattern battle_deck_with_sprite::draw_card_with_animation(scene &scene, battle_card &card)
 	{
+		card.reset();
 		tile_pattern pattern = draw_card();
 		card.set_facedown_immediate();
 		card.set_position(get_card_pos());

@@ -15,149 +15,32 @@
 
 #include "bn_regular_bg_items_pause_menu.h"
 #include "bn_sprite_items_menu_arrow.h"
-#include "bn_sprite_items_slider_cursor.h"
 
 namespace sh
 {
 
-	menu_item::menu_item(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text)
-	{
-		_position = pos;
-		_action_id = action_id;
-		_text = text;
-		_menu = menu_owner;
-		_above = NULL;
-		_below = NULL;
-	}
 	
-	// void menu_item::set_menu_action(void (*func)())
-	// {
-	// 	_menu_action = func;
-	// }
-	
-	void menu_item::link_above(menu_item *other)
-	{
-		_above = other;
-		if(other != NULL)
-			other->_below = this;
-	}
+	/***********************************************************/
 
-	void menu_item::link_below(menu_item *other)
-	{
-		_below = other;
-		if(other != NULL)
-			other->_above = this;
-	}
-
-	void menu_item::select()
-	{
-		if(_menu == NULL)
-		{
-			return;
-		}
-		_menu->highlight_menu_item(this);
-
-	}
-
-	void menu_item::interact_with_item(menu_item_interact_type interaction)
-	{
-		switch(interaction)
-		{
-		case menu_item_interact_type::UP_PRESS:
-			if(_above != NULL)
-			{
-				_above->select();
-			}
-			break;
-		case menu_item_interact_type::DOWN_PRESS:
-			if(_below != NULL)
-			{
-				_below->select();
-			}
-			break;
-		case menu_item_interact_type::A_PRESS:
-			_menu->perform_action(_action_id);
-			break;
-		default:
-			break;
-		}
-	}
+	static bn::vector<menu_item, 8> _menu_items_;		// simple text menu items
+	static bn::vector<menu_slider, 4> _menu_sliders_;		// slider items
+	static bn::vector<menu_checkbox, 4> _menu_checkboxes_;	// checkboxes
 
 	/***********************************************************/
 
-	menu_slider::menu_slider(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text, int min_val, int max_val) :
-		menu_item(menu_owner, pos, action_id,text),
-		_slider_cursor(bn::sprite_items::slider_cursor.create_sprite(pos))
-	{
-		if(menu_owner != NULL)
-		{
-			_slider_cursor.set_bg_priority(menu_owner->get_layer());
-			_slider_cursor.set_z_order(-10);
-		}
-		_min_value = min_val;
-		_max_value = max_val;
-		_cur_value = min_val;
-	}
-
-	menu_slider::~menu_slider()
-	{
-
-	}
-
-	void menu_slider::set_range(int min, int max)
-	{
-		_min_value = min;
-		_max_value = max;
-		set_value(_cur_value);
-	}
-
-	int menu_slider::set_value(int val)
-	{
-		_cur_value = bn::clamp(val, _min_value, _max_value);
-		update_sprite();
-		return _cur_value;
-	}
-
-	int menu_slider::get_value()
-	{
-		return _cur_value;
-	}
-
-	int menu_slider::increment()
-	{
-		return set_value(_cur_value + 1);
-	}
-
-	int menu_slider::decrement()
-	{
-		return set_value(_cur_value - 1);
-	}
-
-	void menu_slider::update_sprite()
-	{
-		_slider_cursor.set_x(_position.x() + (x_inc * _cur_value));
-	}
-
-	/***********************************************************/
-
-	menu::menu(menu_type type, int bg_layer, bn::sprite_text_generator &text_generator) :
+	menu::menu(menu_type type, int layer, bn::sprite_text_generator &text_generator) :
 		_cursor_sprite (bn::sprite_items::menu_arrow.create_sprite(0,0))
 	{
 		_current_scene = NULL;
 		_type = type;
-		_bg_layer = bg_layer;
+		_bg_layer = layer;
 		_position = bn::fixed_point(0,0);
 		_text_sprites.clear();
 		_current_item = NULL;
-		_menu_items.clear();
-		_cursor_sprite.set_bg_priority(bg_layer);
+		_cursor_sprite.set_bg_priority(layer);
 		_cursor_sprite.set_z_order(-10);
 		_menu_open = false;
-
-
-
-
-
+		clear_menu_item_pool();
 
 
 		switch(type)
@@ -165,18 +48,20 @@ namespace sh
 		case menu_type::PAUSE_MENU:
 			{
 				bn::regular_bg_builder builder(bn::regular_bg_items::pause_menu);
-				builder.set_priority(bg_layer);
+				builder.set_priority(layer);
 				_menu_bg.push_back(builder.release_build());
 				
-				text_generator.set_bg_priority(bg_layer);
+				text_generator.set_bg_priority(layer);
 				text_generator.set_center_alignment();
 				bn::fixed_point pos(0,-69);		// nice
 				text_generator.generate(pos, "-Paused-", _text_sprites);
 
 				pos = bn::fixed_point(-20, -30);
-				_menu_items.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
+				_menu_items_.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
+				_item_list.push_back(&_menu_items_.back());
 				pos = pos + bn::fixed_point(0,_item_offset_y);
-				_menu_items.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
+				_menu_items_.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
+				_item_list.push_back(&_menu_items_.back());
 
 			}
 			break;
@@ -186,12 +71,18 @@ namespace sh
 				// builder.set_priority(bg_layer);
 				// _menu_bgs.push_back(builder.release_build());
 
-				text_generator.set_bg_priority(bg_layer);
+				text_generator.set_bg_priority(layer);
 				text_generator.set_center_alignment();
 				bn::fixed_point pos = bn::fixed_point(-80, -36);
-				_menu_items.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume",0,9));
+				bn::fixed_point slider_offset(88,2);
+				_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
+				_item_list.push_back(&_menu_sliders_.back());
 				pos = pos + bn::fixed_point(0,_item_offset_y);
-				_menu_items.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume",0,9));
+				_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
+				_item_list.push_back(&_menu_sliders_.back());
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Test Checkbox", slider_offset, false));
+				_item_list.push_back(&_menu_checkboxes_.back());
 			
 			}
 			break;
@@ -201,7 +92,7 @@ namespace sh
 
 		
 		
-		text_generator.set_bg_priority(bg_layer);
+		text_generator.set_bg_priority(layer);
 		text_generator.set_left_alignment();
 		// for(int i = 0; i < _menu_items.size(); i++)
 		// {
@@ -209,23 +100,20 @@ namespace sh
 		// 	text_generator.generate(item._position, item._text, _text_sprites);
 		// }
 
-		if(!_menu_items.empty())
+		if(!_item_list.empty())
 		{
 			// generate text + link menu items
-			if(_menu_items.size() > 1)
+			for(int i = 0; (i+1) < _item_list.size(); i++)
 			{
-				for(auto it = _menu_items.begin(), end = _menu_items.end(); it+1 != end; ++it)
-				{
-					it->link_below(it+1);
-					text_generator.generate(it->_position, it->_text, _text_sprites);
-				}
+				_item_list.at(i)->link_below(_item_list.at(i+1));
+				text_generator.generate(_item_list.at(i)->_position, _item_list.at(i)->_text, _text_sprites);
 			}
 			// special case for last element (or only element)
-			_menu_items.back().link_below(&_menu_items.front());
-			text_generator.generate(_menu_items.back()._position, _menu_items.back()._text, _text_sprites);
+			_item_list.back()->link_below(_item_list.front());
+			text_generator.generate(_item_list.back()->_position, _item_list.back()->_text, _text_sprites);
 
 			_menu_open = true;
-			highlight_menu_item(&_menu_items.front());
+			highlight_menu_item(_item_list.front());
 		}
 
 		// advance one frame to flush out inputs 
@@ -234,12 +122,24 @@ namespace sh
 
 	menu::~menu()
 	{
+		clear_menu_item_pool();
 		_text_sprites.clear();
-		_menu_items.clear();
 		_menu_bg.clear();
 		// _menu_bg.reset();
 	}
 	
+	void menu::clear_menu_item_pool()
+	{
+		_menu_items_.clear();
+		_menu_sliders_.clear();
+		_menu_checkboxes_.clear();
+	}
+
+	void menu::generate_menu_items()
+	{
+
+	}
+
 	void menu::update()
 	{
 		

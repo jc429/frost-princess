@@ -31,11 +31,13 @@ namespace sh
 		bn::fixed_point _current_position;
 		bool _is_flipping;
 		bool _is_faceup;
+		bool _is_discarded;
 
 	public:
 		battle_card(bn::fixed_point pos);
 		virtual ~battle_card();
 		void update();
+		void reset();
 
 		void set_camera(bn::camera_ptr camera);
 		void set_visible(bool visible);
@@ -53,7 +55,7 @@ namespace sh
 		void set_facedown_immediate();
 		void set_faceup_immediate();
 		void discard();
-		
+		bool is_discarded();
 	};
 
 }

@@ -179,8 +179,6 @@ namespace sh
 	void battle_scene::update()
 	{
 		action_manager::update_sprite_move_actions();
-		// burn a random number each update
-		volatile unsigned int burn = random.get();
 		
 		for(auto it = _skill_meters.begin(), end = _skill_meters.end(); it != end; ++it)
 		{
@@ -206,6 +204,8 @@ namespace sh
 		// update transparency 
 		preview_transparency_action.update();
 		
+		update_text();
+
 		scene::update();
 	}
 
@@ -309,7 +309,17 @@ namespace sh
 
 		turn_state = turn_state::PLAYER_CARD_SELECT;
 		
-		
+		for(auto it = battle_cards.begin(), end = battle_cards.end(); it != end; ++it)
+		{
+			if(it->is_discarded())
+			{
+
+				player_deck.draw_card_with_animation(*this, battle_cards.at(selected_card));
+				battle_cards.at(selected_card).flip_faceup();
+			}
+		}
+
+
 		set_battle_cursor_card_mode();
 		battle_cursor.set_visible(true);
 		board.set_preview_orientation(direction::NORTH);
@@ -496,8 +506,8 @@ namespace sh
 								battle_cards.at(selected_card).discard();
 								wait_for_update_cycles(36);
 
-								player_deck.draw_card_with_animation(*this, battle_cards.at(selected_card));
-								battle_cards.at(selected_card).flip_faceup();
+								// player_deck.draw_card_with_animation(*this, battle_cards.at(selected_card));
+								// battle_cards.at(selected_card).flip_faceup();
 							}
 							//
 							turn_over = true;
@@ -569,7 +579,6 @@ namespace sh
 
 	void battle_scene::update_tile_counts()
 	{
-
 		update_text();
 	}
 
@@ -591,6 +600,11 @@ namespace sh
 		text_generator.set_left_alignment();
 		int foe_count = board.count_tiles_with_owner(tile_owner::FOE);
 		text_generator.generate(-88, -60, bn::to_string<2>(bn::min(foe_count, 99)), text_sprites);
+
+		
+		// burn a random number each update
+		volatile unsigned int burn = random.get();
+		text_generator.generate(100, -6, bn::to_string<4>(burn % 10000), text_sprites);
 	}
 
 	void battle_scene::select_tile(int x, int y)

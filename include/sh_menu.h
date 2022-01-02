@@ -2,6 +2,7 @@
 #define SH_MENU_H
 
 #include "sh_direction.h"
+#include "sh_menu_item.h"
 #include "sh_scene.h"
 
 #include <bn_fixed_point.h>
@@ -19,68 +20,9 @@ namespace sh
 	{
 		PAUSE_MENU,
 		OPTIONS_MENU,
-	};	
-	
-	enum class menu_action_id
-	{
-		NONE,		// pressing A on this menu item does nothing
-		CLOSE_MENU,
-		EXIT_SCENE,
-		RESET_SETTINGS,
+		TITLE_MENU,
 	};
 
-	enum class menu_item_interact_type
-	{
-		NONE,
-		A_PRESS,
-		B_PRESS,
-		UP_PRESS,
-		DOWN_PRESS,
-		LEFT_PRESS,
-		RIGHT_PRESS
-	};
-
-	struct menu_item
-	{
-	public:
-		class menu *_menu;
-		menu_action_id _action_id;
-		bn::fixed_point _position;
-		bn::string<16> _text;
-		// void (*_menu_action)();
-		menu_item *_above;
-		menu_item *_below;
-
-		menu_item(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text);
-		// void set_menu_action(void (*func)());
-
-		void link_above(menu_item *other);
-		void link_below(menu_item *other);
-		void select();
-		void interact_with_item(menu_item_interact_type interaction);
-		// bool input_confirm_action();
-		// bool input_direction_action(direction dir);
-	};
-	
-	struct menu_slider : public menu_item
-	{
-		bn::sprite_ptr _slider_cursor;
-		const int x_inc = 5;
-		int _min_value;
-		int _max_value;
-		int _cur_value;
-
-		menu_slider(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text, int min_val, int max_val);
-		~menu_slider();
-		
-		void set_range(int min, int max);
-		int set_value(int val);
-		int get_value();
-		int increment();
-		int decrement();
-
-		void update_sprite();
-	};
 
 	class menu
 	{
@@ -91,7 +33,8 @@ namespace sh
 		bn::fixed_point _position;
 		bn::vector<bn::regular_bg_ptr, 1> _menu_bg;
 		// bn::optional<bn::regular_bg_ptr> _menu_bg;
-		bn::vector<menu_item, 8> _menu_items;
+		bn::vector<menu_item*,16> _item_list;
+
 		menu_item *_current_item;
 
 		const bn::fixed_point _cursor_offset = bn::fixed_point(-8,0);
@@ -102,6 +45,9 @@ namespace sh
 		bool _menu_open;
 		//distance to space menu elements vertically
 		const int _item_offset_y = 16;
+	protected:
+		void clear_menu_item_pool();
+		void generate_menu_items();
 
 	public:
 		menu(menu_type type, int layer, bn::sprite_text_generator &text_generator);

@@ -10,6 +10,7 @@
 #include <bn_regular_bg_item.h>
 #include <bn_sprite_builder.h>
 #include <bn_sprite_ptr.h>
+#include <bn_string.h>
 #include <bn_vector.h>
 
 #include "bn_regular_bg_items_title_bg.h"
@@ -69,9 +70,13 @@ namespace sh
 		set_title_state(title_state::PRESS_START);
 
 		scene_done = false;
+		static unsigned int burn;
+		bn::fixed_point debug_pos(0,0);
 		while(!scene_done)
 		{
-			volatile int burn = random.get();
+			burn = random.get();
+			
+			
 			switch(_current_state)
 			{
 			case title_state::PRESS_START:
