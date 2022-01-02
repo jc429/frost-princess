@@ -21,6 +21,22 @@ namespace sh
 		_checkbox_sprites.clear();
 	}
 
+	void menu_checkbox::show_item()
+	{
+		for(auto it = _checkbox_sprites.begin(), end = _checkbox_sprites.end(); it != end; ++it)
+		{
+			it->set_visible(true);
+		}
+	}
+
+	void menu_checkbox::hide_item()
+	{
+		for(auto it = _checkbox_sprites.begin(), end = _checkbox_sprites.end(); it != end; ++it)
+		{
+			it->set_visible(false);
+		}
+	}
+
 	void menu_checkbox::interact_with_item(menu_item_interact_type interaction)
 	{
 		switch(interaction)

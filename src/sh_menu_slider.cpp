@@ -10,7 +10,7 @@
 namespace sh
 {
 	menu_slider::menu_slider(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text, bn::fixed_point spr_offset, int min_val, int max_val) :
-		menu_item(menu_owner, pos, action_id,text),
+		menu_item(menu_owner, pos, action_id, text),
 		_slider_cursor(bn::sprite_items::menu_slider_cursor.create_sprite(pos + spr_offset))
 	{
 		if(menu_owner != NULL)
@@ -37,6 +37,24 @@ namespace sh
 	menu_slider::~menu_slider()
 	{
 		_slider_bar.clear();
+	}
+
+	void menu_slider::show_item()
+	{
+		for(auto it = _slider_bar.begin(), end = _slider_bar.end(); it != end; ++it)
+		{
+			it->set_visible(true);
+		}
+		_slider_cursor.set_visible(true);
+	}
+
+	void menu_slider::hide_item()
+	{
+		for(auto it = _slider_bar.begin(), end = _slider_bar.end(); it != end; ++it)
+		{
+			it->set_visible(false);
+		}
+		_slider_cursor.set_visible(false);
 	}
 
 	void menu_slider::interact_with_item(menu_item_interact_type interaction)

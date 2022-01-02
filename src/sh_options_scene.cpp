@@ -65,6 +65,7 @@ namespace sh
 
 		// select_option_row(0);
 		menu options_menu(menu_type::OPTIONS_MENU, 0, text_generator);
+		options_menu.open_menu();
 
 		fade_from_black();
 
@@ -78,6 +79,18 @@ namespace sh
 				text_sprites.clear();
 				scene_done = true;
 				fade_to_black();
+			}
+
+			if(bn::keypad::l_pressed())
+			{
+				if(options_menu.is_open())
+				{
+					options_menu.close_menu();
+				}
+				else
+				{
+					options_menu.open_menu();
+				}
 			}
 			update();
 		}

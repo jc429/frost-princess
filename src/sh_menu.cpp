@@ -15,6 +15,7 @@
 
 #include "bn_regular_bg_items_pause_menu.h"
 #include "bn_sprite_items_menu_arrow.h"
+#include "variable_8x16_sprite_font.h"
 
 namespace sh
 {
@@ -40,9 +41,10 @@ namespace sh
 		_cursor_sprite.set_bg_priority(layer);
 		_cursor_sprite.set_z_order(-10);
 		_menu_open = false;
+		text_generator.set_bg_priority(layer);
 		clear_menu_item_pool();
 
-
+		bn::fixed_point pos;
 		switch(type)
 		{
 		case menu_type::PAUSE_MENU:
@@ -51,9 +53,8 @@ namespace sh
 				builder.set_priority(layer);
 				_menu_bg.push_back(builder.release_build());
 				
-				text_generator.set_bg_priority(layer);
 				text_generator.set_center_alignment();
-				bn::fixed_point pos(0,-69);		// nice
+				pos = bn::fixed_point(0,-69);		// nice
 				text_generator.generate(pos, "-Paused-", _text_sprites);
 
 				pos = bn::fixed_point(-20, -30);
@@ -71,9 +72,9 @@ namespace sh
 				// builder.set_priority(bg_layer);
 				// _menu_bgs.push_back(builder.release_build());
 
-				text_generator.set_bg_priority(layer);
+				
 				text_generator.set_center_alignment();
-				bn::fixed_point pos = bn::fixed_point(-80, -36);
+				pos = bn::fixed_point(-80, -36);
 				bn::fixed_point slider_offset(88,2);
 				_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
 				_item_list.push_back(&_menu_sliders_.back());
@@ -84,6 +85,20 @@ namespace sh
 				_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Test Checkbox", slider_offset, false));
 				_item_list.push_back(&_menu_checkboxes_.back());
 			
+			}
+			break;
+		case menu_type::TITLE_MENU:
+			{
+				text_generator.set_left_alignment();
+				pos = bn::fixed_point(-25, 36);
+				_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
+				_item_list.push_back(&_menu_items_.back());
+				pos += bn::fixed_point(0,_item_offset_y);
+				_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
+				_item_list.push_back(&_menu_items_.back());
+				pos += bn::fixed_point(0,_item_offset_y);
+				_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
+				_item_list.push_back(&_menu_items_.back());
 			}
 			break;
 		default:
@@ -106,17 +121,19 @@ namespace sh
 			for(int i = 0; (i+1) < _item_list.size(); i++)
 			{
 				_item_list.at(i)->link_below(_item_list.at(i+1));
-				text_generator.generate(_item_list.at(i)->_position, _item_list.at(i)->_text, _text_sprites);
+				// text_generator.generate(_item_list.at(i)->_position, _item_list.at(i)->_text, _text_sprites);
 			}
 			// special case for last element (or only element)
 			_item_list.back()->link_below(_item_list.front());
-			text_generator.generate(_item_list.back()->_position, _item_list.back()->_text, _text_sprites);
+			// text_generator.generate(_item_list.back()->_position, _item_list.back()->_text, _text_sprites);
 
 			_menu_open = true;
 			highlight_menu_item(_item_list.front());
 		}
 
-		// advance one frame to flush out inputs 
+		close_menu();
+
+		// advance one frame to flush out inputs
 		bn::core::update();
 	}
 
@@ -138,6 +155,17 @@ namespace sh
 	void menu::generate_menu_items()
 	{
 
+	}
+
+	void menu::generate_menu_text()
+	{
+		_text_sprites.clear();
+		bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
+		text_generator.set_bg_priority(_bg_layer);
+		for(int i = 0; i < _item_list.size(); i++)
+		{
+			text_generator.generate(_item_list.at(i)->_position, _item_list.at(i)->_text, _text_sprites);
+		}
 	}
 
 	void menu::update()
@@ -198,7 +226,20 @@ namespace sh
 			close_menu();
 			break;
 		case menu_action_id::EXIT_SCENE:
+		case menu_action_id::GO_TO_TITLE:
 			scene_management::exit_current_scene(scene_type::TITLE);
+			close_menu();
+			break;
+		case menu_action_id::GO_TO_BATTLE:
+			scene_management::exit_current_scene(scene_type::BATTLE);
+			close_menu();
+			break;
+		case menu_action_id::GO_TO_OPTIONS:
+			scene_management::exit_current_scene(scene_type::OPTIONS);
+			close_menu();
+			break;
+		case menu_action_id::GO_TO_CREDITS:
+			scene_management::exit_current_scene(scene_type::CREDITS);
 			close_menu();
 			break;
 		default:
@@ -206,14 +247,31 @@ namespace sh
 		}
 	}
 
-	bool menu::is_open()
+	void menu::open_menu()
 	{
-		return _menu_open;
+		_menu_open = true;
+		for(int i= 0; i < _item_list.size(); i++)
+		{
+			_item_list.at(i)->show_item();
+		}
+		generate_menu_text();
+		_cursor_sprite.set_visible(true);
 	}
 
 	void menu::close_menu()
 	{
 		_menu_open = false;
+		for(int i= 0; i < _item_list.size(); i++)
+		{
+			_item_list.at(i)->hide_item();
+		}
+		_text_sprites.clear();
+		_cursor_sprite.set_visible(false);
+	}
+
+	bool menu::is_open()
+	{
+		return _menu_open;
 	}
 
 	int menu::get_layer()

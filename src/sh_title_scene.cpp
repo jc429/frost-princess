@@ -1,5 +1,6 @@
 #include "sh_title_scene.h"
 #include "sh_audio.h"
+#include "sh_menu.h"
 #include "sh_random.h"
 
 #include <bn_blending_fade_alpha.h>
@@ -67,65 +68,69 @@ namespace sh
 		fade_from_black();
 
 		wait_for_update_cycles(12);
-		set_title_state(title_state::PRESS_START);
+		_current_state = title_state::PRESS_START;
+		text_sprites.clear();
+		text_generator.set_center_alignment();
+		bn::fixed_point text_pos(0, 60);
+		text_generator.generate(text_pos, "Press Start", text_sprites);
 
-		scene_done = false;
+		menu title_menu(menu_type::TITLE_MENU, 0, text_generator);
+
 		static unsigned int burn;
 		bn::fixed_point debug_pos(0,0);
+
+		scene_done = false;
 		while(!scene_done)
 		{
 			burn = random.get();
-			
 			
 			switch(_current_state)
 			{
 			case title_state::PRESS_START:
 				if(bn::keypad::start_pressed() || bn::keypad::a_pressed())
 				{
-					set_title_state(title_state::MAIN_MENU);
+					text_sprites.clear();
+					_current_state = title_state::MAIN_MENU;
+					title_menu.open_menu();
 				}
 				break;
 				
 			case title_state::MAIN_MENU:
-				if(bn::keypad::down_pressed())
-				{
-					set_cursor_selection(current_menu_selection + 1);
-				}
-				else if(bn::keypad::up_pressed())
-				{
-					set_cursor_selection(current_menu_selection - 1);
-				}
+				title_menu.update();
 				if(bn::keypad::a_pressed())
 				{
 
-					switch(current_menu_selection)
-					{
-					case 0:
-						scene_management::set_next_scene(scene_type::BATTLE);
-						scene_done = true;
-						break;
-					case 1:
-						scene_management::set_next_scene(scene_type::OPTIONS);
-						scene_done = true;
-						break;
-					case 2:
-						scene_management::set_next_scene(scene_type::CREDITS);
-						scene_done = true;
-						break;
+					// switch(title_menu)
+					// {
+					// case 0:
+					// 	scene_management::set_next_scene(scene_type::BATTLE);
+					// 	scene_done = true;
+					// 	break;
+					// case 1:
+					// 	scene_management::set_next_scene(scene_type::OPTIONS);
+					// 	scene_done = true;
+					// 	break;
+					// case 2:
+					// 	scene_management::set_next_scene(scene_type::CREDITS);
+					// 	scene_done = true;
+					// 	break;
 
-					default:
-						break;
-					}
+					// default:
+					// 	break;
+					// }
 					if(scene_done)
 					{
-						text_sprites.clear();
-						audio::stop_current_track();
-						fade_to_black();
+						
 					}
 				}
 				else if(bn::keypad::b_pressed())
 				{
-					set_title_state(title_state::PRESS_START);
+					title_menu.close_menu();
+					text_sprites.clear();
+					_current_state = title_state::PRESS_START;
+					text_generator.set_center_alignment();
+					text_pos = bn::fixed_point(0, 60);
+					text_generator.generate(text_pos, "Press Start", text_sprites);
 				}
 				break;
 			default:
@@ -136,6 +141,9 @@ namespace sh
 
 			update();
 		}
+		text_sprites.clear();
+		audio::stop_current_track();
+		fade_to_black();
 	}
 
 
@@ -150,42 +158,6 @@ namespace sh
 		scene::update();
 	}
 
-	void title_scene::set_title_state(title_state state)
-	{
-		_current_state = state;
-		bn::fixed_point text_pos;
-		switch (_current_state)
-		{
-		case title_state::PRESS_START:
-			title_cursor->set_visible(false);
-			text_sprites.clear();
-			text_generator.set_center_alignment();
-			text_pos = bn::fixed_point(0, 60);
-			text_generator.generate(text_pos, "Press Start", text_sprites);
-			break;
-		case title_state::MAIN_MENU:
-			text_sprites.clear();
-			title_menu_cursor_pos.clear();
-			text_generator.set_left_alignment();
-			text_pos = bn::fixed_point(-25, 36);
-			// title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
-			// text_generator.generate(text_pos, "Continue", text_sprites);
-			// text_pos += bn::fixed_point(0,11);
-			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
-			text_generator.generate(text_pos, "New Game", text_sprites);
-			text_pos += bn::fixed_point(0,11);
-			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
-			text_generator.generate(text_pos, "Options", text_sprites);
-			text_pos += bn::fixed_point(0,11);
-			title_menu_cursor_pos.push_back(bn::fixed_point(text_pos.x() - 10, text_pos.y()));
-			text_generator.generate(text_pos, "Credits", text_sprites);
-			set_cursor_selection(0);
-			title_cursor->set_visible(true);
-			break;
-		default:
-			break;
-		}
-	}
 
 	void title_scene::set_cursor_selection(int selection)
 	{

@@ -17,6 +17,10 @@ namespace sh
 		NONE,			// pressing A on this menu item does nothing
 		CLOSE_MENU,		// closes the menu and resumes the scene
 		EXIT_SCENE,		// closes the menu and ends the current scene
+		GO_TO_TITLE,
+		GO_TO_BATTLE,
+		GO_TO_OPTIONS,
+		GO_TO_CREDITS,
 		RESET_SETTINGS,
 	};
 
@@ -49,6 +53,8 @@ namespace sh
 		void link_above(menu_item *other);
 		void link_below(menu_item *other);
 		void select();
+		virtual void show_item();
+		virtual void hide_item();
 		virtual void interact_with_item(menu_item_interact_type interaction);
 	};
 	
@@ -65,6 +71,8 @@ namespace sh
 		menu_slider(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text, bn::fixed_point spr_offset, int min_val, int max_val);
 		~menu_slider();
 		
+		virtual void show_item() override;
+		virtual void hide_item() override;
 		void interact_with_item(menu_item_interact_type interaction) override;
 
 		void set_range(int min, int max);
@@ -84,6 +92,8 @@ namespace sh
 		menu_checkbox(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text, bn::fixed_point spr_offset, bool default_checked);
 		~menu_checkbox();
 
+		virtual void show_item() override;
+		virtual void hide_item() override;
 		void interact_with_item(menu_item_interact_type interaction) override;
 		
 		void set_checked(bool checked);

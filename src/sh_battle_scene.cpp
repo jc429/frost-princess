@@ -604,7 +604,7 @@ namespace sh
 		
 		// burn a random number each update
 		volatile unsigned int burn = random.get();
-		text_generator.generate(100, -6, bn::to_string<4>(burn % 10000), text_sprites);
+		// text_generator.generate(100, -6, bn::to_string<4>(burn % 10000), text_sprites);
 	}
 
 	void battle_scene::select_tile(int x, int y)
@@ -638,6 +638,7 @@ namespace sh
 		board.clear_tile_sprites();
 
 		menu pause_menu(menu_type::PAUSE_MENU, 0, text_generator);
+		pause_menu.open_menu();
 		
 		while(pause_menu.is_open())
 		{

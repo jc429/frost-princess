@@ -45,9 +45,11 @@ namespace sh
 		bool _menu_open;
 		//distance to space menu elements vertically
 		const int _item_offset_y = 16;
+
 	protected:
 		void clear_menu_item_pool();
 		void generate_menu_items();
+		void generate_menu_text();
 
 	public:
 		menu(menu_type type, int layer, bn::sprite_text_generator &text_generator);
@@ -57,6 +59,7 @@ namespace sh
 		void highlight_menu_item(menu_item *item);
 		// void select_item(int item_index);
 		void perform_action(menu_action_id action_id);
+		void open_menu();
 		void close_menu();
 		bool is_open();
 

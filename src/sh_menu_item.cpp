@@ -45,6 +45,15 @@ namespace sh
 			return;
 		}
 		_menu->highlight_menu_item(this);
+	}
+
+	void menu_item::show_item()
+	{
+		
+	}
+
+	void menu_item::hide_item()
+	{
 
 	}
 
