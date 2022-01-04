@@ -144,7 +144,13 @@ namespace sh{
 
 	battle_tile* battle_board::move_selected_tile(int dir_x, int dir_y)
 	{
-		if(dir_x < 0 && selected_tile->get_neighbor(direction::WEST) != NULL)
+		return move_selected_tile(bn::point(dir_x,dir_y));
+	}
+
+	battle_tile* battle_board::move_selected_tile(bn::point dir)
+	{
+		
+		if(dir.x() < 0 && selected_tile->get_neighbor(direction::WEST) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -160,7 +166,7 @@ namespace sh{
 				selected_tile = selected_tile->get_neighbor(direction::WEST);
 			}
 		}
-		if(dir_x > 0 && selected_tile->get_neighbor(direction::EAST) != NULL)
+		if(dir.x() > 0 && selected_tile->get_neighbor(direction::EAST) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -176,7 +182,7 @@ namespace sh{
 				selected_tile = selected_tile->get_neighbor(direction::EAST);
 			}
 		}
-		if(dir_y < 0 && selected_tile->get_neighbor(direction::NORTH) != NULL)
+		if(dir.y() < 0 && selected_tile->get_neighbor(direction::NORTH) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -192,7 +198,7 @@ namespace sh{
 				selected_tile = selected_tile->get_neighbor(direction::NORTH);
 			}
 		}
-		if(dir_y > 0 && selected_tile->get_neighbor(direction::SOUTH) != NULL)
+		if(dir.y() > 0 && selected_tile->get_neighbor(direction::SOUTH) != NULL)
 		{
 			bool safe = true;
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
@@ -215,9 +221,86 @@ namespace sh{
 		return selected_tile;
 	}
 
-	battle_tile* battle_board::move_selected_tile(bn::point dir)
+	// like move_selected_tile, but only succeeds if the destination tile matches the specified filter
+	battle_tile* battle_board::move_selected_tile(bn::point dir, tile_owner owner_filter)
 	{
-		return move_selected_tile(dir.x(), dir.y());
+		if(dir.x() < 0 && selected_tile->get_neighbor(direction::WEST) != NULL)
+		{
+			bool safe = true;
+			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			{
+				if(selection_pos.x() + preview_tile_offsets.at(i).x() <= 0)
+				{
+					safe = false;
+					break;
+				}
+			}
+			if(safe)
+			{
+				battle_tile *neighbor = selected_tile->get_neighbor(direction::WEST);
+				if(neighbor->get_owner() == owner_filter)
+					selected_tile = neighbor;
+			}
+		}
+		if(dir.x() > 0 && selected_tile->get_neighbor(direction::EAST) != NULL)
+		{
+			bool safe = true;
+			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			{
+				if(selection_pos.x() + preview_tile_offsets.at(i).x() >= 8)
+				{
+					safe = false;
+					break;
+				}
+			}
+			if(safe)
+			{
+				battle_tile *neighbor = selected_tile->get_neighbor(direction::EAST);
+				if(neighbor->get_owner() == owner_filter)
+					selected_tile = neighbor;
+			}
+		}
+		if(dir.y() < 0 && selected_tile->get_neighbor(direction::NORTH) != NULL)
+		{
+			bool safe = true;
+			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			{
+				if(selection_pos.y() + preview_tile_offsets.at(i).y() <= 0)
+				{
+					safe = false;
+					break;
+				}
+			}
+			if(safe)
+			{
+				battle_tile *neighbor = selected_tile->get_neighbor(direction::NORTH);
+				if(neighbor->get_owner() == owner_filter)
+					selected_tile = neighbor;
+			}
+		}
+		if(dir.y() > 0 && selected_tile->get_neighbor(direction::SOUTH) != NULL)
+		{
+			bool safe = true;
+			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			{
+				if(selection_pos.y() + preview_tile_offsets.at(i).y() >= 8)
+				{
+					safe = false;
+					break;
+				}
+			}
+			if(safe)
+			{
+				battle_tile *neighbor = selected_tile->get_neighbor(direction::SOUTH);
+				if(neighbor->get_owner() == owner_filter)
+					selected_tile = neighbor;
+			}
+		}
+
+		// update preview graphics
+		select_tile(selected_tile);
+		update_preview_tiles();
+		return selected_tile;
 	}
 
 	battle_tile* battle_board::get_selected_tile()
@@ -225,9 +308,9 @@ namespace sh{
 		return selected_tile;
 	}
 
-	battle_tile* battle_board::set_selected_tile(int pos_x, int pos_y)
+	battle_tile* battle_board::set_selected_tile(bn::point pos)
 	{
-		bn::point temp(pos_x, pos_y);
+		bn::point temp = pos;
 		bool safe = true;
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
@@ -245,12 +328,12 @@ namespace sh{
 		if(safe)
 		{
 			selection_pos = temp;
-			selected_tile = get_tile(pos_x, pos_y);
+			selected_tile = get_tile(pos);
 			update_preview_tiles();
 		}
 		else{ // ???
 			selection_pos = temp;
-			selected_tile = get_tile(pos_x, pos_y);
+			selected_tile = get_tile(pos);
 			update_preview_tiles();
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
@@ -277,9 +360,9 @@ namespace sh{
 		return selected_tile;
 	}
 	
-	battle_tile* battle_board::set_selected_tile(bn::point pos)
+	battle_tile* battle_board::set_selected_tile(int pos_x, int pos_y)
 	{
-		return set_selected_tile(pos.x(), pos.y());
+		return set_selected_tile(bn::point(pos_x,pos_y));
 	}
 
 	void battle_board::clear_tile_sprites()

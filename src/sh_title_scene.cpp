@@ -74,7 +74,7 @@ namespace sh
 		bn::fixed_point text_pos(0, 60);
 		text_generator.generate(text_pos, "Press Start", text_sprites);
 
-		menu title_menu(menu_type::TITLE_MENU, 0, text_generator);
+		menu title_menu(menu_type::TITLE_MENU, 0);
 
 		static unsigned int burn;
 		bn::fixed_point debug_pos(0,0);

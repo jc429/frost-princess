@@ -33,11 +33,12 @@ namespace sh
 		bn::fixed_point _position;
 		bn::vector<bn::regular_bg_ptr, 1> _menu_bg;
 		// bn::optional<bn::regular_bg_ptr> _menu_bg;
+		bn::string<16> _header_text;
 		bn::vector<menu_item*,16> _item_list;
 
 		menu_item *_current_item;
 
-		const bn::fixed_point _cursor_offset = bn::fixed_point(-8,0);
+		const bn::fixed_point _cursor_offset = bn::fixed_point(-8,1);
 		bn::sprite_ptr _cursor_sprite;
 		bn::vector<bn::sprite_ptr, 24> _text_sprites;
 
@@ -52,7 +53,7 @@ namespace sh
 		void generate_menu_text();
 
 	public:
-		menu(menu_type type, int layer, bn::sprite_text_generator &text_generator);
+		menu(menu_type type, int layer);
 		~menu();
 		void update();
 		

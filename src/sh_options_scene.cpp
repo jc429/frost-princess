@@ -1,6 +1,7 @@
 #include "sh_options_scene.h"
 #include "sh_game_settings.h"
 #include "sh_menu.h"
+#include "sh_debug.h"
 
 #include <bn_keypad.h>
 #include <bn_regular_bg_builder.h>
@@ -64,7 +65,7 @@ namespace sh
 		// // text_generator.generate(text_pos, "Clear Data", text_sprites);
 
 		// select_option_row(0);
-		menu options_menu(menu_type::OPTIONS_MENU, 0, text_generator);
+		menu options_menu(menu_type::OPTIONS_MENU, 0);
 		options_menu.open_menu();
 
 		fade_from_black();
@@ -81,7 +82,7 @@ namespace sh
 				fade_to_black();
 			}
 
-			if(bn::keypad::l_pressed())
+			if(debug::DEBUG_ENABLED && bn::keypad::l_pressed())
 			{
 				if(options_menu.is_open())
 				{

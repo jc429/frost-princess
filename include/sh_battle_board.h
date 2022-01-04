@@ -67,6 +67,7 @@ namespace sh
 		battle_tile* get_tile(bn::point pos);
 		battle_tile* move_selected_tile(int dir_x, int dir_y);
 		battle_tile* move_selected_tile(bn::point dir);
+		battle_tile* move_selected_tile(bn::point dir, tile_owner owner_filter);
 		battle_tile* get_selected_tile();
 		battle_tile* set_selected_tile(int pos_x, int pos_y);
 		battle_tile* set_selected_tile(bn::point pos);

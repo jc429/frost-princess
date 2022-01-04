@@ -30,7 +30,7 @@ namespace sh
 
 	/***********************************************************/
 
-	menu::menu(menu_type type, int layer, bn::sprite_text_generator &text_generator) :
+	menu::menu(menu_type type, int layer) :
 		_cursor_sprite (bn::sprite_items::menu_arrow.create_sprite(0,0))
 	{
 		_current_scene = NULL;
@@ -42,98 +42,17 @@ namespace sh
 		_cursor_sprite.set_bg_priority(layer);
 		_cursor_sprite.set_z_order(-10);
 		_menu_open = false;
-		text_generator.set_bg_priority(layer);
+		_header_text = "";
+		
+
 		clear_menu_item_pool();
 
 		bn::fixed_point pos;
-		switch(type)
-		{
-		case menu_type::PAUSE_MENU:
-			{
-				bn::regular_bg_builder builder(bn::regular_bg_items::pause_menu);
-				builder.set_priority(layer);
-				_menu_bg.push_back(builder.release_build());
-				
-				text_generator.set_center_alignment();
-				pos = bn::fixed_point(0,-69);		// nice
-				text_generator.generate(pos, "-Paused-", _text_sprites);
+		
 
-				pos = bn::fixed_point(-20, -30);
-				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
-					_item_list.push_back(&_menu_items_.back());
-				}
-				pos = pos + bn::fixed_point(0,_item_offset_y);
-				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
-					_item_list.push_back(&_menu_items_.back());
-				}
-
-			}
-			break;
-		case menu_type::OPTIONS_MENU:
-			{
-				text_generator.set_center_alignment();
-				pos = bn::fixed_point(-80, -36);
-				bn::fixed_point slider_offset(88,2);
-				{
-					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
-					_menu_sliders_.back().set_value(game_settings::get_music_volume());
-					_menu_sliders_.back().update_menu_item_event = &game_settings::set_music_volume;
-					_item_list.push_back(&_menu_sliders_.back());
-				}
-				pos = pos + bn::fixed_point(0,_item_offset_y);
-				{
-					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
-					_menu_sliders_.back().set_value(game_settings::get_sfx_volume());
-					_menu_sliders_.back().update_menu_item_event = &game_settings::set_sfx_volume;
-					_item_list.push_back(&_menu_sliders_.back());
-				}
-				pos = pos + bn::fixed_point(0,_item_offset_y);
-				bn::fixed_point checkbox_offset(100,0);
-				{
-					_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Colorblind Mode", checkbox_offset, game_settings::colorblind_mode_enabled()));
-					_menu_checkboxes_.back().update_menu_item_event = &game_settings::set_colorblind_mode_enabled;
-					_item_list.push_back(&_menu_checkboxes_.back());
-				}
-				pos = pos + bn::fixed_point(0,_item_offset_y);
-				pos = pos + bn::fixed_point(0,_item_offset_y);
-				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, "Reset Settings to Default"));
-					_menu_items_.back().update_menu_item_event = &game_settings::reset_settings_to_default;
-					_item_list.push_back(&_menu_items_.back());
-				}
-			
-			}
-			break;
-		case menu_type::TITLE_MENU:
-			{
-				text_generator.set_left_alignment();
-				pos = bn::fixed_point(-25, 36);
-				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
-					_item_list.push_back(&_menu_items_.back());
-				}
-				pos += bn::fixed_point(0,_item_offset_y);
-				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
-					_item_list.push_back(&_menu_items_.back());
-				}
-				pos += bn::fixed_point(0,_item_offset_y);
-				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
-					_item_list.push_back(&_menu_items_.back());
-				}
-			}
-			break;
-		default:
-			break;
-		}
-
+		generate_menu_items();
 		
 		
-		text_generator.set_bg_priority(layer);
-		text_generator.set_left_alignment();
 		// for(int i = 0; i < _menu_items.size(); i++)
 		// {
 		// 	menu_item &item = _menu_items.at(i);
@@ -146,11 +65,9 @@ namespace sh
 			for(int i = 0; (i+1) < _item_list.size(); i++)
 			{
 				_item_list.at(i)->link_below(_item_list.at(i+1));
-				// text_generator.generate(_item_list.at(i)->_position, _item_list.at(i)->_text, _text_sprites);
 			}
 			// special case for last element (or only element)
 			_item_list.back()->link_below(_item_list.front());
-			// text_generator.generate(_item_list.back()->_position, _item_list.back()->_text, _text_sprites);
 
 			_menu_open = true;
 			highlight_menu_item(_item_list.front());
@@ -179,7 +96,89 @@ namespace sh
 
 	void menu::generate_menu_items()
 	{
+		bn::fixed_point pos(0,0);
+		switch(_type)
+		{
+		case menu_type::PAUSE_MENU:
+			{
+				_header_text = "-Paused-";
 
+				bn::regular_bg_builder builder(bn::regular_bg_items::pause_menu);
+				builder.set_priority(_bg_layer);
+				_menu_bg.push_back(builder.release_build());
+				
+				pos = bn::fixed_point(-20, -30);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
+					_item_list.push_back(&_menu_items_.back());
+				}
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
+					_item_list.push_back(&_menu_items_.back());
+				}
+
+			}
+			break;
+		case menu_type::OPTIONS_MENU:
+			{
+				// text_generator.set_center_alignment();
+				pos = bn::fixed_point(-76, -44);
+				bn::fixed_point slider_offset(88,2);
+				{
+					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
+					_menu_sliders_.back().set_value(game_settings::get_music_volume());
+					_menu_sliders_.back().update_menu_item_event = &game_settings::set_music_volume;
+					_item_list.push_back(&_menu_sliders_.back());
+				}
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
+					_menu_sliders_.back().set_value(game_settings::get_sfx_volume());
+					_menu_sliders_.back().update_menu_item_event = &game_settings::set_sfx_volume;
+					_item_list.push_back(&_menu_sliders_.back());
+				}
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				bn::fixed_point checkbox_offset(100,0);
+				{
+					_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Colorblind Mode", checkbox_offset, game_settings::colorblind_mode_enabled()));
+					_menu_checkboxes_.back().update_menu_item_event = &game_settings::set_colorblind_mode_enabled;
+					_item_list.push_back(&_menu_checkboxes_.back());
+				}
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, "Reset Settings to Default"));
+					_menu_items_.back().update_menu_item_event = &game_settings::reset_settings_to_default;
+					_item_list.push_back(&_menu_items_.back());
+				}
+			
+			}
+			break;
+		case menu_type::TITLE_MENU:
+			{
+				pos = bn::fixed_point(-25, 36);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
+					_item_list.push_back(&_menu_items_.back());
+				}
+				pos += bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
+					_item_list.push_back(&_menu_items_.back());
+				}
+				pos += bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
+					_item_list.push_back(&_menu_items_.back());
+				}
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	void menu::generate_menu_text()
@@ -187,6 +186,11 @@ namespace sh
 		_text_sprites.clear();
 		bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 		text_generator.set_bg_priority(_bg_layer);
+		text_generator.set_center_alignment();
+		bn::fixed_point pos(0,-69);		// nice
+		text_generator.generate(pos, _header_text, _text_sprites);
+
+		text_generator.set_left_alignment();
 		for(int i = 0; i < _item_list.size(); i++)
 		{
 			text_generator.generate(_item_list.at(i)->_position, _item_list.at(i)->_text, _text_sprites);
