@@ -39,7 +39,7 @@ namespace sh
 
 		const bn::fixed_point _cursor_offset = bn::fixed_point(-8,0);
 		bn::sprite_ptr _cursor_sprite;
-		bn::vector<bn::sprite_ptr, 12> _text_sprites;
+		bn::vector<bn::sprite_ptr, 24> _text_sprites;
 
 
 		bool _menu_open;

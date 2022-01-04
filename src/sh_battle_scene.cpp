@@ -286,6 +286,7 @@ namespace sh
 		default:
 			break;
 		}
+		_turn_announcement.set_palette(bn::regular_bg_items::btl_player_win.palette_item());
 		_turn_announcement.set_priority(0); 
 		_turn_announcement.set_visible(true);
 		wait_for_update_cycles(60);
@@ -382,14 +383,14 @@ namespace sh
 				{
 					if(bn::keypad::l_pressed())
 					{
-						// board.shift_row_or_col(3, direction::SOUTH);
+						board.shift_row_or_col(3, direction::SOUTH);
 						// _skill_meters.front().add_sp(-1);
 						// _skill_meters.back().add_sp(-1);
 						// apply_damage_to_player(tile_owner::PLAYER, 100);
 					}
 					if(bn::keypad::r_pressed())
 					{
-						// board.shift_row_or_col(3, direction::NORTH);
+						board.shift_row_or_col(3, direction::NORTH);
 						// _skill_meters.front().add_sp(1);
 						// _skill_meters.back().add_sp(1);
 						// apply_damage_to_player(tile_owner::FOE, 100);
@@ -416,12 +417,11 @@ namespace sh
 
 				break;
 			case turn_state::PLAYER_TILE_PLACEMENT:
-				// if(bn::keypad::select_pressed())
-				// {
-				// 	board.set_preview_pattern(tile_patterns::next_tile_pattern(board.preview_pattern));
-				// 	battle_cursor.set_position(board.selected_tile->get_position());
-				// 	// _cursor_tile_sprite.set_position(board.selected_tile->get_position());
-				// }
+				if(debug::DEBUG_ENABLED && bn::keypad::select_pressed())
+				{
+					board.set_preview_pattern(tile_patterns::next_tile_pattern(board.preview_pattern));
+					battle_cursor.set_position(board.selected_tile->get_position());
+				}
 
 				if(bn::keypad::l_pressed() && !using_special_skill)
 				{
@@ -542,6 +542,7 @@ namespace sh
 	
 	void battle_scene::turn_intro(tile_owner player)
 	{
+		dim_screen();
 		current_player = player;
 		set_turn_number(turn_count+1);
 		switch(player)
@@ -556,9 +557,11 @@ namespace sh
 			break;
 		}
 		_turn_announcement.set_priority(0); 
+		_turn_announcement.set_palette(bn::regular_bg_items::btl_player_phase.palette_item());
 		_turn_announcement.set_visible(true);
 		wait_for_update_cycles(60);
 		_turn_announcement.set_visible(false);
+		undim_screen();
 	}
 
 

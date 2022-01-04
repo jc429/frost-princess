@@ -4,7 +4,7 @@
 
 namespace sh
 {
-	menu_item::menu_item(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<16> text)
+	menu_item::menu_item(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text)
 	{
 		_position = pos;
 		_action_id = action_id;
@@ -12,6 +12,7 @@ namespace sh
 		_menu = menu_owner;
 		_above = NULL;
 		_below = NULL;
+		update_menu_item_event = NULL;
 	}
 	
 	menu_item::~menu_item()
@@ -49,12 +50,10 @@ namespace sh
 
 	void menu_item::show_item()
 	{
-		
 	}
 
 	void menu_item::hide_item()
 	{
-
 	}
 
 	void menu_item::interact_with_item(menu_item_interact_type interaction)
@@ -75,6 +74,10 @@ namespace sh
 			break;
 		case menu_item_interact_type::A_PRESS:
 			_menu->perform_action(_action_id);
+			if(update_menu_item_event != NULL)
+			{
+				update_menu_item_event(0);
+			}
 			break;
 		default:
 			break;

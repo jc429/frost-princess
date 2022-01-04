@@ -5,13 +5,16 @@ namespace sh
 {
 	namespace game_settings
 	{
-
-		
 		void set_music_volume(int vol);
 		int get_music_volume();
 
 		void set_sfx_volume(int vol);
 		int get_sfx_volume();
+
+		void set_colorblind_mode_enabled(int enabled);
+		bool colorblind_mode_enabled();
+
+		void reset_settings_to_default(int _);
 	}
 }
 

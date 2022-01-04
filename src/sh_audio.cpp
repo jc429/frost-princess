@@ -13,10 +13,20 @@ namespace sh
 		static bn::fixed _music_volume_global_multiplier_ = 1;
 		static bn::fixed _music_volume_song_modifier_ = 1;
 
-		void set_volume(bn::fixed volume)
+		static bn::fixed _sfx_volume_global_multiplier_ = 1;
+
+		void set_music_volume(bn::fixed volume)
 		{
 			_music_volume_global_multiplier_ = volume;
-			bn::music::set_volume(_music_volume_global_multiplier_ * _music_volume_song_modifier_);
+			if(bn::music::playing())
+			{
+				bn::music::set_volume(_music_volume_global_multiplier_ * _music_volume_song_modifier_);
+			}
+		}
+
+		void set_sfx_volume(bn::fixed volume)
+		{
+			_sfx_volume_global_multiplier_ = volume;
 		}
 		
 		void play_track(track_id track)
@@ -58,22 +68,23 @@ namespace sh
 		
 		void play_sound(sound_id sound)
 		{
+			bn::fixed vol = _sfx_volume_global_multiplier_;
 			switch (sound)
 			{
 			case sound_id::BLIP_HIGH:
-				bn::sound_items::blip_high.play();
+				bn::sound_items::blip_high.play(vol);
 				break;
 			case sound_id::BLIP_LOW:
-				bn::sound_items::blip_low.play();
+				bn::sound_items::blip_low.play(vol);
 				break;
 			case sound_id::BLIP_SOFT:
-				bn::sound_items::blip_soft.play();
+				bn::sound_items::blip_soft.play(vol);
 				break;
 			case sound_id::UNSELECTABLE:
-				bn::sound_items::unselectable.play(1);
+				bn::sound_items::unselectable.play(vol);
 				break;
 			case sound_id::WEWEWEW:
-				bn::sound_items::wewewew.play(1);
+				bn::sound_items::wewewew.play(vol);
 				break;
 			
 			default:

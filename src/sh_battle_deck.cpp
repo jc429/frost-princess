@@ -41,10 +41,42 @@ namespace sh
 	{
 		card_patterns.clear();
 		// TODO: replace this with actual deck building for full game
-		for(int i = 0; i < CARD_COUNT; i++)
-		{
-			card_patterns.push_back(tile_patterns::random_tile_pattern());
-		}
+		card_patterns.push_back(tile_pattern::SINGLE);
+		card_patterns.push_back(tile_pattern::SINGLE);
+		card_patterns.push_back(tile_pattern::SINGLE);
+		card_patterns.push_back(tile_pattern::SINGLE);
+		card_patterns.push_back(tile_pattern::LINE_2);
+		card_patterns.push_back(tile_pattern::LINE_2);
+		card_patterns.push_back(tile_pattern::LINE_2);
+		card_patterns.push_back(tile_pattern::LINE_2);
+
+		card_patterns.push_back(tile_pattern::LINE_3);
+		card_patterns.push_back(tile_pattern::LINE_3);
+		card_patterns.push_back(tile_pattern::LINE_3);
+		card_patterns.push_back(tile_pattern::LINE_3);
+		card_patterns.push_back(tile_pattern::L_SMALL);
+		card_patterns.push_back(tile_pattern::L_SMALL);
+		card_patterns.push_back(tile_pattern::L_SMALL);
+		card_patterns.push_back(tile_pattern::L_SMALL);
+		
+		card_patterns.push_back(tile_pattern::L_NORMAL);
+		card_patterns.push_back(tile_pattern::L_NORMAL);
+		card_patterns.push_back(tile_pattern::L_NORMAL);
+		card_patterns.push_back(tile_pattern::L_REVERSE);
+		card_patterns.push_back(tile_pattern::L_REVERSE);
+		card_patterns.push_back(tile_pattern::L_REVERSE);
+		card_patterns.push_back(tile_pattern::SQUARE);
+		card_patterns.push_back(tile_pattern::SQUARE);
+
+		card_patterns.push_back(tile_pattern::T_4);
+		card_patterns.push_back(tile_pattern::T_4);
+		card_patterns.push_back(tile_pattern::Z_4);
+		card_patterns.push_back(tile_pattern::Z_4);
+		card_patterns.push_back(tile_pattern::S_4);
+		card_patterns.push_back(tile_pattern::S_4);
+		card_patterns.push_back(tile_pattern::LINE_4);
+		card_patterns.push_back(tile_pattern::LINE_4);
+
 	}
 
 	void battle_deck::reset()
@@ -78,7 +110,7 @@ namespace sh
 	{
 		if(card_ids.empty())
 		{
-			return tile_pattern::EMPTY;
+			reset();
 		}
 		int card_id = card_ids.front();
 		card_ids.pop_front();

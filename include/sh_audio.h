@@ -28,7 +28,8 @@ namespace sh
 
 	namespace audio
 	{
-		void set_volume(bn::fixed volume);
+		void set_music_volume(bn::fixed volume);
+		void set_sfx_volume(bn::fixed volume);
 		void play_track(track_id track);
 		void stop_current_track();
 		void play_sound(sound_id sound);

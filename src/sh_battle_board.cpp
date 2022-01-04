@@ -861,6 +861,7 @@ namespace sh{
 					tile_list.back()->set_sprite_position(temp_pos);
 					tile_list.back()->set_owner(temp_owner);
 					tile_list.back()->get_sprite()->set_visible(false);
+					// tile_list.back()->set_dark(!tile_list.at(tile_list.size()-2)->is_dark());
 				}
 				action_manager::register_move_action(*tile->get_sprite(), 12, tile->get_sprite_position());
 			}

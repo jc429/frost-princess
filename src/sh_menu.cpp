@@ -1,5 +1,6 @@
 #include "sh_menu.h"
 #include "sh_scene.h"
+#include "sh_game_settings.h"
 
 #include <bn_core.h>
 #include <bn_fixed_point.h>
@@ -58,32 +59,50 @@ namespace sh
 				text_generator.generate(pos, "-Paused-", _text_sprites);
 
 				pos = bn::fixed_point(-20, -30);
-				_menu_items_.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
-				_item_list.push_back(&_menu_items_.back());
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
+					_item_list.push_back(&_menu_items_.back());
+				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
-				_menu_items_.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
-				_item_list.push_back(&_menu_items_.back());
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
+					_item_list.push_back(&_menu_items_.back());
+				}
 
 			}
 			break;
 		case menu_type::OPTIONS_MENU:
 			{
-				// bn::regular_bg_builder builder(bn::regular_bg_items::pause_menu);
-				// builder.set_priority(bg_layer);
-				// _menu_bgs.push_back(builder.release_build());
-
-				
 				text_generator.set_center_alignment();
 				pos = bn::fixed_point(-80, -36);
 				bn::fixed_point slider_offset(88,2);
-				_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
-				_item_list.push_back(&_menu_sliders_.back());
+				{
+					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
+					_menu_sliders_.back().set_value(game_settings::get_music_volume());
+					_menu_sliders_.back().update_menu_item_event = &game_settings::set_music_volume;
+					_item_list.push_back(&_menu_sliders_.back());
+				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
-				_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
-				_item_list.push_back(&_menu_sliders_.back());
+				{
+					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
+					_menu_sliders_.back().set_value(game_settings::get_sfx_volume());
+					_menu_sliders_.back().update_menu_item_event = &game_settings::set_sfx_volume;
+					_item_list.push_back(&_menu_sliders_.back());
+				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
-				_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Test Checkbox", slider_offset, false));
-				_item_list.push_back(&_menu_checkboxes_.back());
+				bn::fixed_point checkbox_offset(100,0);
+				{
+					_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Colorblind Mode", checkbox_offset, game_settings::colorblind_mode_enabled()));
+					_menu_checkboxes_.back().update_menu_item_event = &game_settings::set_colorblind_mode_enabled;
+					_item_list.push_back(&_menu_checkboxes_.back());
+				}
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				pos = pos + bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, "Reset Settings to Default"));
+					_menu_items_.back().update_menu_item_event = &game_settings::reset_settings_to_default;
+					_item_list.push_back(&_menu_items_.back());
+				}
 			
 			}
 			break;
@@ -91,14 +110,20 @@ namespace sh
 			{
 				text_generator.set_left_alignment();
 				pos = bn::fixed_point(-25, 36);
-				_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
-				_item_list.push_back(&_menu_items_.back());
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
+					_item_list.push_back(&_menu_items_.back());
+				}
 				pos += bn::fixed_point(0,_item_offset_y);
-				_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
-				_item_list.push_back(&_menu_items_.back());
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
+					_item_list.push_back(&_menu_items_.back());
+				}
 				pos += bn::fixed_point(0,_item_offset_y);
-				_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
-				_item_list.push_back(&_menu_items_.back());
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
+					_item_list.push_back(&_menu_items_.back());
+				}
 			}
 			break;
 		default:

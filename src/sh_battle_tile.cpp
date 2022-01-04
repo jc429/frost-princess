@@ -1,5 +1,6 @@
 #include "sh_battle_tile.h"
 #include "sh_direction.h"
+#include "sh_game_settings.h"
 
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
@@ -14,7 +15,6 @@
 #include "bn_sprite_items_board_tile_burned.h"
 #include "bn_sprite_items_crown.h"
 
-#define COLORBLIND_MODE true
 #define COLORBLIND_TILE_OFFSET 8
 
 
@@ -53,7 +53,7 @@ namespace sh{
 		const bn::sprite_palette_item *palette;
 		int tile_idx = (int)owner * 2;
 		tile_idx += (_is_dark ? 1 : 0);
-		tile_idx += (COLORBLIND_MODE ? COLORBLIND_TILE_OFFSET : 0);
+		tile_idx += (game_settings::colorblind_mode_enabled() ? COLORBLIND_TILE_OFFSET : 0);
 		switch(_current_condition)
 		{
 		case tile_condition::BURNED:
