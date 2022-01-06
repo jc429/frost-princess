@@ -174,6 +174,11 @@ namespace sh
 					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
 					_item_list.push_back(&_menu_items_.back());
 				}
+				pos += bn::fixed_point(0,_item_offset_y);
+				{
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_DIALOGUE, "Debug"));
+					_item_list.push_back(&_menu_items_.back());
+				}
 			}
 			break;
 		default:
@@ -257,6 +262,10 @@ namespace sh
 		case menu_action_id::EXIT_SCENE:
 		case menu_action_id::GO_TO_TITLE:
 			scene_management::exit_current_scene(scene_type::TITLE);
+			close_menu();
+			break;
+		case menu_action_id::GO_TO_DIALOGUE:
+			scene_management::exit_current_scene(scene_type::DIALOGUE);
 			close_menu();
 			break;
 		case menu_action_id::GO_TO_BATTLE:

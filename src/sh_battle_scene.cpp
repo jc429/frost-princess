@@ -433,7 +433,7 @@ namespace sh
 		default:
 			break;
 		}
-		audio::play_sound(sound_id::WEWEWEW);
+		audio::play_sound(sound_id::WEW);
 		shake(6, 16);
 
 		// TODO: check if zero hp 

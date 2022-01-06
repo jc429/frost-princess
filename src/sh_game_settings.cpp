@@ -31,6 +31,7 @@ namespace sh
 			_sfx_volume_ = bn::clamp(vol, 0, 10);
 			bn::fixed v = (bn::fixed)vol / (bn::fixed)10;
 			audio::set_sfx_volume(v);
+			audio::play_sound(sound_id::BLIP_HIGH);
 		}
 
 		int get_sfx_volume()

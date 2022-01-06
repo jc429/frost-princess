@@ -8,6 +8,7 @@
 #include "sh_logo_scene.h"
 #include "sh_title_scene.h"
 #include "sh_level_select_scene.h"
+#include "sh_dialogue_scene.h"
 #include "sh_battle_scene.h"
 #include "sh_options_scene.h"
 #include "sh_credits_scene.h"
@@ -34,6 +35,9 @@ int main()
 			break;
 		case sh::scene_type::LEVEL_SELECT:
 			sh::level_select_scene();
+			break;
+		case sh::scene_type::DIALOGUE:
+			sh::dialogue_scene();
 			break;
 		case sh::scene_type::BATTLE:
 			sh::battle_scene();

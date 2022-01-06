@@ -14,6 +14,7 @@ namespace sh
 		INTRO,
 		TITLE,
 		LEVEL_SELECT,
+		DIALOGUE,
 		BATTLE,
 		OPTIONS,
 		CREDITS

@@ -3,13 +3,13 @@
 #include "sh_battle_scene.h"
 #include "sh_direction.h"
 #include "sh_effects.h"
+#include "sh_audio.h"
 #include "sh_action_manager.h"
 
 #include <bn_blending.h>
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
 #include <bn_regular_bg_ptr.h>
-#include <bn_sound_items.h>
 #include <bn_sprite_builder.h>
 #include <bn_vector.h>
 
@@ -766,7 +766,7 @@ namespace sh{
 
 			create_effect_at_tile(eff_id, tile);
 			
-			bn::sound_items::wewewew.play();
+			audio::play_sound(sound_id::WEW);
 			current_scene->wait_for_update_cycles(cycle_wait);
 			tile->set_condition(condition, eff_duration);
 			tile->set_owner(owner);
@@ -791,7 +791,7 @@ namespace sh{
 					}
 					if(!apply_tiles.empty())
 					{
-						bn::sound_items::wewewew.play();
+						audio::play_sound(sound_id::WEW);
 						for(auto it = apply_tiles.begin(), end = apply_tiles.end(); it != end; ++it)
 						{
 							create_effect_at_tile(eff_id,*it);
@@ -840,7 +840,7 @@ namespace sh{
 					}
 					if(!apply_tiles.empty())
 					{
-						bn::sound_items::wewewew.play();
+						audio::play_sound(sound_id::WEW);
 						for(auto it = apply_tiles.begin(), end = apply_tiles.end(); it != end; ++it)
 						{
 							create_effect_at_tile(eff_id,*it);

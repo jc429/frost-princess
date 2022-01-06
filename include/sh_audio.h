@@ -23,7 +23,11 @@ namespace sh
 		BLIP_LOW,
 		BLIP_SOFT,
 		UNSELECTABLE,
-		WEWEWEW,
+		WEW,
+		POP_1,
+		POP_2,
+		POP_3,
+		POP_HIGH
 	};
 
 	namespace audio

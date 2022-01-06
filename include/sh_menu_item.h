@@ -18,6 +18,7 @@ namespace sh
 		CLOSE_MENU,		// closes the menu and resumes the scene
 		EXIT_SCENE,		// closes the menu and ends the current scene
 		GO_TO_TITLE,
+		GO_TO_DIALOGUE,
 		GO_TO_BATTLE,
 		GO_TO_OPTIONS,
 		GO_TO_CREDITS,

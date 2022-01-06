@@ -83,8 +83,20 @@ namespace sh
 			case sound_id::UNSELECTABLE:
 				bn::sound_items::unselectable.play(vol);
 				break;
-			case sound_id::WEWEWEW:
-				bn::sound_items::wewewew.play(vol);
+			case sound_id::WEW:
+				bn::sound_items::wew.play(vol);
+				break;
+			case sound_id::POP_1:
+				bn::sound_items::pop_1.play(vol);
+				break;
+			case sound_id::POP_2:
+				bn::sound_items::pop_2.play(vol);
+				break;
+			case sound_id::POP_3:
+				bn::sound_items::pop_3.play(vol);
+				break;
+			case sound_id::POP_HIGH:
+				bn::sound_items::pop_high.play(vol);
 				break;
 			
 			default:
