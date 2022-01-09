@@ -34,6 +34,7 @@ namespace sh
 		void update() override;
 
 		void load_text();
+		void load_next_paragraph();
 		void clear_text();
 		void write_text();
 	};

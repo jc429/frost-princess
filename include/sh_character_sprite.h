@@ -9,14 +9,16 @@
 
 namespace sh
 {
-
+	#define CHR_SPRITE_PART_CT 6
+	#define CHARACTER_LAYER 2
 
 	class character_sprite
 	{
 	private:
-		const static int SPRITE_PART_CT = 6;
-		bn::vector<bn::fixed_point, SPRITE_PART_CT>_sprite_offsets;
-		bn::vector<bn::sprite_ptr, SPRITE_PART_CT> _sprite_parts;
+		
+		bn::vector<bn::fixed_point, CHR_SPRITE_PART_CT>_sprite_offsets;
+		bn::vector<bn::sprite_ptr, CHR_SPRITE_PART_CT> _sprite_parts;
+		/* sprites are anchored at their bottom middle pixel*/
 		bn::fixed_point _position;
 
 		character_id _character_id;
@@ -25,6 +27,8 @@ namespace sh
 	public:
 		character_sprite(character_id c_id);
 		~character_sprite();
+
+		void build_sprite();
 
 		void update();
 		void update_sprite();
