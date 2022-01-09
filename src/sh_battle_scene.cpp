@@ -5,7 +5,10 @@
 #include "sh_audio.h"
 #include "sh_effects.h"
 #include "sh_menu.h"
+#include "sh_action_manager.h"
+#include "sh_random.h"
 
+#include <bn_blending_actions.h>
 #include <bn_core.h>
 #include <bn_camera_ptr.h>
 #include <bn_fixed.h>
@@ -13,17 +16,11 @@
 #include <bn_log.h>
 #include <bn_regular_bg_builder.h>
 #include <bn_regular_bg_ptr.h>
-#include <bn_string.h>
-
-#include "sh_action_manager.h"
-#include "sh_random.h"
-// graphics
-#include <bn_blending_actions.h>
 #include <bn_sprite_animate_actions.h>
 #include <bn_sprite_builder.h>
-// text & fonts
 #include <bn_sprite_text_generator.h>
-#include "variable_8x16_sprite_font.h"
+#include <bn_string.h>
+
 // backgrounds
 #include "bn_regular_bg_items_battle_bg_board_wood.h"
 #include "bn_regular_bg_items_battle_ui.h"
@@ -35,10 +32,10 @@
 // sprites
 #include "bn_sprite_items_portrait_frame.h"
 #include "bn_sprite_items_card_blank.h"
-// #include "bn_sprite_items_cursor_card.h"
-// #include "bn_sprite_items_cursor_tile.h"
 #include "bn_sprite_items_crown.h"
 #include "bn_sprite_items_skill_meter_flame.h"
+// text & fonts
+#include "variable_8x16_sprite_font.h"
 
 
 
@@ -117,24 +114,53 @@ namespace sh
 		_turn_announcement.set_visible(false);
 		
 		// set base tiles
-		player_base = board.get_tile(1, BOARD_HEIGHT-2);
-		player_base->set_owner(tile_owner::PLAYER);
-		player_base->set_base(true);
-		foe_base = board.get_tile(BOARD_WIDTH-2, 1);
-		foe_base->set_owner(tile_owner::FOE);
-		foe_base->set_base(true);
-		
-		bn::sprite_builder builder(bn::sprite_items::crown);
-		builder.set_bg_priority(player_base->get_sprite()->bg_priority());
-		builder.set_z_order(player_base->get_sprite()->z_order() - 10);
-		builder.set_camera(_camera);
-		builder.set_position(player_base->get_position());
-		bn::sprite_ptr player_crown = builder.build();
-		builder.set_position(foe_base->get_position());
-		bn::sprite_ptr foe_crown = builder.release_build();
+		{
+			player_base = board.get_tile(1, BOARD_HEIGHT-2);
+			// player_base->set_owner(tile_owner::PLAYER);
+			// player_base->set_base(true);
 
-		player_portrait.set_player_id(0);
-		foe_portrait.set_player_id(1);
+			// battle_tile *tile = board.get_tile(0, BOARD_HEIGHT-2);
+			// tile->set_owner(tile_owner::PLAYER);
+			// tile->set_base(true);
+
+			// tile = board.get_tile(0, BOARD_HEIGHT-1);
+			// tile->set_owner(tile_owner::PLAYER);
+			// tile->set_base(true);
+
+			// tile = board.get_tile(1, BOARD_HEIGHT-1);
+			// tile->set_owner(tile_owner::PLAYER);
+			// tile->set_base(true);
+		}
+
+		{
+			foe_base = board.get_tile(BOARD_WIDTH-2, 1);
+			// foe_base->set_owner(tile_owner::FOE);
+			// foe_base->set_base(true);
+
+			// battle_tile *tile = board.get_tile(BOARD_WIDTH-2, 0);
+			// tile->set_owner(tile_owner::FOE);
+			// tile->set_base(true);
+
+			// tile = board.get_tile(BOARD_WIDTH-1, 0);
+			// tile->set_owner(tile_owner::FOE);
+			// tile->set_base(true);
+
+			// tile = board.get_tile(BOARD_WIDTH-1, 1);
+			// tile->set_owner(tile_owner::FOE);
+			// tile->set_base(true);
+		}
+		
+		// bn::sprite_builder builder(bn::sprite_items::crown);
+		// builder.set_bg_priority(player_base->get_sprite()->bg_priority());
+		// builder.set_z_order(player_base->get_sprite()->z_order() - 10);
+		// builder.set_camera(_camera);
+		// builder.set_position(player_base->get_position());
+		// bn::sprite_ptr player_crown = builder.build();
+		// builder.set_position(foe_base->get_position());
+		// bn::sprite_ptr foe_crown = builder.release_build();
+
+		player_portrait.set_character(characters::player_character());
+		foe_portrait.set_character(characters::foe_character());
 
 		// init text generator
 		// bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);

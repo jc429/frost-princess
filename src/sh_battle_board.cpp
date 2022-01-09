@@ -15,6 +15,7 @@
 
 #include "bn_regular_bg_items_battle_board.h"
 #include "bn_sprite_items_board_tile.h"
+#include "bn_sprite_items_base_tile.h"
 #include "bn_sprite_items_preview_tile.h"
 
 
@@ -59,10 +60,25 @@ namespace sh{
 			// builder.set_z_order(TILE_SPRITE_PRIO_BASE + (row * TILE_SPRITE_PRIO_INC));
 			for(int col = 0; col < BOARD_WIDTH; col++)
 			{
-				tile_sprites.push_back(builder.build());
 				tiles.push_back(battle_tile((col*BOARD_HEIGHT)+row));
 				battle_tile *tile = &tiles.back();
-				tile->set_sprite_ptr(&tile_sprites.back());
+
+				if(row >= BOARD_WIDTH-2 && col <= 1)
+				{
+					tile->set_owner(tile_owner::FOE);
+					tile->set_base(true);
+				}
+				else if(row <= 1 && col >= BOARD_HEIGHT-2)
+				{
+					tile->set_owner(tile_owner::PLAYER);
+					tile->set_base(true);
+				}
+				else
+				{
+					tile_sprites.push_back(builder.build());
+					tile->set_sprite_ptr(&tile_sprites.back());
+				}
+
 				tile->coordinates = bn::point(col,row);
 				int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * col);
 				int y = (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * row);
@@ -83,6 +99,22 @@ namespace sh{
 				}
 				tile->update_sprite();
 			}
+		}
+		// draw bases
+		bn::sprite_builder base_builder(bn::sprite_items::base_tile);
+		base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+		base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+		{
+			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
+			base_builder.set_position(pos);
+			tile_sprites.push_back(base_builder.build());
+			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
+		}
+		{
+			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
+			base_builder.set_position(pos);
+			tile_sprites.push_back(base_builder.build());
+			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));
 		}
 
 		//put selection cursor in center
@@ -383,9 +415,27 @@ namespace sh{
 		builder.set_z_order(TILE_SPRITE_PRIO_BASE);
 		for(auto it = tiles.begin(), end = tiles.end(); it != end; ++it)
 		{
+			if(it->is_base())
+				continue;
 			tile_sprites.push_back(builder.build());
 			it->set_sprite_ptr(&tile_sprites.back());
 			it->update_sprite();
+		}
+
+		bn::sprite_builder base_builder(bn::sprite_items::base_tile);
+		base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+		base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+		{
+			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
+			base_builder.set_position(pos);
+			tile_sprites.push_back(base_builder.build());
+			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
+		}
+		{
+			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
+			base_builder.set_position(pos);
+			tile_sprites.push_back(base_builder.build());
+			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));
 		}
 	}
 

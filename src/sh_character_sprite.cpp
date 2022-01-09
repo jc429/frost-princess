@@ -106,7 +106,7 @@ namespace sh
 		case character_id::FLAME_WITCH:
 			return bn::sprite_items::flame_bust;
 			break;
-		case character_id::FROST_PRINCESS:
+		case character_id::PROTAGONIST:
 		default:
 			return bn::sprite_items::protag_bust;
 			break;
@@ -126,7 +126,7 @@ namespace sh
 			offsets.push_back(bn::fixed_point(56,0));
 			break;
 
-		case character_id::FROST_PRINCESS:
+		case character_id::PROTAGONIST:
 			offsets.push_back(bn::fixed_point(0,-80));
 			offsets.push_back(bn::fixed_point(0,-48));
 			offsets.push_back(bn::fixed_point(0,-16));

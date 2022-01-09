@@ -22,6 +22,7 @@ namespace sh{
 
 	battle_tile::battle_tile(int id)
 	{
+		sprite_ptr = NULL;
 		tile_id = id;
 		owner = tile_owner::EMPTY;
 		_current_condition = tile_condition::NORMAL;

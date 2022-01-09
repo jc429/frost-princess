@@ -1,8 +1,10 @@
 #ifndef SH_BATTLE_PORTRAIT_H
 #define SH_BATTLE_PORTRAIT_H
 
-#include <bn_sprite_ptr.h>
+#include "sh_character.h"
 
+#include <bn_fixed_point.h>
+#include <bn_sprite_ptr.h>
 
 namespace sh
 {
@@ -11,10 +13,13 @@ namespace sh
 	public:
 		bn::sprite_ptr portrait_sprite;
 	//	bn::sprite_ptr frame_sprite;
-		int player_id;
+		// int player_id;
+		bn::fixed_point _position;
+		character_id char_id;
 
+		battle_portrait(bn::fixed_point pos);
 		battle_portrait(int pos_x, int pos_y);
-		void set_player_id(int id);
+		void set_character(character_id c_id);
 
 	};
 }

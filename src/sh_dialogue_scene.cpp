@@ -37,7 +37,7 @@ namespace sh
 			line_pos.push_back(pos);
 		}
 
-		character_sprites.push_back(character_sprite(character_id::FROST_PRINCESS));
+		character_sprites.push_back(character_sprite(character_id::PROTAGONIST));
 		character_sprites.front().set_position(char_pos_left_default);
 		character_sprites.push_back(character_sprite(character_id::FLAME_WITCH));
 		character_sprites.back().set_position(char_pos_right_default);
