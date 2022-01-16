@@ -31,90 +31,109 @@ namespace sh{
 		preview_orientation = direction::NORTH;
 		preview_pattern = tile_pattern::SINGLE;
 		selection_pos = bn::point(0,0);
-		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
-		{
-			preview_tile_offsets.push_back(bn::point(0,0));
-			bn::sprite_ptr tile_sprite = bn::sprite_items::preview_tile.create_sprite((bn::fixed)BOARD_POS_X, (bn::fixed)BOARD_POS_Y);
-			tile_sprite.set_bg_priority(2);
-			tile_sprite.set_z_order(-500);
-			tile_sprite.set_blending_enabled(true);
-			//bn::fixed transparency_alpha = bn::blending::transparency_alpha();
-			preview_tiles.push_back(tile_sprite);
-			preview_tile_active[i] = false;
-		}
-		hide_preview_tiles();
 
-		// populate board with tiles
-		// set up sprite builder
-		bn::sprite_builder builder(bn::sprite_items::board_tile);
-		builder.set_bg_priority(TILE_SPRITE_LAYER);
-		builder.set_z_order(TILE_SPRITE_PRIO_BASE);
-		if(scene != NULL)
+		// build preview sprites 
 		{
-			builder.set_camera(scene->get_camera());
-		}
-		
-		bool tile_dark = true;	// signifies whether to darken a tile or not (alternates after every placement)
-		for(int row = 0; row < BOARD_HEIGHT; row++)
-		{
-			// builder.set_z_order(TILE_SPRITE_PRIO_BASE + (row * TILE_SPRITE_PRIO_INC));
-			for(int col = 0; col < BOARD_WIDTH; col++)
+			bn::sprite_builder preview_builder(bn::sprite_items::preview_tile);
+			preview_builder.set_bg_priority(TILE_SPRITE_LAYER);
+			preview_builder.set_z_order(-500);
+			preview_builder.set_position(BOARD_POS_X,BOARD_POS_Y);
+			preview_builder.set_blending_enabled(true);
+			if(scene != NULL)
 			{
-				tiles.push_back(battle_tile((col*BOARD_HEIGHT)+row));
-				battle_tile *tile = &tiles.back();
+				preview_builder.set_camera(scene->get_camera());
+			}
+			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			{
+				preview_tile_offsets.push_back(bn::point(0,0));
+				//bn::fixed transparency_alpha = bn::blending::transparency_alpha();
+				preview_tiles.push_back(preview_builder.build());
+				preview_tile_active[i] = false;
+			}
+			hide_preview_tiles();
+		}
 
-				if(row >= BOARD_WIDTH-2 && col <= 1)
-				{
-					tile->set_owner(tile_owner::FOE);
-					tile->set_base(true);
-				}
-				else if(row <= 1 && col >= BOARD_HEIGHT-2)
-				{
-					tile->set_owner(tile_owner::PLAYER);
-					tile->set_base(true);
-				}
-				else
-				{
-					tile_sprites.push_back(builder.build());
-					tile->set_sprite_ptr(&tile_sprites.back());
-				}
 
-				tile->coordinates = bn::point(col,row);
-				int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * col);
-				int y = (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * row);
-				tile->set_position(x,y);
-				tile->set_dark(tile_dark);
-				tile_dark = !tile_dark;
-				if(col > 0)
+		{
+			// populate board with tiles
+			// set up sprite builder
+			bn::sprite_builder builder(bn::sprite_items::board_tile);
+			builder.set_bg_priority(TILE_SPRITE_LAYER);
+			builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+			if(scene != NULL)
+			{
+				builder.set_camera(scene->get_camera());
+			}
+			
+			bool tile_dark = true;	// signifies whether to darken a tile or not (alternates after every placement)
+			for(int row = 0; row < BOARD_HEIGHT; row++)
+			{
+				// builder.set_z_order(TILE_SPRITE_PRIO_BASE + (row * TILE_SPRITE_PRIO_INC));
+				for(int col = 0; col < BOARD_WIDTH; col++)
 				{
-					battle_tile *neighbor = get_tile(col - 1, row);
-					tile->set_neighbor(direction::WEST, neighbor);
-					neighbor->set_neighbor(direction::EAST, tile);
+					tiles.push_back(battle_tile((col*BOARD_HEIGHT)+row));
+					battle_tile *tile = &tiles.back();
+
+					if(row >= BOARD_WIDTH-2 && col <= 1)
+					{
+						tile->set_owner(tile_owner::PLAYER);
+						tile->set_base(true);
+					}
+					else if(row <= 1 && col >= BOARD_HEIGHT-2)
+					{
+						tile->set_owner(tile_owner::FOE);
+						tile->set_base(true);
+					}
+					else
+					{
+						tile_sprites.push_back(builder.build());
+						tile->set_sprite_ptr(&tile_sprites.back());
+					}
+
+					tile->coordinates = bn::point(col,row);
+					int x = (BOARD_POS_X - TILES_START) + (TILE_WIDTH * col);
+					int y = (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * row);
+					tile->set_position(x,y);
+					tile->set_dark(tile_dark);
+					tile_dark = !tile_dark;
+					if(col > 0)
+					{
+						battle_tile *neighbor = get_tile(col - 1, row);
+						tile->set_neighbor(direction::WEST, neighbor);
+						neighbor->set_neighbor(direction::EAST, tile);
+					}
+					if(row > 0)
+					{
+						battle_tile *neighbor = get_tile(col, row-1);
+						tile->set_neighbor(direction::NORTH, neighbor);
+						neighbor->set_neighbor(direction::SOUTH, tile);
+					}
+					tile->update_sprite();
 				}
-				if(row > 0)
-				{
-					battle_tile *neighbor = get_tile(col, row-1);
-					tile->set_neighbor(direction::NORTH, neighbor);
-					neighbor->set_neighbor(direction::SOUTH, tile);
-				}
-				tile->update_sprite();
 			}
 		}
-		// draw bases
-		bn::sprite_builder base_builder(bn::sprite_items::base_tile);
-		base_builder.set_bg_priority(TILE_SPRITE_LAYER);
-		base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+
 		{
-			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
-			base_builder.set_position(pos);
-			tile_sprites.push_back(base_builder.build());
-			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
-		}
-		{
-			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
-			base_builder.set_position(pos);
-			tile_sprites.push_back(base_builder.build());
-			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));
+			// draw bases
+			bn::sprite_builder base_builder(bn::sprite_items::base_tile);
+			base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+			base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+			if(scene != NULL)
+			{
+				base_builder.set_camera(scene->get_camera());
+			}
+			{
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
+				base_builder.set_position(pos);
+				tile_sprites.push_back(base_builder.build());
+				tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
+			}
+			{
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
+				base_builder.set_position(pos);
+				tile_sprites.push_back(base_builder.build());
+				tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));
+			}
 		}
 
 		//put selection cursor in center
@@ -729,7 +748,7 @@ namespace sh{
 	}
 
 	
-	bool battle_board::mark_tiles(tile_owner owner)
+	bool battle_board::mark_tiles(tile_owner owner, int &sp_gain)
 	{
 		if(owner != tile_owner::EMPTY)
 		{
@@ -761,6 +780,8 @@ namespace sh{
 				return false;
 			}
 		}
+		int damage = 0;
+		sh::tile_owner target;
 		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
 			if(!preview_tile_active[i])
@@ -771,12 +792,23 @@ namespace sh{
 			battle_tile *tile = get_tile(pos);
 			if(tile->is_base() && (tile->get_owner() != owner))
 			{
-				current_scene->apply_damage_to_player(tile->get_owner(), 5);
+				damage++;
+				target = tile->get_owner();
 			}
 			else
 			{
+				if(tile->get_owner() != owner)
+				{
+					++sp_gain;
+				}
 				tile->set_owner(owner);
 			}
+		}
+		if(damage > 0)
+		{
+			// damage formula (for now) : 2 base damage + 1 damage per tile connected 
+			damage += 2;
+			current_scene->apply_damage_to_player(target, damage);
 		}
 		return true;
 	}

@@ -1,13 +1,17 @@
 #ifndef SH_CHARACTER_H
 #define SH_CHARACTER_H
 
+#include <bn_string.h>
+
 namespace sh
 {
 	enum class character_id
 	{
 		PROTAGONIST,
+		FROST_PRINCESS,
 		FLAME_WITCH,
-		ICE_QUEEN
+		ICE_QUEEN,
+		NONE
 	};
 
 	namespace characters
@@ -18,6 +22,7 @@ namespace sh
 		character_id player_character();
 		character_id foe_character();
 
+		bn::string<16> get_character_name(character_id char_id);
 	}
 }
 

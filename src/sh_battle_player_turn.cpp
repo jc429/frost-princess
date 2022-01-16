@@ -179,13 +179,13 @@ namespace sh
 
 				if(bn::keypad::a_pressed())
 				{
-				
-					bool success = board.mark_tiles(current_player);
+					int sp_gain = 0;
+					bool success = board.mark_tiles(current_player, sp_gain);
 					if(success)
 					{
 						update_tile_counts();
 						// gain SP dependent on .... something
-						_skill_meters.front().add_val(5);
+						_skill_meters.front().add_val(sp_gain);
 						audio::play_sound(sound_id::BLIP_HIGH);
 						// switch back to card cursor
 						board.hide_preview_tiles();
@@ -202,11 +202,7 @@ namespace sh
 						{
 							battle_cards.at(selected_card).discard();
 							wait_for_update_cycles(36);
-
-							// player_deck.draw_card_with_animation(*this, battle_cards.at(selected_card));
-							// battle_cards.at(selected_card).flip_faceup();
 						}
-						//
 						turn_over = true;
 					}
 					else{	// if(!success)

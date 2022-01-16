@@ -12,6 +12,8 @@ namespace sh
 		_menu = menu_owner;
 		_above = NULL;
 		_below = NULL;
+		_left = NULL;
+		_right = NULL;
 		update_menu_item_event = NULL;
 	}
 	
@@ -37,6 +39,20 @@ namespace sh
 		_below = other;
 		if(other != NULL)
 			other->_above = this;
+	}
+	
+	void menu_item::link_left(menu_item *other)
+	{
+		_left = other;
+		if(other != NULL)
+			other->_right = this;
+	}
+
+	void menu_item::link_right(menu_item *other)
+	{
+		_right = other;
+		if(other != NULL)
+			other->_left = this;
 	}
 
 	void menu_item::select()
@@ -70,6 +86,18 @@ namespace sh
 			if(_below != NULL)
 			{
 				_below->select();
+			}
+			break;
+		case menu_item_interact_type::LEFT_PRESS:
+			if(_left != NULL)
+			{
+				_left->select();
+			}
+			break;
+		case menu_item_interact_type::RIGHT_PRESS:
+			if(_right != NULL)
+			{
+				_right->select();
 			}
 			break;
 		case menu_item_interact_type::A_PRESS:

@@ -43,7 +43,7 @@ namespace sh
 		_cursor_sprite.set_z_order(-10);
 		_menu_open = false;
 		_header_text = "";
-		
+		_start_to_close = false;
 
 		clear_menu_item_pool();
 
@@ -102,6 +102,7 @@ namespace sh
 		case menu_type::PAUSE_MENU:
 			{
 				_header_text = "-Paused-";
+				_start_to_close = true;
 
 				bn::regular_bg_builder builder(bn::regular_bg_items::pause_menu);
 				builder.set_priority(_bg_layer);
@@ -161,7 +162,8 @@ namespace sh
 			{
 				pos = bn::fixed_point(-25, 36);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
+					// _menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
+					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_LEVEL_SELECT, "Start Game"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 				pos += bn::fixed_point(0,_item_offset_y);
@@ -204,7 +206,6 @@ namespace sh
 
 	void menu::update()
 	{
-		
 		if(_current_item != NULL)
 		{
 			if(bn::keypad::a_pressed())
@@ -229,7 +230,7 @@ namespace sh
 			}
 
 		}
-		if(bn::keypad::b_pressed())
+		if(bn::keypad::b_pressed() || (bn::keypad::start_pressed() && _start_to_close))
 		{
 			close_menu();
 		}
@@ -262,6 +263,10 @@ namespace sh
 		case menu_action_id::EXIT_SCENE:
 		case menu_action_id::GO_TO_TITLE:
 			scene_management::exit_current_scene(scene_type::TITLE);
+			close_menu();
+			break;
+		case menu_action_id::GO_TO_LEVEL_SELECT:
+			scene_management::exit_current_scene(scene_type::LEVEL_SELECT);
 			close_menu();
 			break;
 		case menu_action_id::GO_TO_DIALOGUE:

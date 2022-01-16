@@ -1,5 +1,6 @@
 #include "sh_character.h"
 
+#include <bn_string.h>
 
 namespace sh
 {
@@ -30,6 +31,22 @@ namespace sh
 		{
 			return _foe_char_;
 		}
+
+		bn::string<16> get_character_name(character_id char_id)
+		{
+			switch(char_id)
+			{
+			case character_id::PROTAGONIST:
+				return "Protagonist";
+			case character_id::FROST_PRINCESS:
+				return "Frost Princess";
+			case character_id::FLAME_WITCH:
+				return "Homura";
+			default:
+				return "";
+			}
+		}
+
 	}
 
 }

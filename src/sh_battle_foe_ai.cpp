@@ -153,11 +153,12 @@ namespace sh
 			}
 
 			select_tile(selected_tile->coordinates);
-			bool success = board.mark_tiles(current_player);
+			int sp_gain = 0;
+			bool success = board.mark_tiles(current_player, sp_gain);
 			if(success)
 			{
 				update_tile_counts();
-				_skill_meters.back().add_val(5);
+				_skill_meters.back().add_val(sp_gain);
 			}
 			else
 			{

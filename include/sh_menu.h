@@ -21,12 +21,13 @@ namespace sh
 		PAUSE_MENU,
 		OPTIONS_MENU,
 		TITLE_MENU,
+		LEVEL_SELECT_MENU
 	};
 
 
 	class menu
 	{
-	private:
+	protected:
 		scene *_current_scene;
 		menu_type _type;
 		int _bg_layer;
@@ -36,28 +37,27 @@ namespace sh
 		bn::string<16> _header_text;
 		bn::vector<menu_item*,16> _item_list;
 
-		menu_item *_current_item;
-
 		const bn::fixed_point _cursor_offset = bn::fixed_point(-8,1);
 		bn::sprite_ptr _cursor_sprite;
 		bn::vector<bn::sprite_ptr, 24> _text_sprites;
 
-
 		bool _menu_open;
+		bool _start_to_close;
 		//distance to space menu elements vertically
 		const int _item_offset_y = 16;
 
-	protected:
+		menu_item *_current_item;
+
 		void clear_menu_item_pool();
 		void generate_menu_items();
 		void generate_menu_text();
 
 	public:
 		menu(menu_type type, int layer);
-		~menu();
-		void update();
+		virtual ~menu();
+		virtual void update();
 		
-		void highlight_menu_item(menu_item *item);
+		virtual void highlight_menu_item(menu_item *item);
 		// void select_item(int item_index);
 		void perform_action(menu_action_id action_id);
 		void open_menu();

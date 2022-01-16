@@ -89,7 +89,7 @@ namespace sh
 		void hide_preview_tiles();
 		void show_preview_tiles();
 
-		bool mark_tiles(tile_owner owner);
+		bool mark_tiles(tile_owner owner, int &sp_gain);
 		bool use_special_action(tile_owner owner, special_action_pattern pattern);
 
 		void shift_row_or_col(int col_id, direction dir);

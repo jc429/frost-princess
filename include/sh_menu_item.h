@@ -18,6 +18,7 @@ namespace sh
 		CLOSE_MENU,		// closes the menu and resumes the scene
 		EXIT_SCENE,		// closes the menu and ends the current scene
 		GO_TO_TITLE,
+		GO_TO_LEVEL_SELECT,
 		GO_TO_DIALOGUE,
 		GO_TO_BATTLE,
 		GO_TO_OPTIONS,
@@ -48,6 +49,8 @@ namespace sh
 		// void (*_menu_action)();
 		menu_item *_above;
 		menu_item *_below;
+		menu_item *_left;
+		menu_item *_right;
 		void (*update_menu_item_event)(int);
 
 		menu_item(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text);
@@ -56,6 +59,9 @@ namespace sh
 
 		void link_above(menu_item *other);
 		void link_below(menu_item *other);
+		void link_left(menu_item *other);
+		void link_right(menu_item *other);
+		
 		void select();
 		virtual void show_item();
 		virtual void hide_item();

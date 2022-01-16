@@ -1,4 +1,5 @@
 #include "sh_scene.h"
+#include "sh_level_select_menu.h"
 #include "sh_level_select_scene.h"
 #include "sh_random.h"
 
@@ -24,47 +25,53 @@ namespace sh
 			for(int x = -1; x < 2; x++)
 			{
 				panel_positions.push_back(bn::fixed_point(x * 56, y * 48));
-				portrait_frames.push_back(bn::sprite_items::portrait_frame.create_sprite(x * 56, y * 48));
+				// portrait_frames.push_back(bn::sprite_items::portrait_frame.create_sprite(x * 56, y * 48));
 			}
 		}
 
-		level_select_cursor.set_position(panel_positions.at(4));
-		level_select_cursor.set_size(bn::point(48,40));
+		// level_select_cursor.set_position(panel_positions.at(4));
+		// level_select_cursor.set_size(bn::point(48,40));
 
 		scene_management::set_next_scene(scene_type::BATTLE);
 		fade_from_black();
 
-		select_panel(4);
+		// select_panel(4);
+
+		level_select_menu lev_sel_menu;
+		lev_sel_menu.open_menu();
 
 		while(true)
 		{
+			lev_sel_menu.update();
+
 			if(bn::keypad::a_pressed() || bn::keypad::start_pressed())
 			{
 				fade_to_black();
 				break;
 			}
 
-			bn::point mov;
-			if(bn::keypad::left_pressed())
-				{
-					mov.set_x(mov.x()-1);
-				}
-				else if(bn::keypad::right_pressed())
-				{
-					mov.set_x(mov.x()+1);
-				}
-				if(bn::keypad::up_pressed())
-				{
-					mov.set_y(mov.y()-1);
-				}
-				else if(bn::keypad::down_pressed())
-				{
-					mov.set_y(mov.y()+1);
-				}
-				if(mov.x() != 0 || mov.y() != 0)
-				{
-					select_panel(selected_panel + mov.x() + (mov.y() * 3));
-				}
+
+			// bn::point mov;
+			// if(bn::keypad::left_pressed())
+			// {
+			// 	mov.set_x(mov.x()-1);
+			// }
+			// else if(bn::keypad::right_pressed())
+			// {
+			// 	mov.set_x(mov.x()+1);
+			// }
+			// if(bn::keypad::up_pressed())
+			// {
+			// 	mov.set_y(mov.y()-1);
+			// }
+			// else if(bn::keypad::down_pressed())
+			// {
+			// 	mov.set_y(mov.y()+1);
+			// }
+			// if(mov.x() != 0 || mov.y() != 0)
+			// {
+			// 	select_panel(selected_panel + mov.x() + (mov.y() * 3));
+			// }
 
 			update();
 		}
@@ -73,15 +80,14 @@ namespace sh
 	void level_select_scene::update()
 	{
 		unsigned int burn = random.get();
-		level_select_cursor.update();
 		bn::core::update();
 	}
 
-	void level_select_scene::select_panel(int panel_id)
-	{
-		selected_panel = (panel_id + 9) % 9;
-		level_select_cursor.set_position(panel_positions.at(selected_panel));
-	}
+	// void level_select_scene::select_panel(int panel_id)
+	// {
+	// 	selected_panel = (panel_id + 9) % 9;
+	// 	level_select_cursor.set_position(panel_positions.at(selected_panel));
+	// }
 
 
 }
