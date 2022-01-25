@@ -11,9 +11,9 @@ namespace sh
 	{
 		_cursor_sprite.set_visible(false);	//unused cursor
 
-		_cursor.set_size(bn::point(48,48));
-		_cursor.set_position(bn::fixed_point(0,0));
-		_cursor.set_visible(true);
+		_lev_sel_cursor.set_size(bn::point(48,24));
+		_lev_sel_cursor.set_position(bn::fixed_point(0,0));
+		_lev_sel_cursor.set_visible(true);
 
 		build_level_select_menu();
 
@@ -28,8 +28,13 @@ namespace sh
 
 	void level_select_menu::update()
 	{
-		_cursor.update();
+		_lev_sel_cursor.update();
 		menu::update();
+	}
+
+	void level_select_menu::set_cursor_visible(bool visible)
+	{
+		_lev_sel_cursor.set_visible(visible);
 	}
 
 	void level_select_menu::highlight_menu_item(menu_item *item)
@@ -37,14 +42,13 @@ namespace sh
 		_current_item = item;
 		if(item == NULL)
 		{
-			_cursor.set_visible(false);
+			set_cursor_visible(false);
 		}
 		else{
-			_cursor.set_position(item->_position);
-			_cursor.set_visible(true);
+			_lev_sel_cursor.set_position(item->_position);
+			set_cursor_visible(true);
 		}
 	}
-
 
 	void level_select_menu::build_level_select_menu()
 	{
@@ -64,39 +68,39 @@ namespace sh
 		}
 
 		// TOP_LEFT
-		pos = bn::fixed_point(-32, -40);
+		pos = bn::fixed_point(-CORNER_X, -CORNER_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 		// TOP_RIGHT
-		pos = bn::fixed_point(32, -40);
+		pos = bn::fixed_point(CORNER_X, -CORNER_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 
 		// MID_LEFT
-		pos = bn::fixed_point(-56, 0);
+		pos = bn::fixed_point(-MIDDLE_X, MIDDLE_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 		// MID_RIGHT
-		pos = bn::fixed_point(56, 0);
+		pos = bn::fixed_point(MIDDLE_X, MIDDLE_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 
 		// BOT_LEFT
-		pos = bn::fixed_point(-32, 40);
+		pos = bn::fixed_point(-CORNER_X, CORNER_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 		// BOT_RIGHT
-		pos = bn::fixed_point(32, 40);
+		pos = bn::fixed_point(CORNER_X, CORNER_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());

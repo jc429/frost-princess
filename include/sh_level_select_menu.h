@@ -7,12 +7,16 @@
 
 namespace sh
 {
-
+	#define CORNER_X 32
+	#define CORNER_Y 40
+	#define MIDDLE_X 64
+	#define MIDDLE_Y 0
 	class level_select_menu : public menu
 	{
 	protected:
-		cursor _cursor;
+		cursor _lev_sel_cursor;
 		void build_level_select_menu();
+		void set_cursor_visible(bool visible) override;
 
 	public:
 		level_select_menu();

@@ -9,8 +9,6 @@
 #include <bn_sprite_items_tile_patterns.h>
 #include <bn_sprite_tiles_ptr.h>
 
-#include "bn_sprite_items_protag_portrait.h"
-#include "bn_sprite_items_flame_portrait.h"
 
 namespace sh
 {
@@ -37,23 +35,11 @@ namespace sh
 	void battle_portrait::set_character(character_id c_id)
 	{
 		char_id = c_id;
-		portrait_sprite = get_portrait_sprite(c_id).create_sprite(_position);
+		portrait_sprite = characters::get_portrait_sprite(c_id).create_sprite(_position);
 		portrait_sprite.set_bg_priority(1);
 	}
 
 
-	bn::sprite_item get_portrait_sprite(character_id c_id)
-	{
-		switch(c_id)
-		{
-		case character_id::FLAME_WITCH:
-			return bn::sprite_items::flame_portrait;
-			break;
-		case character_id::PROTAGONIST:
-		default:
-			return bn::sprite_items::protag_portrait;
-			break;
-		}
-	}
+
 
 }

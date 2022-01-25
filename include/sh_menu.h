@@ -52,6 +52,8 @@ namespace sh
 		void generate_menu_items();
 		void generate_menu_text();
 
+		virtual void set_cursor_visible(bool visible);
+
 	public:
 		menu(menu_type type, int layer);
 		virtual ~menu();
@@ -60,8 +62,8 @@ namespace sh
 		virtual void highlight_menu_item(menu_item *item);
 		// void select_item(int item_index);
 		void perform_action(menu_action_id action_id);
-		void open_menu();
-		void close_menu();
+		virtual void open_menu();
+		virtual void close_menu();
 		bool is_open();
 
 		int get_layer();

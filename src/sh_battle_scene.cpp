@@ -53,6 +53,8 @@ namespace sh
 	bn::sprite_text_generator text_generator(common::variable_8x16_sprite_font);
 	bn::vector<bn::sprite_ptr, 12> text_sprites;
 
+	static bn::point player_most_recent_tile(4,4);
+
 	battle_scene::battle_scene() :
 		_battle_board_bg (bn::regular_bg_items::battle_bg_board_wood.create_bg(0, 0)),
 		_battle_ui_bg(bn::regular_bg_items::battle_ui.create_bg(0,0)),
@@ -277,8 +279,9 @@ namespace sh
 		turn_count = 1;
 		current_player = tile_owner::PLAYER;
 		set_turn_number(1);
-		select_tile(4,4); // start tile cursor at center of board
-		
+		player_most_recent_tile = bn::point(4,4);
+		select_tile(player_most_recent_tile); // start tile cursor at center of board
+
 		for(auto it = battle_cards.begin(); it != second_last; ++it)
 		{
 			it->set_visible(true);
@@ -338,6 +341,7 @@ namespace sh
 		switch(player)
 		{
 		case tile_owner::PLAYER:
+			select_tile(player_most_recent_tile);
 			_turn_announcement = bn::regular_bg_items::btl_player_phase.create_bg(0,0);
 			break;
 		case tile_owner::FOE:
@@ -405,6 +409,10 @@ namespace sh
 		board.set_selected_tile(x, y);
 		battle_cursor.set_position(board.get_selected_tile()->get_position());
 		// _cursor_tile_sprite.set_position(board.get_selected_tile()->get_position());
+		if(current_player == tile_owner::PLAYER)
+		{
+			player_most_recent_tile = bn::point(x,y);
+		}
 	}
 
 	void battle_scene::select_tile(bn::point pos)

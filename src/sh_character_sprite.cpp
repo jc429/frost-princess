@@ -8,6 +8,7 @@
 
 #include "bn_sprite_items_protag_bust.h"
 #include "bn_sprite_items_flame_bust.h"
+#include "bn_sprite_items_wood_bust.h"
 
 namespace sh
 {
@@ -106,6 +107,9 @@ namespace sh
 		case character_id::FLAME_WITCH:
 			return bn::sprite_items::flame_bust;
 			break;
+		case character_id::WOOD_DRUID:
+			return bn::sprite_items::wood_bust;
+			break;
 		case character_id::PROTAGONIST:
 		default:
 			return bn::sprite_items::protag_bust;
@@ -123,6 +127,14 @@ namespace sh
 			offsets.push_back(bn::fixed_point(0,-64));
 			offsets.push_back(bn::fixed_point(0,-32));
 			offsets.push_back(bn::fixed_point(-8,0));
+			offsets.push_back(bn::fixed_point(56,0));
+			break;
+		case character_id::WOOD_DRUID:
+			offsets.push_back(bn::fixed_point(-8,-96));
+			offsets.push_back(bn::fixed_point(-8,-64));
+			offsets.push_back(bn::fixed_point(-8,-32));
+			offsets.push_back(bn::fixed_point(-8,0));
+			offsets.push_back(bn::fixed_point(56,-32));
 			offsets.push_back(bn::fixed_point(56,0));
 			break;
 

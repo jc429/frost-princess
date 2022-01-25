@@ -238,18 +238,21 @@ namespace sh
 	
 	}
 	
-
+	void menu::set_cursor_visible(bool visible)
+	{
+		_cursor_sprite.set_visible(visible);
+	}
 
 	void menu::highlight_menu_item(menu_item *item)
 	{
 		_current_item = item;	
 		if(item == NULL)
 		{
-			_cursor_sprite.set_visible(false);
+			set_cursor_visible(false);
 		}
 		else{
 			_cursor_sprite.set_position(item->_position + _cursor_offset);
-			_cursor_sprite.set_visible(true);
+			set_cursor_visible(true);
 		}
 	}
 
@@ -298,7 +301,7 @@ namespace sh
 			_item_list.at(i)->show_item();
 		}
 		generate_menu_text();
-		_cursor_sprite.set_visible(true);
+		set_cursor_visible(true);
 	}
 
 	void menu::close_menu()
@@ -309,7 +312,7 @@ namespace sh
 			_item_list.at(i)->hide_item();
 		}
 		_text_sprites.clear();
-		_cursor_sprite.set_visible(false);
+		set_cursor_visible(false);
 	}
 
 	bool menu::is_open()

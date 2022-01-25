@@ -123,13 +123,13 @@ namespace sh{
 				base_builder.set_camera(scene->get_camera());
 			}
 			{
-				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5) - 2);
 				base_builder.set_position(pos);
 				tile_sprites.push_back(base_builder.build());
 				tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
 			}
 			{
-				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5) - 2);
 				base_builder.set_position(pos);
 				tile_sprites.push_back(base_builder.build());
 				tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));

@@ -2,14 +2,16 @@
 #include "sh_level_select_menu.h"
 #include "sh_level_select_scene.h"
 #include "sh_random.h"
+#include "sh_character.h"
 
 #include <bn_core.h>
 #include <bn_fixed.h>
 #include <bn_keypad.h>
 #include <bn_regular_bg_ptr.h>
+#include <bn_sprite_builder.h>
 
 #include "bn_regular_bg_items_title_bg.h"
-#include "bn_sprite_items_portrait_frame.h"
+#include "bn_sprite_items_level_select_frame.h"
 
 namespace sh
 {
@@ -19,18 +21,35 @@ namespace sh
 		title_bg (bn::regular_bg_items::title_bg.create_bg(0, 0))
 	{
 		type = scene_type::LEVEL_SELECT;
-
-		for(int y = -1; y < 2; y++)
 		{
-			for(int x = -1; x < 2; x++)
+			bn::fixed_point pos(0,0);
+			panel_positions.push_back(pos);
+			pos = bn::fixed_point(-CORNER_X, -CORNER_Y);
+			panel_positions.push_back(pos);
+			pos = bn::fixed_point(CORNER_X, -CORNER_Y);
+			panel_positions.push_back(pos);
+			pos = bn::fixed_point(-MIDDLE_X, MIDDLE_Y);
+			panel_positions.push_back(pos);
+			pos = bn::fixed_point(MIDDLE_X, MIDDLE_Y);
+			panel_positions.push_back(pos);
+			pos = bn::fixed_point(-CORNER_X, CORNER_Y);
+			panel_positions.push_back(pos);
+			pos = bn::fixed_point(CORNER_X, CORNER_Y);
+			panel_positions.push_back(pos);
+		}
+		{
+			bn::sprite_builder builder(bn::sprite_items::level_select_frame);
+			builder.set_z_order(10);
+			for(int i = 0; i < 7; i++)
 			{
-				panel_positions.push_back(bn::fixed_point(x * 56, y * 48));
-				// portrait_frames.push_back(bn::sprite_items::portrait_frame.create_sprite(x * 56, y * 48));
+				builder.set_position(panel_positions.at(i));
+				portrait_frames.push_back(builder.build());
 			}
+			portrait_sprites.push_back(characters::get_select_sprite(character_id::PROTAGONIST).create_sprite(panel_positions.at(0)));
+			portrait_sprites.push_back(characters::get_select_sprite(character_id::FLAME_WITCH).create_sprite(panel_positions.at(1)));
+			portrait_sprites.push_back(characters::get_select_sprite(character_id::WOOD_DRUID).create_sprite(panel_positions.at(2)));
 		}
 
-		// level_select_cursor.set_position(panel_positions.at(4));
-		// level_select_cursor.set_size(bn::point(48,40));
 
 		scene_management::set_next_scene(scene_type::BATTLE);
 		fade_from_black();
@@ -75,6 +94,13 @@ namespace sh
 
 			update();
 		}
+	}
+
+	level_select_scene::~level_select_scene()
+	{
+		panel_positions.clear();
+		portrait_frames.clear();
+		portrait_sprites.clear();
 	}
 
 	void level_select_scene::update()

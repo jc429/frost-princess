@@ -50,8 +50,8 @@ namespace sh
 			switch (d_id)
 			{
 			case dialogue_id::TEST:
-				_left_speaker_ = character_id::FROST_PRINCESS;
-				_right_speaker_ = character_id::FLAME_WITCH;
+				_left_speaker_ = character_id::PROTAGONIST;
+				_right_speaker_ = character_id::WOOD_DRUID;
 				_current_dialogue_.push_back(dialogue_paragraph(
 						character_id::FROST_PRINCESS,
 						"Hey! This is some sample dialogue!",
