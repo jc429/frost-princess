@@ -8,7 +8,11 @@
 
 #include "bn_sprite_items_protag_bust.h"
 #include "bn_sprite_items_flame_bust.h"
-#include "bn_sprite_items_wood_bust.h"
+#include "bn_sprite_items_wood_bust_1.h"
+#include "bn_sprite_items_wood_bust_2.h"
+#include "bn_sprite_items_shadow_bust_1.h"
+#include "bn_sprite_items_shadow_bust_2.h"
+#include "bn_sprite_items_shadow_bust_3.h"
 
 namespace sh
 {
@@ -87,16 +91,76 @@ namespace sh
 	{
 		load_sprite_offsets(_sprite_offsets, _character_id);
 		_sprite_parts.clear();
-		const bn::sprite_item char_sprite = get_char_sprite(_character_id);
-		bn::sprite_builder builder(char_sprite);
-		builder.set_bg_priority(CHARACTER_LAYER);
-		builder.set_z_order(0);
-		for(int i = 0; i < _sprite_offsets.size(); i++)
+		bn::sprite_item char_sprite = get_char_sprite(_character_id);
+		int sheet_tiles = bn::min(_sprite_offsets.size(), char_sprite.tiles_item().graphics_count());
+		// all chars have at least one sprite sheet, so build that out here
 		{
-			builder.set_position(_position + _sprite_offsets.at(i));
-			_sprite_parts.push_back(builder.build());
-			_sprite_parts.back().set_tiles(char_sprite.tiles_item().create_tiles(i));
+			bn::sprite_builder builder(char_sprite);
+			builder.set_bg_priority(CHARACTER_LAYER);
+			builder.set_z_order(0);
+			for(int i = 0; i < sheet_tiles; i++)
+			{
+				builder.set_position(_position + _sprite_offsets.at(i));
+				_sprite_parts.push_back(builder.build());
+				_sprite_parts.back().set_tiles(char_sprite.tiles_item().create_tiles(i));
+			}
 		}
+		// special cases for chars that need more than one sheet
+		switch(_character_id)
+		{
+		case character_id::FLAME:
+		case character_id::PROTAGONIST:
+			break;
+		case character_id::WOOD:
+			{
+				char_sprite = bn::sprite_items::wood_bust_2;
+				bn::sprite_builder builder(char_sprite);
+				builder.set_bg_priority(CHARACTER_LAYER);
+				builder.set_z_order(0);
+				int sheet_tiles_2 = 2;
+				for(int i = 0; i < sheet_tiles_2; i++)
+				{
+					builder.set_position(_position + _sprite_offsets.at(i+sheet_tiles));
+					_sprite_parts.push_back(builder.build());
+					_sprite_parts.back().set_tiles(char_sprite.tiles_item().create_tiles(i));
+				}
+				sheet_tiles += sheet_tiles_2;
+			}
+			break;
+		case character_id::SHADOW:
+			{
+				char_sprite = bn::sprite_items::shadow_bust_2;
+				bn::sprite_builder builder(char_sprite);
+				builder.set_bg_priority(CHARACTER_LAYER);
+				builder.set_z_order(0);
+				int sheet_tiles_2 = 2;
+				for(int i = 0; i < sheet_tiles_2; i++)
+				{
+					builder.set_position(_position + _sprite_offsets.at(i+sheet_tiles));
+					_sprite_parts.push_back(builder.build());
+					_sprite_parts.back().set_tiles(char_sprite.tiles_item().create_tiles(i));
+				}
+				sheet_tiles += sheet_tiles_2;
+			}
+			{
+				char_sprite = bn::sprite_items::shadow_bust_3;
+				bn::sprite_builder builder(char_sprite);
+				builder.set_bg_priority(CHARACTER_LAYER);
+				builder.set_z_order(0);
+				int sheet_tiles_3 = 2;
+				for(int i = 0; i < sheet_tiles_3; i++)
+				{
+					builder.set_position(_position + _sprite_offsets.at(i+sheet_tiles));
+					_sprite_parts.push_back(builder.build());
+					_sprite_parts.back().set_tiles(char_sprite.tiles_item().create_tiles(i));
+				}
+				sheet_tiles += sheet_tiles_3;
+			}
+
+		default:
+			break;
+		}
+		
 		update_sprite();
 	}
 
@@ -104,11 +168,14 @@ namespace sh
 	{
 		switch(c_id)
 		{
-		case character_id::FLAME_WITCH:
+		case character_id::FLAME:
 			return bn::sprite_items::flame_bust;
 			break;
-		case character_id::WOOD_DRUID:
-			return bn::sprite_items::wood_bust;
+		case character_id::WOOD:
+			return bn::sprite_items::wood_bust_1;
+			break;
+		case character_id::SHADOW:
+			return bn::sprite_items::shadow_bust_1;
 			break;
 		case character_id::PROTAGONIST:
 		default:
@@ -122,22 +189,35 @@ namespace sh
 		offsets.clear();
 		switch (c_id)
 		{
-		case character_id::FLAME_WITCH:
+		case character_id::FLAME:
 			offsets.push_back(bn::fixed_point(0,-96));
 			offsets.push_back(bn::fixed_point(0,-64));
 			offsets.push_back(bn::fixed_point(0,-32));
 			offsets.push_back(bn::fixed_point(-8,0));
 			offsets.push_back(bn::fixed_point(56,0));
 			break;
-		case character_id::WOOD_DRUID:
+		case character_id::WOOD:
+			// sheet 1
 			offsets.push_back(bn::fixed_point(-8,-96));
 			offsets.push_back(bn::fixed_point(-8,-64));
 			offsets.push_back(bn::fixed_point(-8,-32));
 			offsets.push_back(bn::fixed_point(-8,0));
-			offsets.push_back(bn::fixed_point(56,-32));
-			offsets.push_back(bn::fixed_point(56,0));
+			// sheet 2
+			offsets.push_back(bn::fixed_point(40,-32));
+			offsets.push_back(bn::fixed_point(40,0));
 			break;
-
+		case character_id::SHADOW:
+			// sheet 1
+			offsets.push_back(bn::fixed_point(0,-80));
+			offsets.push_back(bn::fixed_point(0,-48));
+			offsets.push_back(bn::fixed_point(0,-16));
+			// sheet 2
+			offsets.push_back(bn::fixed_point(-48,-32));
+			offsets.push_back(bn::fixed_point(48,-32));
+			// sheet 3
+			offsets.push_back(bn::fixed_point(0,-104));
+			offsets.push_back(bn::fixed_point(48,-72));
+			break;
 		case character_id::PROTAGONIST:
 			offsets.push_back(bn::fixed_point(0,-80));
 			offsets.push_back(bn::fixed_point(0,-48));

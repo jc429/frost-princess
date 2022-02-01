@@ -10,7 +10,7 @@
 #include <bn_regular_bg_ptr.h>
 #include <bn_sprite_builder.h>
 
-#include "bn_regular_bg_items_title_bg.h"
+#include "bn_regular_bg_items_options_bg.h"
 #include "bn_sprite_items_level_select_frame.h"
 
 namespace sh
@@ -18,23 +18,23 @@ namespace sh
 
 
 	level_select_scene::level_select_scene() :
-		title_bg (bn::regular_bg_items::title_bg.create_bg(0, 0))
+		lev_sel_bg (bn::regular_bg_items::options_bg.create_bg(0, 0))
 	{
 		type = scene_type::LEVEL_SELECT;
 		{
-			bn::fixed_point pos(0,0);
+			bn::fixed_point pos(0,0 + OFFSET_Y);
 			panel_positions.push_back(pos);
-			pos = bn::fixed_point(-CORNER_X, -CORNER_Y);
+			pos = bn::fixed_point(-CORNER_X, -CORNER_Y + OFFSET_Y);
 			panel_positions.push_back(pos);
-			pos = bn::fixed_point(CORNER_X, -CORNER_Y);
+			pos = bn::fixed_point(CORNER_X, -CORNER_Y + OFFSET_Y);
 			panel_positions.push_back(pos);
-			pos = bn::fixed_point(-MIDDLE_X, MIDDLE_Y);
+			pos = bn::fixed_point(-MIDDLE_X, MIDDLE_Y + OFFSET_Y);
 			panel_positions.push_back(pos);
-			pos = bn::fixed_point(MIDDLE_X, MIDDLE_Y);
+			pos = bn::fixed_point(MIDDLE_X, MIDDLE_Y + OFFSET_Y);
 			panel_positions.push_back(pos);
-			pos = bn::fixed_point(-CORNER_X, CORNER_Y);
+			pos = bn::fixed_point(-CORNER_X, CORNER_Y + OFFSET_Y);
 			panel_positions.push_back(pos);
-			pos = bn::fixed_point(CORNER_X, CORNER_Y);
+			pos = bn::fixed_point(CORNER_X, CORNER_Y + OFFSET_Y);
 			panel_positions.push_back(pos);
 		}
 		{
@@ -46,8 +46,9 @@ namespace sh
 				portrait_frames.push_back(builder.build());
 			}
 			portrait_sprites.push_back(characters::get_select_sprite(character_id::PROTAGONIST).create_sprite(panel_positions.at(0)));
-			portrait_sprites.push_back(characters::get_select_sprite(character_id::FLAME_WITCH).create_sprite(panel_positions.at(1)));
-			portrait_sprites.push_back(characters::get_select_sprite(character_id::WOOD_DRUID).create_sprite(panel_positions.at(2)));
+			portrait_sprites.push_back(characters::get_select_sprite(character_id::FLAME).create_sprite(panel_positions.at(1)));
+			portrait_sprites.push_back(characters::get_select_sprite(character_id::SHADOW).create_sprite(panel_positions.at(2)));
+			portrait_sprites.push_back(characters::get_select_sprite(character_id::WOOD).create_sprite(panel_positions.at(3)));
 		}
 
 
@@ -56,20 +57,29 @@ namespace sh
 
 		// select_panel(4);
 
+		scene_done = false;
 		level_select_menu lev_sel_menu;
 		lev_sel_menu.open_menu();
 
-		while(true)
+		while(!scene_done)
 		{
 			lev_sel_menu.update();
 
 			if(bn::keypad::a_pressed() || bn::keypad::start_pressed())
 			{
+				scene_management::set_next_scene(scene_type::BATTLE);
+				scene_done = true;
 				fade_to_black();
 				break;
 			}
 
-
+			if(bn::keypad::b_pressed())
+			{
+				// save settings
+				scene_management::set_next_scene(scene_type::TITLE);
+				scene_done = true;
+				fade_to_black();
+			}
 			// bn::point mov;
 			// if(bn::keypad::left_pressed())
 			// {
@@ -106,7 +116,10 @@ namespace sh
 	void level_select_scene::update()
 	{
 		unsigned int burn = random.get();
-		bn::core::update();
+		lev_sel_bg.set_x(lev_sel_bg.x() - 0.25);
+		lev_sel_bg.set_y(lev_sel_bg.y() - 0.25);
+		
+		scene::update();
 	}
 
 	// void level_select_scene::select_panel(int panel_id)

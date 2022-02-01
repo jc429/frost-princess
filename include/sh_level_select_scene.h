@@ -15,10 +15,11 @@ namespace sh
 	#define CORNER_Y 40
 	#define MIDDLE_X 64
 	#define MIDDLE_Y 0
+	#define OFFSET_Y 10
 	class level_select_scene : public scene
 	{
 	private:
-		bn::regular_bg_ptr title_bg;
+		bn::regular_bg_ptr lev_sel_bg;
 		bn::vector<bn::fixed_point, 7> panel_positions;
 		bn::vector<bn::sprite_ptr, 7> portrait_frames;
 		bn::vector<bn::sprite_ptr, 7> portrait_sprites;

@@ -10,6 +10,7 @@
 #include "bn_sprite_items_protag_select.h"
 #include "bn_sprite_items_flame_select.h"
 #include "bn_sprite_items_wood_select.h"
+#include "bn_sprite_items_shadow_select.h"
 
 namespace sh
 {
@@ -19,7 +20,7 @@ namespace sh
 	{
 		
 		static character_id _player_char_ = character_id::PROTAGONIST;
-		static character_id _foe_char_ = character_id::FLAME_WITCH;
+		static character_id _foe_char_ = character_id::FLAME;
 
 		void set_player_character(character_id char_id)
 		{
@@ -49,9 +50,9 @@ namespace sh
 				return "Protagonist";
 			case character_id::FROST_PRINCESS:
 				return "Frost Princess";
-			case character_id::WOOD_DRUID:
+			case character_id::WOOD:
 				return "Woody";
-			case character_id::FLAME_WITCH:
+			case character_id::FLAME:
 				return "Homura";
 			default:
 				return "";
@@ -62,10 +63,10 @@ namespace sh
 		{
 			switch(c_id)
 			{
-			case character_id::FLAME_WITCH:
+			case character_id::FLAME:
 				return bn::sprite_items::flame_portrait;
 				break;
-			case character_id::WOOD_DRUID:
+			case character_id::WOOD:
 				return bn::sprite_items::wood_portrait;
 				break;
 			case character_id::PROTAGONIST:
@@ -79,11 +80,14 @@ namespace sh
 		{
 			switch(c_id)
 			{
-			case character_id::FLAME_WITCH:
+			case character_id::FLAME:
 				return bn::sprite_items::flame_select;
 				break;
-			case character_id::WOOD_DRUID:
+			case character_id::WOOD:
 				return bn::sprite_items::wood_select;
+				break;
+			case character_id::SHADOW:
+				return bn::sprite_items::shadow_select;
 				break;
 			case character_id::PROTAGONIST:
 			default:

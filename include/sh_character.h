@@ -10,9 +10,11 @@ namespace sh
 	{
 		PROTAGONIST,
 		FROST_PRINCESS,
-		FLAME_WITCH,
-		WOOD_DRUID,
-		ICE_QUEEN,
+		FLAME,
+		WOOD,
+		WATER,
+		THUNDER,
+		SHADOW,
 		NONE
 	};
 

@@ -9,7 +9,7 @@
 
 namespace sh
 {
-	#define CHR_SPRITE_PART_CT 6
+	#define CHR_SPRITE_PART_CT 8
 	#define CHARACTER_LAYER 2
 
 	class character_sprite

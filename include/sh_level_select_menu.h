@@ -11,6 +11,7 @@ namespace sh
 	#define CORNER_Y 40
 	#define MIDDLE_X 64
 	#define MIDDLE_Y 0
+	#define OFFSET_Y 10
 	class level_select_menu : public menu
 	{
 	protected:

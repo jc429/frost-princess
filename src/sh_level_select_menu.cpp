@@ -60,47 +60,49 @@ namespace sh
 		#define BOT_LEFT	5
 		#define BOT_RIGHT	6
 
-		bn::fixed_point pos(0,0);
+
+
+		// CENTER
+		bn::fixed_point pos(0,0 + OFFSET_Y);
 		{
 			// _menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
-
 		// TOP_LEFT
-		pos = bn::fixed_point(-CORNER_X, -CORNER_Y);
+		pos = bn::fixed_point(-CORNER_X, -CORNER_Y + OFFSET_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 		// TOP_RIGHT
-		pos = bn::fixed_point(CORNER_X, -CORNER_Y);
+		pos = bn::fixed_point(CORNER_X, -CORNER_Y + OFFSET_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 
 		// MID_LEFT
-		pos = bn::fixed_point(-MIDDLE_X, MIDDLE_Y);
+		pos = bn::fixed_point(-MIDDLE_X, MIDDLE_Y + OFFSET_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 		// MID_RIGHT
-		pos = bn::fixed_point(MIDDLE_X, MIDDLE_Y);
+		pos = bn::fixed_point(MIDDLE_X, MIDDLE_Y + OFFSET_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 
 		// BOT_LEFT
-		pos = bn::fixed_point(-CORNER_X, CORNER_Y);
+		pos = bn::fixed_point(-CORNER_X, CORNER_Y + OFFSET_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());
 		}
 		// BOT_RIGHT
-		pos = bn::fixed_point(CORNER_X, CORNER_Y);
+		pos = bn::fixed_point(CORNER_X, CORNER_Y + OFFSET_Y);
 		{
 			_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, ""));
 			_item_list.push_back(&_menu_items_.back());

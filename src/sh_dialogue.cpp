@@ -50,8 +50,8 @@ namespace sh
 			switch (d_id)
 			{
 			case dialogue_id::TEST:
-				_left_speaker_ = character_id::PROTAGONIST;
-				_right_speaker_ = character_id::WOOD_DRUID;
+				_left_speaker_ = character_id::WOOD;
+				_right_speaker_ = character_id::SHADOW;
 				_current_dialogue_.push_back(dialogue_paragraph(
 						character_id::FROST_PRINCESS,
 						"Hey! This is some sample dialogue!",
@@ -59,7 +59,7 @@ namespace sh
 						"....................................................."
 					));
 				_current_dialogue_.push_back(dialogue_paragraph(
-						character_id::FLAME_WITCH,
+						character_id::FLAME,
 						"Wow! Two whole paragraphs!",
 						"Localized entirely within your kitchen!"
 					));
@@ -68,13 +68,13 @@ namespace sh
 
 			case dialogue_id::PRE_BTL_HOMURA:
 				_left_speaker_ = character_id::PROTAGONIST;
-				_right_speaker_ = character_id::FLAME_WITCH;
+				_right_speaker_ = character_id::FLAME;
 				_current_dialogue_.push_back(dialogue_paragraph(
 						character_id::PROTAGONIST,
 						"...."
 					));
 				_current_dialogue_.push_back(dialogue_paragraph(
-						character_id::FLAME_WITCH,
+						character_id::FLAME,
 						"Well then. Let's get started!"
 					));
 				break;
