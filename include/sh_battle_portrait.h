@@ -11,14 +11,14 @@ namespace sh
 	class battle_portrait
 	{
 	public:
-		bn::sprite_ptr portrait_sprite;
+		bn::sprite_ptr _portrait_sprite;
+		bool _is_player;
 	//	bn::sprite_ptr frame_sprite;
 		// int player_id;
 		bn::fixed_point _position;
 		character_id char_id;
 
-		battle_portrait(bn::fixed_point pos);
-		battle_portrait(int pos_x, int pos_y);
+		battle_portrait(bn::fixed_point pos, bool is_player);
 		void set_character(character_id c_id);
 
 	};

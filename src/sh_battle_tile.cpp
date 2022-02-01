@@ -54,10 +54,25 @@ namespace sh{
 	{
 		const bn::sprite_tiles_item *tile_set;
 		const bn::sprite_palette_item *palette_item;
-		// int tile_idx = (int)owner * 2;
-		// tile_idx += (_is_dark ? 1 : 0);
-		//tile_idx += (game_settings::colorblind_mode_enabled() ? COLORBLIND_TILE_OFFSET : 0);
 		int tile_idx = (_is_dark ? 1 : 0);
+		if(game_settings::colorblind_mode_enabled())
+		{
+			switch(owner)
+			{
+			case tile_owner::PLAYER:
+				tile_idx += 2;
+				break;
+			case tile_owner::FOE:
+				tile_idx += 4;
+				break;
+			case tile_owner::DEBUG:
+				tile_idx += 6;
+				break;
+			case tile_owner::EMPTY:
+			default:
+				break;
+			}
+		}
 		switch(_current_condition)
 		{
 		case tile_condition::BURNED:

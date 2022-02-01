@@ -63,9 +63,9 @@ namespace sh
 		_turn_announcement (bn::regular_bg_items::btl_player_phase.create_bg(0,0)),
 		board (battle_board(this)),
 		preview_transparency_action (bn::blending_transparency_alpha_loop_action(30,0.2)),
-		player_portrait (battle_portrait(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y)),
+		player_portrait (battle_portrait(bn::fixed_point(-BTL_PORTRAIT_X, BTL_PORTRAIT_Y), true)),
 		player_deck (battle_deck_with_sprite(bn::fixed_point(BTL_DECK_PLA_X,BTL_DECK_PLA_Y))),
-		foe_portrait (battle_portrait(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y))
+		foe_portrait (battle_portrait(bn::fixed_point(BTL_PORTRAIT_X, -BTL_PORTRAIT_Y), false))
 	{
 		// make sure textgen is set up before writing any text
 		text_generator.set_bg_priority(1);
@@ -490,10 +490,10 @@ namespace sh
 		switch(player)
 		{
 		case tile_owner::PLAYER:
-			return _instance_->player_portrait.portrait_sprite.palette();
+			return _instance_->player_portrait._portrait_sprite.palette();
 			break;
 		case tile_owner::FOE:
-			return _instance_->foe_portrait.portrait_sprite.palette();
+			return _instance_->foe_portrait._portrait_sprite.palette();
 			break;
 		case tile_owner::EMPTY:
 		default:
