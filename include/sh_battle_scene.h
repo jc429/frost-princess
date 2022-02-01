@@ -48,6 +48,7 @@ namespace sh
 	class battle_scene : public scene
 	{
 	private:
+
 		bn::regular_bg_ptr _battle_board_bg;
 		bn::regular_bg_ptr _battle_ui_bg;
 		bn::regular_bg_ptr _turn_announcement;
@@ -65,7 +66,7 @@ namespace sh
 
 		character_id foe_character;
 		battle_portrait foe_portrait;
-		battle_deck foe_deck;	
+		battle_deck foe_deck;
 		battle_tile *foe_base;
 
 		tile_owner current_player;
@@ -86,7 +87,7 @@ namespace sh
 		void turn_intro(tile_owner player);
 		void end_turn();
 		void set_turn_number(int turn);
-		void update_tile_counts();
+		void update_tile_counts(); 
 		void update_text();
 
 		//sh_battle_foe_ai.cpp
@@ -107,7 +108,11 @@ namespace sh
 		void open_pause_menu();
 
 		void apply_damage_to_player(tile_owner player, int dmg);
+
+		static bn::sprite_palette_ptr get_palette_of_player(tile_owner player);
 	};
+
+
 
 }
 

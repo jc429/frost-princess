@@ -34,6 +34,7 @@
 #include "bn_sprite_items_card_blank.h"
 #include "bn_sprite_items_crown.h"
 #include "bn_sprite_items_skill_meter_flame.h"
+#include "bn_sprite_items_board_tile.h"
 // text & fonts
 #include "variable_8x16_sprite_font.h"
 
@@ -54,6 +55,7 @@ namespace sh
 	bn::vector<bn::sprite_ptr, 12> text_sprites;
 
 	static bn::point player_most_recent_tile(4,4);
+	static battle_scene *_instance_ = NULL;
 
 	battle_scene::battle_scene() :
 		_battle_board_bg (bn::regular_bg_items::battle_bg_board_wood.create_bg(0, 0)),
@@ -71,6 +73,7 @@ namespace sh
 		text_sprites.clear();
 		board.current_scene = this;
 
+		_instance_ = this;
 		type = scene_type::BATTLE;
 		scene_done = false;
 		
@@ -481,5 +484,23 @@ namespace sh
 		}
 	}
 
+
+	bn::sprite_palette_ptr battle_scene::get_palette_of_player(tile_owner player)
+	{
+		switch(player)
+		{
+		case tile_owner::PLAYER:
+			return _instance_->player_portrait.portrait_sprite.palette();
+			break;
+		case tile_owner::FOE:
+			return _instance_->foe_portrait.portrait_sprite.palette();
+			break;
+		case tile_owner::EMPTY:
+		default:
+			const bn::sprite_palette_item *pal_itm = &bn::sprite_items::board_tile.palette_item();
+			return pal_itm->create_palette();
+			break;
+		}
+	}
 
 }

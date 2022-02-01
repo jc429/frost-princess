@@ -1,11 +1,13 @@
 #include "sh_character.h"
 
 #include <bn_sprite_item.h>
+#include <bn_sprite_palette_ptr.h>
 #include <bn_string.h>
 
 #include "bn_sprite_items_protag_portrait.h"
 #include "bn_sprite_items_flame_portrait.h"
 #include "bn_sprite_items_wood_portrait.h"
+#include "bn_sprite_items_shadow_portrait.h"
 
 #include "bn_sprite_items_protag_select.h"
 #include "bn_sprite_items_flame_select.h"
@@ -69,6 +71,9 @@ namespace sh
 			case character_id::WOOD:
 				return bn::sprite_items::wood_portrait;
 				break;
+			case character_id::SHADOW:
+				return bn::sprite_items::shadow_portrait;
+				break;
 			case character_id::PROTAGONIST:
 			default:
 				return bn::sprite_items::protag_portrait;
@@ -94,6 +99,16 @@ namespace sh
 				return bn::sprite_items::protag_select;
 				break;
 			}
+		}
+
+		bn::sprite_palette_ptr get_portrait_palette_player()
+		{
+			return get_portrait_sprite(_player_char_).palette_item().create_palette();
+		}
+
+		bn::sprite_palette_ptr get_portrait_palette_foe()
+		{
+			return get_portrait_sprite(_foe_char_).palette_item().create_palette();
 		}
 
 	}

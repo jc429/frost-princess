@@ -29,6 +29,9 @@ namespace sh
 		bn::string<16> get_character_name(character_id char_id);
 		bn::sprite_item get_portrait_sprite(character_id c_id);
 		bn::sprite_item get_select_sprite(character_id c_id);
+
+		bn::sprite_palette_ptr get_portrait_palette_player();
+		bn::sprite_palette_ptr get_portrait_palette_foe();
 	}
 }
 

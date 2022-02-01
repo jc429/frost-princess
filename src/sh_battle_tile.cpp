@@ -1,6 +1,8 @@
 #include "sh_battle_tile.h"
 #include "sh_direction.h"
 #include "sh_game_settings.h"
+#include "sh_battle_scene.h"
+#include "sh_character.h"
 
 #include <bn_fixed.h>
 #include <bn_fixed_point.h>
@@ -51,34 +53,64 @@ namespace sh{
 	void battle_tile::update_sprite()
 	{
 		const bn::sprite_tiles_item *tile_set;
-		const bn::sprite_palette_item *palette;
-		int tile_idx = (int)owner * 2;
-		tile_idx += (_is_dark ? 1 : 0);
-		tile_idx += (game_settings::colorblind_mode_enabled() ? COLORBLIND_TILE_OFFSET : 0);
+		const bn::sprite_palette_item *palette_item;
+		// int tile_idx = (int)owner * 2;
+		// tile_idx += (_is_dark ? 1 : 0);
+		//tile_idx += (game_settings::colorblind_mode_enabled() ? COLORBLIND_TILE_OFFSET : 0);
+		int tile_idx = (_is_dark ? 1 : 0);
 		switch(_current_condition)
 		{
 		case tile_condition::BURNED:
 			_sprite_offset = bn::fixed_point(0,0);
 			tile_set = &bn::sprite_items::board_tile_burned.tiles_item();
-			palette =  &bn::sprite_items::board_tile_burned.palette_item();
+			palette_item =  &bn::sprite_items::board_tile_burned.palette_item();
 			tile_idx = 0;
 			break;
 		case tile_condition::FROZEN:
 			_sprite_offset = bn::fixed_point(0,-2);
 			tile_set = &bn::sprite_items::board_tile_frozen.tiles_item();
-			palette =  &bn::sprite_items::board_tile_frozen.palette_item();
+			palette_item = &bn::sprite_items::board_tile_frozen.palette_item();
 			tile_idx = bn::max((3 - _condition_timer), 0);
 			break;
 		default:
 			_sprite_offset = bn::fixed_point(0,0);
 			tile_set = &bn::sprite_items::board_tile.tiles_item();
-			palette =  &bn::sprite_items::board_tile.palette_item();
+			switch (owner)
+			{
+			case tile_owner::PLAYER:
+				{
+					bn::sprite_palette_ptr pal_ptr = characters::get_portrait_palette_player();
+					if(sprite_ptr != NULL)
+					{
+						sprite_ptr->set_tiles_and_palette(tile_set->create_tiles(tile_idx), pal_ptr);
+						sprite_ptr->set_position(_position + _sprite_offset);
+					}
+					return;
+				}
+				break;
+			case tile_owner::FOE:
+				{
+					bn::sprite_palette_ptr pal_ptr = characters::get_portrait_palette_foe();
+					if(sprite_ptr != NULL)
+					{
+						sprite_ptr->set_tiles_and_palette(tile_set->create_tiles(tile_idx), pal_ptr);
+						sprite_ptr->set_position(_position + _sprite_offset);
+					}
+					return;
+				}
+				break;
+			case tile_owner::EMPTY:
+			default:
+				palette_item = &bn::sprite_items::board_tile.palette_item();
+				break;
+			
+			}
 			break;
 		}
 
 		if(sprite_ptr != NULL)
 		{
-			sprite_ptr->set_tiles_and_palette(tile_set->create_tiles(tile_idx), palette->create_palette());
+			sprite_ptr->set_tiles_and_palette(tile_set->create_tiles(tile_idx), palette_item->create_palette());
 			sprite_ptr->set_position(_position + _sprite_offset);
 		}
 	}
