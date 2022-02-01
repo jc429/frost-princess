@@ -1,11 +1,13 @@
 #include "sh_battle_deck.h"
 #include "sh_random.h"
 #include "sh_scene.h"
+#include "sh_character.h"
 
 #include <bn_deque.h>
 #include <bn_fixed_point.h>
 #include <bn_sprite_animate_actions.h>
 #include <bn_sprite_ptr.h>
+#include <bn_sprite_palette_ptr.h>
 #include <bn_vector.h>
 
 #include "bn_sprite_items_card_deck.h"
@@ -127,6 +129,7 @@ namespace sh
 		_sprite.set_bg_priority(2);
 		_sprite.set_z_order(10);
 		_sprite.set_position(pos);
+		_sprite.set_palette(characters::get_portrait_palette_player());
 		_anims.clear();
 	}
 

@@ -1,5 +1,6 @@
 #include "sh_battle_card.h"
 #include "sh_action_manager.h"
+#include "sh_character.h"
 
 #include <bn_fixed.h>
 #include <bn_sprite_builder.h>
@@ -27,6 +28,7 @@ namespace sh
 			builder.set_z_order(Z_ORDER_CARD);
 			builder.set_position(_current_position);
 			_sprites.push_back(builder.release_build());
+			_sprites.back().set_palette(characters::get_portrait_palette_player());
 		}
 		{
 			bn::sprite_builder builder(bn::sprite_items::tile_patterns);
@@ -34,6 +36,7 @@ namespace sh
 			builder.set_z_order(Z_ORDER_PTRN);
 			builder.set_position(_current_position);
 			_sprites.push_back(builder.release_build());
+			_sprites.back().set_palette(characters::get_portrait_palette_player());
 		}
 		// _anims.push_back(bn::create_sprite_animate_action_once(_sprites.front(), 2, bn::sprite_items::card_blank.tiles_item(), 0, 0, 0, 0, 0, 0, 0, 0, 0));
 

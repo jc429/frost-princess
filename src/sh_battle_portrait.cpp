@@ -4,18 +4,17 @@
 #include <bn_fixed_point.h>
 #include <bn_sprite_item.h>
 #include <bn_sprite_ptr.h>
-#include <bn_sprite_items_portrait_frame.h>
-#include <bn_sprite_items_portrait_test.h>
-#include <bn_sprite_items_tile_patterns.h>
 #include <bn_sprite_tiles_ptr.h>
 
+#include "bn_sprite_items_portrait_frame.h"
+#include "bn_sprite_items_protag_portrait.h"
 
 namespace sh
 {
 	bn::sprite_item get_portrait_sprite(character_id c_id);
 
 	battle_portrait::battle_portrait(bn::fixed_point pos) :
-		portrait_sprite (bn::sprite_items::portrait_test.create_sprite(pos))
+		portrait_sprite (bn::sprite_items::protag_portrait.create_sprite(pos))
 	{
 		_position = pos;
 		portrait_sprite.set_bg_priority(1);
@@ -23,7 +22,7 @@ namespace sh
 
 
 	battle_portrait::battle_portrait(int pos_x, int pos_y) :
-		portrait_sprite (bn::sprite_items::portrait_test.create_sprite(pos_x, pos_y))
+		portrait_sprite (bn::sprite_items::protag_portrait.create_sprite(pos_x, pos_y))
 	//	frame_sprite (bn::sprite_items::portrait_frame.create_sprite(pos_x, pos_y))
 	{
 		_position = bn::fixed_point(pos_x,pos_y);
