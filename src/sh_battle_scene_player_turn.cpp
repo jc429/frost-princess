@@ -98,14 +98,14 @@ namespace sh
 				{
 					if(bn::keypad::l_pressed())
 					{
-						board.shift_row_or_col(3, direction::SOUTH);
+						// board.shift_row_or_col(3, direction::SOUTH);
 						// _skill_meters.front().add_sp(-1);
 						// _skill_meters.back().add_sp(-1);
 						// apply_damage_to_player(tile_owner::PLAYER, 100);
 					}
 					if(bn::keypad::r_pressed())
 					{
-						board.shift_row_or_col(3, direction::NORTH);
+						// board.shift_row_or_col(3, direction::NORTH);
 						// _skill_meters.front().add_sp(1);
 						// _skill_meters.back().add_sp(1);
 						// apply_damage_to_player(tile_owner::FOE, 100);

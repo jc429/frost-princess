@@ -20,7 +20,11 @@ namespace sh
 	enum class tile_condition{
 		NORMAL	= 0,
 		FROZEN	= 1,
-		BURNED	= 2
+		BURNED	= 2,
+		SHOCKED	= 3,
+		VINE_H	= 4,
+		VINE_V	= 5,
+		BLIND	= 6,
 	};
 
 	class battle_tile
