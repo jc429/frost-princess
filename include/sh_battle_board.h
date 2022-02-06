@@ -46,9 +46,11 @@ namespace sh
 		bn::vector<bn::sprite_ptr, NUM_PREVIEW_TILES> preview_tiles;
 		bool preview_tile_active[NUM_PREVIEW_TILES];
 
+		void draw_bases();
+
 		battle_tile* select_tile(int tile_x, int tile_y);
 		battle_tile* select_tile(battle_tile *tile);
-		
+
 
 	public:
 		bn::point selection_pos;

@@ -15,7 +15,6 @@
 
 #include "bn_regular_bg_items_battle_board.h"
 #include "bn_sprite_items_board_tile.h"
-#include "bn_sprite_items_base_tile.h"
 #include "bn_sprite_items_preview_tile.h"
 
 
@@ -39,9 +38,9 @@ namespace sh{
 			preview_builder.set_z_order(-500);
 			preview_builder.set_position(BOARD_POS_X,BOARD_POS_Y);
 			preview_builder.set_blending_enabled(true);
-			if(scene != NULL)
+			if(current_scene != NULL)
 			{
-				preview_builder.set_camera(scene->get_camera());
+				preview_builder.set_camera(current_scene->get_camera());
 			}
 			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 			{
@@ -60,9 +59,9 @@ namespace sh{
 			bn::sprite_builder builder(bn::sprite_items::board_tile);
 			builder.set_bg_priority(TILE_SPRITE_LAYER);
 			builder.set_z_order(TILE_SPRITE_PRIO_BASE);
-			if(scene != NULL)
+			if(current_scene != NULL)
 			{
-				builder.set_camera(scene->get_camera());
+				builder.set_camera(current_scene->get_camera());
 			}
 			
 			bool tile_dark = true;	// signifies whether to darken a tile or not (alternates after every placement)
@@ -113,28 +112,7 @@ namespace sh{
 			}
 		}
 
-		{
-			// draw bases
-			bn::sprite_builder base_builder(bn::sprite_items::base_tile);
-			base_builder.set_bg_priority(TILE_SPRITE_LAYER);
-			base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
-			if(scene != NULL)
-			{
-				base_builder.set_camera(scene->get_camera());
-			}
-			{
-				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5) - 2);
-				base_builder.set_position(pos);
-				tile_sprites.push_back(base_builder.build());
-				tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
-			}
-			{
-				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5) - 2);
-				base_builder.set_position(pos);
-				tile_sprites.push_back(base_builder.build());
-				tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));
-			}
-		}
+		draw_bases();
 
 		//put selection cursor in center
 		select_tile(4,4);
@@ -147,6 +125,40 @@ namespace sh{
 		tile_sprites.clear();
 		preview_tile_offsets.clear();
 		preview_tiles.clear();
+	}
+
+	void battle_board::draw_bases()
+	{
+		// player base
+		{
+			bn::sprite_builder base_builder(characters::get_battle_base_sprite(characters::player_character()));
+			base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+			base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+			if(current_scene != NULL)
+			{
+				base_builder.set_camera(current_scene->get_camera());
+			}
+			{
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
+				base_builder.set_position(pos);
+				tile_sprites.push_back(base_builder.build());
+			}
+		}
+		// foe base
+		{
+			bn::sprite_builder base_builder(characters::get_battle_base_sprite(characters::foe_character()));
+			base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+			base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+			if(current_scene != NULL)
+			{
+				base_builder.set_camera(current_scene->get_camera());
+			}
+			{
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
+				base_builder.set_position(pos);
+				tile_sprites.push_back(base_builder.build());
+			}
+		}
 	}
 
 
@@ -441,20 +453,34 @@ namespace sh{
 			it->update_sprite();
 		}
 
-		bn::sprite_builder base_builder(bn::sprite_items::base_tile);
-		base_builder.set_bg_priority(TILE_SPRITE_LAYER);
-		base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
 		{
-			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5) - 2);
-			base_builder.set_position(pos);
-			tile_sprites.push_back(base_builder.build());
-			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(0));
+			// draw bases
+			bn::sprite_builder base_builder(characters::get_battle_base_sprite(characters::player_character()));
+			base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+			base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+			if(current_scene != NULL)
+			{
+				base_builder.set_camera(current_scene->get_camera());
+			}
+			{
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 0.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 7.5));
+				base_builder.set_position(pos);
+				tile_sprites.push_back(base_builder.build());
+			}
 		}
 		{
-			bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5) - 2);
-			base_builder.set_position(pos);
-			tile_sprites.push_back(base_builder.build());
-			tile_sprites.back().set_tiles(bn::sprite_items::base_tile.tiles_item().create_tiles(1));
+			bn::sprite_builder base_builder(characters::get_battle_base_sprite(characters::foe_character()));
+			base_builder.set_bg_priority(TILE_SPRITE_LAYER);
+			base_builder.set_z_order(TILE_SPRITE_PRIO_BASE);
+			if(current_scene != NULL)
+			{
+				base_builder.set_camera(current_scene->get_camera());
+			}
+			{
+				bn::fixed_point pos((BOARD_POS_X - TILES_START) + (TILE_WIDTH * 7.5), (BOARD_POS_Y - TILES_START) + (TILE_WIDTH * 0.5));
+				base_builder.set_position(pos);
+				tile_sprites.push_back(base_builder.build());
+			}
 		}
 	}
 
@@ -811,157 +837,6 @@ namespace sh{
 			current_scene->apply_damage_to_player(target, damage);
 		}
 		return true;
-	}
-
-	bool battle_board::use_special_action(tile_owner owner, special_action_pattern pattern)
-	{
-		effects::effect_id eff_id = effects::effect_id::NONE;
-		tile_condition condition = tile_condition::NORMAL;
-		switch(owner)
-		{
-		case tile_owner::PLAYER:
-			eff_id = effects::effect_id::SHINE;
-			condition = tile_condition::FROZEN;
-			break;
-		case tile_owner::FOE:
-			eff_id = effects::effect_id::EXPLOSION;
-			condition = tile_condition::BURNED;
-			break;
-
-		default:
-			break;
-		}
-
-
-		if(owner != tile_owner::EMPTY && selected_tile->get_owner() == owner)
-		{
-			battle_tile *tile = selected_tile;
-			int eff_duration = 4;
-			
-			int cycle_wait = 24;
-			bn::vector<battle_tile*, 8> apply_tiles;
-			battle_tile *neighbors[8];
-			for(int i = 0; i < 8; i++)
-			{
-				neighbors[i] = NULL;
-			}
-
-			create_effect_at_tile(eff_id, tile);
-			
-			audio::play_sound(sound_id::WEW);
-			current_scene->wait_for_update_cycles(cycle_wait);
-			tile->set_condition(condition, eff_duration);
-			tile->set_owner(owner);
-			
-			switch(pattern)
-			{
-			case special_action_pattern::CROSS_5:
-				for(int i = 0; i < 4; i++)
-				{
-					neighbors[i] = tile->get_neighbor(i);
-				}
-				for(int step = 0; step < 4; step++)
-				{
-					apply_tiles.clear();
-
-					for(int i = 0; i < 4; i++)
-					{
-						if(neighbors[i] != NULL)
-						{
-							apply_tiles.push_back(neighbors[i]);
-						}
-					}
-					if(!apply_tiles.empty())
-					{
-						audio::play_sound(sound_id::WEW);
-						for(auto it = apply_tiles.begin(), end = apply_tiles.end(); it != end; ++it)
-						{
-							create_effect_at_tile(eff_id,*it);
-						}
-						current_scene->wait_for_update_cycles(cycle_wait);
-						for(int i = 0; i < 4; i++)
-						{
-							if(neighbors[i] != NULL)
-							{
-								neighbors[i]->set_condition(condition, eff_duration);
-								if(neighbors[i]->is_base() && (neighbors[i]->get_owner() != owner))
-								{
-									current_scene->apply_damage_to_player(neighbors[i]->get_owner(), 5);
-								}
-								else
-								{
-									neighbors[i]->set_owner(owner);
-								}
-								neighbors[i] = neighbors[i]->get_neighbor(i);
-							}
-						}
-					}
-				}
-				return true;
-				break;
-
-			case special_action_pattern::STAR_3:
-			
-				for(int i = 0; i < 4; i++)
-				{
-					neighbors[i] = tile->get_neighbor(i);
-					if(neighbors[i] != NULL)
-					{
-						neighbors[i+4] = neighbors[i]->get_neighbor((i+1)%4);
-					}
-				}
-				for(int step = 0; step < 2; step++)
-				{
-					apply_tiles.clear();
-					for(int i = 0; i < 8; i++)
-					{
-						if(neighbors[i] != NULL)
-						{
-							apply_tiles.push_back(neighbors[i]);
-						}
-					}
-					if(!apply_tiles.empty())
-					{
-						audio::play_sound(sound_id::WEW);
-						for(auto it = apply_tiles.begin(), end = apply_tiles.end(); it != end; ++it)
-						{
-							create_effect_at_tile(eff_id,*it);
-						}
-						current_scene->wait_for_update_cycles(cycle_wait);
-						for(int i = 0; i < 8; i++)
-						{
-							if(neighbors[i] != NULL)
-							{
-								neighbors[i]->set_condition(condition, eff_duration);
-								if(neighbors[i]->is_base() && (neighbors[i]->get_owner() != owner))
-								{
-									current_scene->apply_damage_to_player(neighbors[i]->get_owner(), 5);
-								}
-								else{
-									neighbors[i]->set_owner(owner);
-								}
-								neighbors[i] = neighbors[i]->get_neighbor(i%4);
-								if(neighbors[i] != NULL && i >= 4)
-								{
-									neighbors[i] = neighbors[i]->get_neighbor((i+1)%4);
-								}
-							}
-						}
-					}
-				}
-				return true;
-				break;
-
-			default:
-				break;
-			}
-			
-			return true;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 	

@@ -8,6 +8,11 @@
 
 #include "variable_8x16_sprite_font.h"
 
+
+/***************************************/
+/** Separate file for handling foe ai **/
+/***************************************/
+
 namespace sh
 {
 	extern bn::sprite_text_generator text_generator;

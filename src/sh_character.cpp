@@ -14,6 +14,11 @@
 #include "bn_sprite_items_wood_select.h"
 #include "bn_sprite_items_shadow_select.h"
 
+#include "bn_sprite_items_battle_base_protagonist.h"
+#include "bn_sprite_items_battle_base_flame.h"
+#include "bn_sprite_items_battle_base_shadow.h"
+
+
 namespace sh
 {
 
@@ -61,26 +66,6 @@ namespace sh
 			}
 		}
 
-		bn::sprite_item get_portrait_sprite(character_id c_id)
-		{
-			switch(c_id)
-			{
-			case character_id::FLAME:
-				return bn::sprite_items::flame_portrait;
-				break;
-			case character_id::WOOD:
-				return bn::sprite_items::wood_portrait;
-				break;
-			case character_id::SHADOW:
-				return bn::sprite_items::shadow_portrait;
-				break;
-			case character_id::PROTAGONIST:
-			default:
-				return bn::sprite_items::protag_portrait;
-				break;
-			}
-		}
-
 		bn::sprite_item get_select_sprite(character_id c_id)
 		{
 			switch(c_id)
@@ -101,15 +86,57 @@ namespace sh
 			}
 		}
 
+		bn::sprite_item get_portrait_sprite(character_id c_id)
+		{
+			switch(c_id)
+			{
+			case character_id::FLAME:
+				return bn::sprite_items::flame_portrait;
+				break;
+			case character_id::WOOD:
+				return bn::sprite_items::wood_portrait;
+				break;
+			case character_id::SHADOW:
+				return bn::sprite_items::shadow_portrait;
+				break;
+			case character_id::PROTAGONIST:
+			default:
+				return bn::sprite_items::protag_portrait;
+				break;
+			}
+		}
+
+
+		bn::sprite_item get_battle_base_sprite(character_id c_id)
+		{
+			switch(c_id)
+			{
+			case character_id::FLAME:
+				return bn::sprite_items::battle_base_flame;
+				break;
+			case character_id::WOOD:
+				return bn::sprite_items::wood_portrait;
+				break;
+			case character_id::SHADOW:
+				return bn::sprite_items::battle_base_shadow;
+				break;
+			case character_id::PROTAGONIST:
+			default:
+				return bn::sprite_items::battle_base_protagonist;
+				break;
+			}
+		}
+
 		bn::sprite_palette_ptr get_portrait_palette_player()
 		{
-			return get_portrait_sprite(_player_char_).palette_item().create_palette();
+			return get_battle_base_sprite(_player_char_).palette_item().create_palette();
 		}
 
 		bn::sprite_palette_ptr get_portrait_palette_foe()
 		{
-			return get_portrait_sprite(_foe_char_).palette_item().create_palette();
+			return get_battle_base_sprite(_foe_char_).palette_item().create_palette();
 		}
+
 
 	}
 

@@ -279,9 +279,8 @@ namespace sh
 		}
 		wait_for_update_cycles(12);
 
-		turn_count = 1;
+		turn_count = 0;
 		current_player = tile_owner::PLAYER;
-		set_turn_number(1);
 		player_most_recent_tile = bn::point(4,4);
 		select_tile(player_most_recent_tile); // start tile cursor at center of board
 

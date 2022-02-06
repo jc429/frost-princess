@@ -5,6 +5,9 @@
 #include <bn_keypad.h>
 
 
+/**************************************************/
+/** Separate file for handling the player's turn **/
+/**************************************************/
 
 namespace sh
 {
