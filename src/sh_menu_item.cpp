@@ -4,8 +4,24 @@
 
 namespace sh
 {
-	menu_item::menu_item(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text)
+	menu_item::menu_item(menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id)
 	{
+		_item_id = id;
+		_position = pos;
+		_action_id = action_id;
+		_text = NULL;
+		_menu = menu_owner;
+		_above = NULL;
+		_below = NULL;
+		_left = NULL;
+		_right = NULL;
+		hover_menu_item_event = NULL;
+		click_menu_item_event = NULL;
+	}
+
+	menu_item::menu_item(menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text)
+	{
+		_item_id = id;
 		_position = pos;
 		_action_id = action_id;
 		_text = text;
@@ -14,12 +30,13 @@ namespace sh
 		_below = NULL;
 		_left = NULL;
 		_right = NULL;
-		update_menu_item_event = NULL;
+		hover_menu_item_event = NULL;
+		click_menu_item_event = NULL;
 	}
 	
 	menu_item::~menu_item()
 	{
-
+		_text.clear();
 	}
 
 	// void menu_item::set_menu_action(void (*func)())
@@ -62,6 +79,10 @@ namespace sh
 			return;
 		}
 		_menu->highlight_menu_item(this);
+		if(hover_menu_item_event != NULL)
+		{
+			hover_menu_item_event(_item_id);
+		}
 	}
 
 	void menu_item::show_item()
@@ -102,18 +123,14 @@ namespace sh
 			break;
 		case menu_item_interact_type::A_PRESS:
 			_menu->perform_action(_action_id);
-			if(update_menu_item_event != NULL)
+			if(click_menu_item_event != NULL)
 			{
-				update_menu_item_event(0);
+				click_menu_item_event(_item_id);
 			}
 			break;
 		default:
 			break;
 		}
 	}
-
-
-	
-
 
 }

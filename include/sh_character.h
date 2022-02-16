@@ -9,18 +9,18 @@ namespace sh
 	enum class character_id
 	{
 		PROTAGONIST,
-		FROST_PRINCESS,
 		FLAME,
 		WOOD,
+		SHADOW,
 		WATER,
 		THUNDER,
-		SHADOW,
+		FROST_PRINCESS,
 		NONE
 	};
 
 	namespace characters
 	{
-
+		character_id get_character(int char_id_int);
 		void set_player_character(character_id char_id);
 		void set_foe_character(character_id char_id);
 		character_id player_character();

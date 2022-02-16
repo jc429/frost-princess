@@ -128,9 +128,9 @@ namespace sh
 		character_sprites.clear();
 		load_paragraph(dialogue::load_dialogue(dialogue_id::TEST));
 
-		character_sprites.push_back(character_sprite(dialogue::get_speaker(dia_spkr_pos::LEFT)));
+		character_sprites.push_back(character_sprite(dialogue::get_speaker(dia_spkr_pos::LEFT), char_sprite_type::BUST));
 		character_sprites.front().set_position(char_pos_left_default);
-		character_sprites.push_back(character_sprite(dialogue::get_speaker(dia_spkr_pos::RIGHT)));
+		character_sprites.push_back(character_sprite(dialogue::get_speaker(dia_spkr_pos::RIGHT), char_sprite_type::BUST));
 		character_sprites.back().set_position(char_pos_right_default);
 
 

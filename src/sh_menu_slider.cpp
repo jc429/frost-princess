@@ -9,8 +9,8 @@
 
 namespace sh
 {
-	menu_slider::menu_slider(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, int min_val, int max_val) :
-		menu_item(menu_owner, pos, action_id, text),
+	menu_slider::menu_slider(menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, int min_val, int max_val) :
+		menu_item(menu_owner, id, pos, action_id, text),
 		_slider_cursor(bn::sprite_items::menu_slider_cursor.create_sprite(pos + spr_offset))
 	{
 		if(menu_owner != NULL)
@@ -63,16 +63,16 @@ namespace sh
 		{
 		case menu_item_interact_type::LEFT_PRESS:
 			decrement();
-			if(update_menu_item_event != NULL)
+			if(click_menu_item_event != NULL)
 			{
-				update_menu_item_event(_cur_value);
+				click_menu_item_event(_cur_value);
 			}
 			break;
 		case menu_item_interact_type::RIGHT_PRESS:
 			increment();
-			if(update_menu_item_event != NULL)
+			if(click_menu_item_event != NULL)
 			{
-				update_menu_item_event(_cur_value);
+				click_menu_item_event(_cur_value);
 			}
 			break;
 		case menu_item_interact_type::A_PRESS:

@@ -5,8 +5,8 @@
 namespace sh
 {
 	
-	menu_checkbox::menu_checkbox(menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, bool default_checked) :
-		menu_item(menu_owner, pos, action_id,text)
+	menu_checkbox::menu_checkbox(menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, bool default_checked) :
+		menu_item(menu_owner, id, pos, action_id,text)
 	{
 		
 		_checkbox_sprites.push_back(bn::sprite_items::menu_checkbox.create_sprite(pos + spr_offset, 1));
@@ -44,9 +44,9 @@ namespace sh
 		{
 		case menu_item_interact_type::A_PRESS:
 			toggle();
-			if(update_menu_item_event != NULL)
+			if(click_menu_item_event != NULL)
 			{
-				update_menu_item_event(_is_checked ? 1 : 0);
+				click_menu_item_event(_is_checked ? 1 : 0);
 			}
 			break;
 		default:

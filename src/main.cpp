@@ -22,8 +22,8 @@ int main()
 	
 	bn::bg_palettes::set_transparent_color(bn::color(16, 24, 24));
 
-	sh::characters::set_player_character(sh::character_id::FLAME);
-	sh::characters::set_foe_character(sh::character_id::SHADOW);
+	sh::characters::set_player_character(sh::character_id::PROTAGONIST);
+	sh::characters::set_foe_character(sh::character_id::PROTAGONIST);
 
 
 	while(true)

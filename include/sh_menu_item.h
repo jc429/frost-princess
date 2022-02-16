@@ -42,6 +42,7 @@ namespace sh
 		#define MENU_STRING_MAX_LEN 32
 
 	public:
+		int _item_id;
 		class menu *_menu;
 		menu_action_id _action_id;
 		bn::fixed_point _position;
@@ -51,9 +52,11 @@ namespace sh
 		menu_item *_below;
 		menu_item *_left;
 		menu_item *_right;
-		void (*update_menu_item_event)(int);
+		void (*hover_menu_item_event)(int);
+		void (*click_menu_item_event)(int);
 
-		menu_item(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text);
+		menu_item(menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id);
+		menu_item(menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text);
 		virtual ~menu_item();
 		// void set_menu_action(void (*func)());
 
@@ -78,7 +81,7 @@ namespace sh
 		int _max_value;
 		int _cur_value;
 
-		menu_slider(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, int min_val, int max_val);
+		menu_slider(class menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, int min_val, int max_val);
 		~menu_slider();
 		
 		virtual void show_item() override;
@@ -100,7 +103,7 @@ namespace sh
 		bn::vector<bn::sprite_ptr, 2> _checkbox_sprites;
 		bool _is_checked;
 	public:
-		menu_checkbox(class menu *menu_owner, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, bool default_checked);
+		menu_checkbox(class menu *menu_owner, int id, bn::fixed_point pos, menu_action_id action_id, bn::string<MENU_STRING_MAX_LEN> text, bn::fixed_point spr_offset, bool default_checked);
 		~menu_checkbox();
 
 		virtual void show_item() override;

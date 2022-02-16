@@ -9,6 +9,7 @@
 #include "bn_sprite_items_wood_portrait.h"
 #include "bn_sprite_items_shadow_portrait.h"
 
+#include "bn_sprite_items_random_select.h"
 #include "bn_sprite_items_protag_select.h"
 #include "bn_sprite_items_flame_select.h"
 #include "bn_sprite_items_wood_select.h"
@@ -16,6 +17,7 @@
 
 #include "bn_sprite_items_battle_base_protagonist.h"
 #include "bn_sprite_items_battle_base_flame.h"
+#include "bn_sprite_items_battle_base_wood.h"
 #include "bn_sprite_items_battle_base_shadow.h"
 
 
@@ -27,7 +29,28 @@ namespace sh
 	{
 		
 		static character_id _player_char_ = character_id::PROTAGONIST;
-		static character_id _foe_char_ = character_id::FLAME;
+		static character_id _foe_char_ = character_id::PROTAGONIST;
+
+		character_id get_character(int char_id_int)
+		{
+			switch (char_id_int)
+			{
+			case 0:
+				return character_id::PROTAGONIST;
+			case 1:
+				return character_id::FLAME;
+			case 2:
+				return character_id::WOOD;
+			case 3:
+				return character_id::SHADOW;
+			case 4:
+				return character_id::WATER;
+			case 5:
+				return character_id::THUNDER;
+			default:
+				return character_id::NONE;
+			}
+		}
 
 		void set_player_character(character_id char_id)
 		{
@@ -80,8 +103,10 @@ namespace sh
 				return bn::sprite_items::shadow_select;
 				break;
 			case character_id::PROTAGONIST:
-			default:
 				return bn::sprite_items::protag_select;
+				break;
+			default:
+				return bn::sprite_items::random_select;
 				break;
 			}
 		}
@@ -111,16 +136,14 @@ namespace sh
 		{
 			switch(c_id)
 			{
+			case character_id::PROTAGONIST:
+				return bn::sprite_items::battle_base_protagonist;
 			case character_id::FLAME:
 				return bn::sprite_items::battle_base_flame;
-				break;
 			case character_id::WOOD:
-				return bn::sprite_items::wood_portrait;
-				break;
+				return bn::sprite_items::battle_base_wood;
 			case character_id::SHADOW:
 				return bn::sprite_items::battle_base_shadow;
-				break;
-			case character_id::PROTAGONIST:
 			default:
 				return bn::sprite_items::battle_base_protagonist;
 				break;

@@ -60,7 +60,7 @@ namespace sh
 		virtual void update();
 		
 		virtual void highlight_menu_item(menu_item *item);
-		// void select_item(int item_index);
+		virtual menu_item *current_item();
 		void perform_action(menu_action_id action_id);
 		virtual void open_menu();
 		virtual void close_menu();

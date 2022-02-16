@@ -15,7 +15,6 @@
 #include "bn_sprite_items_board_tile.h"
 #include "bn_sprite_items_board_tile_frozen.h"
 #include "bn_sprite_items_board_tile_burned.h"
-#include "bn_sprite_items_crown.h"
 
 #define COLORBLIND_TILE_OFFSET 8
 

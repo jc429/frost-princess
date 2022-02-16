@@ -110,12 +110,12 @@ namespace sh
 				
 				pos = bn::fixed_point(-20, -30);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::CLOSE_MENU, "Resume"));
+					_menu_items_.push_back(menu_item(this, 0, pos, menu_action_id::CLOSE_MENU, "Resume"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::EXIT_SCENE, "Quit"));
+					_menu_items_.push_back(menu_item(this, 1, pos, menu_action_id::EXIT_SCENE, "Quit"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 
@@ -127,23 +127,23 @@ namespace sh
 				pos = bn::fixed_point(-76, -44);
 				bn::fixed_point slider_offset(88,2);
 				{
-					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
+					_menu_sliders_.push_back(menu_slider(this, 0, pos, menu_action_id::NONE, "Music Volume", slider_offset, 0,9));
 					_menu_sliders_.back().set_value(game_settings::get_music_volume());
-					_menu_sliders_.back().update_menu_item_event = &game_settings::set_music_volume;
+					_menu_sliders_.back().click_menu_item_event = &game_settings::set_music_volume;
 					_item_list.push_back(&_menu_sliders_.back());
 				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
 				{
-					_menu_sliders_.push_back(menu_slider(this, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
+					_menu_sliders_.push_back(menu_slider(this, 1, pos, menu_action_id::NONE, "SFX Volume", slider_offset, 0,9));
 					_menu_sliders_.back().set_value(game_settings::get_sfx_volume());
-					_menu_sliders_.back().update_menu_item_event = &game_settings::set_sfx_volume;
+					_menu_sliders_.back().click_menu_item_event = &game_settings::set_sfx_volume;
 					_item_list.push_back(&_menu_sliders_.back());
 				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
 				bn::fixed_point checkbox_offset(100,0);
 				{
-					_menu_checkboxes_.push_back(menu_checkbox(this, pos, menu_action_id::NONE, "Colorblind Mode", checkbox_offset, game_settings::colorblind_mode_enabled()));
-					_menu_checkboxes_.back().update_menu_item_event = &game_settings::set_colorblind_mode_enabled;
+					_menu_checkboxes_.push_back(menu_checkbox(this, 2, pos, menu_action_id::NONE, "Colorblind Mode", checkbox_offset, game_settings::colorblind_mode_enabled()));
+					_menu_checkboxes_.back().click_menu_item_event = &game_settings::set_colorblind_mode_enabled;
 					_item_list.push_back(&_menu_checkboxes_.back());
 				}
 				pos = pos + bn::fixed_point(0,_item_offset_y);
@@ -151,8 +151,8 @@ namespace sh
 				pos = pos + bn::fixed_point(0,_item_offset_y);
 				pos = pos + bn::fixed_point(0,_item_offset_y);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::NONE, "Reset Settings to Default"));
-					_menu_items_.back().update_menu_item_event = &game_settings::reset_settings_to_default;
+					_menu_items_.push_back(menu_item(this, 3, pos, menu_action_id::NONE, "Reset Settings to Default"));
+					_menu_items_.back().click_menu_item_event = &game_settings::reset_settings_to_default;
 					_item_list.push_back(&_menu_items_.back());
 				}
 			
@@ -163,22 +163,22 @@ namespace sh
 				pos = bn::fixed_point(-25, 36);
 				{
 					// _menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_BATTLE, "Continue"));
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_LEVEL_SELECT, "Start Game"));
+					_menu_items_.push_back(menu_item(this, 0, pos, menu_action_id::GO_TO_LEVEL_SELECT, "Start Game"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 				pos += bn::fixed_point(0,_item_offset_y);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
+					_menu_items_.push_back(menu_item(this, 1, pos, menu_action_id::GO_TO_OPTIONS, "Options"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 				pos += bn::fixed_point(0,_item_offset_y);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
+					_menu_items_.push_back(menu_item(this, 2, pos, menu_action_id::GO_TO_CREDITS, "Credits"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 				pos += bn::fixed_point(0,_item_offset_y);
 				{
-					_menu_items_.push_back(menu_item(this, pos, menu_action_id::GO_TO_DIALOGUE, "Debug"));
+					_menu_items_.push_back(menu_item(this, 3, pos, menu_action_id::GO_TO_DIALOGUE, "Debug"));
 					_item_list.push_back(&_menu_items_.back());
 				}
 			}
@@ -206,27 +206,27 @@ namespace sh
 
 	void menu::update()
 	{
-		if(_current_item != NULL)
+		if(current_item() != NULL)
 		{
 			if(bn::keypad::a_pressed())
 			{
-				_current_item->interact_with_item(menu_item_interact_type::A_PRESS);
+				current_item()->interact_with_item(menu_item_interact_type::A_PRESS);
 			}
 			if(bn::keypad::down_pressed())
 			{
-				_current_item->interact_with_item(menu_item_interact_type::DOWN_PRESS);
+				current_item()->interact_with_item(menu_item_interact_type::DOWN_PRESS);
 			}
 			else if(bn::keypad::up_pressed())
 			{
-				_current_item->interact_with_item(menu_item_interact_type::UP_PRESS);
+				current_item()->interact_with_item(menu_item_interact_type::UP_PRESS);
 			}
 			if(bn::keypad::right_pressed())
 			{
-				_current_item->interact_with_item(menu_item_interact_type::RIGHT_PRESS);
+				current_item()->interact_with_item(menu_item_interact_type::RIGHT_PRESS);
 			}
 			else if(bn::keypad::left_pressed())
 			{
-				_current_item->interact_with_item(menu_item_interact_type::LEFT_PRESS);
+				current_item()->interact_with_item(menu_item_interact_type::LEFT_PRESS);
 			}
 
 		}
@@ -254,6 +254,11 @@ namespace sh
 			_cursor_sprite.set_position(item->_position + _cursor_offset);
 			set_cursor_visible(true);
 		}
+	}
+
+	menu_item *menu::current_item()
+	{
+		return _current_item;
 	}
 
 	void menu::perform_action(menu_action_id action_id)
@@ -302,6 +307,7 @@ namespace sh
 		}
 		generate_menu_text();
 		set_cursor_visible(true);
+		current_item()->select();
 	}
 
 	void menu::close_menu()
