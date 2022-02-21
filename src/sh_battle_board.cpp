@@ -550,6 +550,14 @@ namespace sh{
 		return selected_tile;
 	}
 
+	void battle_board::set_preview_tiles_valid(bool is_valid)
+	{
+		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+		{
+			preview_tiles.at(i).set_tiles(bn::sprite_items::preview_tile.tiles_item(), (is_valid ? 0 : 1));
+		}
+	}
+
 	void battle_board::update_preview_tiles()
 	{
 		bn::point cursor_pos = selected_tile->coordinates;
@@ -724,9 +732,6 @@ namespace sh{
 				preview_tile_active[i] = true;
 			}
 			break;
-
-
-
 		default:
 			break;
 		}
@@ -750,8 +755,8 @@ namespace sh{
 				move_selected_tile(0, -1);
 			}
 		}
-
-
+		
+		set_preview_tiles_valid(check_preview_valid(current_scene->get_current_player(), (preview_pattern != tile_pattern::SPECIAL_SINGLE)));
 	}
 	
 	void battle_board::hide_preview_tiles()
@@ -773,35 +778,47 @@ namespace sh{
 		}
 	}
 
-	
-	bool battle_board::mark_tiles(tile_owner owner, int &sp_gain)
+	bool battle_board::check_preview_valid(tile_owner owner, bool allow_neighbors)
 	{
-		if(owner != tile_owner::EMPTY)
+		for(int i = 0; i < NUM_PREVIEW_TILES; i++)
 		{
-			bool neighbors_self = false;
-			for(int i = 0; i < NUM_PREVIEW_TILES; i++)
+			if(!preview_tile_active[i])
 			{
-				if(!preview_tile_active[i])
-				{
-					continue;
-				}
-				bn::point pos = selection_pos + preview_tile_offsets.at(i);
-				battle_tile* tile = get_tile(pos);
-				if(tile->get_owner() != owner && tile->get_condition() != tile_condition::NORMAL)
-				{
-					return false;
-				}
+				continue;
+			}
+			bn::point pos = selection_pos + preview_tile_offsets.at(i);
+			battle_tile* tile = get_tile(pos);
+			// immediate fail if preview is over a tile with a status condition applied by an opponent
+			if(tile->get_owner() != owner && tile->get_condition() != tile_condition::NORMAL)
+			{
+				return false;
+			}
+
+			if(tile->get_owner() == owner)
+			{
+				return true;
+			}
+			if(allow_neighbors)
+			{
 				// check that tile pattern is neighboring a tile we own
 				for(int j = 0; j < 4; j++)
 				{
 					if(tile->get_neighbor(j)->get_owner() == owner)
 					{
-						neighbors_self = true;
+						return true;
 						break;
 					}
 				}
 			}
-			if(!neighbors_self)
+		}
+		return false;
+	}
+	
+	bool battle_board::mark_tiles(tile_owner owner, int &sp_gain)
+	{
+		if(owner != tile_owner::EMPTY)
+		{			
+			if(!check_preview_valid(owner, true))
 			{
 				return false;
 			}

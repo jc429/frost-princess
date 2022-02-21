@@ -105,6 +105,7 @@ namespace sh
 						// _skill_meters.front().add_sp(-1);
 						// _skill_meters.back().add_sp(-1);
 						// apply_damage_to_player(tile_owner::PLAYER, 100);
+						board.set_preview_tiles_valid(false);
 					}
 					if(bn::keypad::r_pressed())
 					{
@@ -112,6 +113,7 @@ namespace sh
 						// _skill_meters.front().add_sp(1);
 						// _skill_meters.back().add_sp(1);
 						// apply_damage_to_player(tile_owner::FOE, 100);
+						board.set_preview_tiles_valid(true);
 					}
 
 					if(bn::keypad::l_held())

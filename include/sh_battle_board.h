@@ -87,10 +87,12 @@ namespace sh
 		battle_tile* set_preview_orientation(direction orientation);
 		battle_tile* rotate_preview_CW();
 		battle_tile* rotate_preview_CCW();
+		void set_preview_tiles_valid(bool is_valid);
 		void update_preview_tiles();
 		void hide_preview_tiles();
 		void show_preview_tiles();
 
+		bool check_preview_valid(tile_owner owner, bool allow_neighbors);
 		bool mark_tiles(tile_owner owner, int &sp_gain);
 		bool use_special_action(tile_owner owner, special_action_pattern pattern);
 
@@ -100,6 +102,7 @@ namespace sh
 		int get_preview_size();
 		bn::point get_preview_tile_position(int preview_tile_id);
 		bn::point get_preview_tile_offset(int preview_tile_id);
+
 		tile_owner get_tile_owner(int pos_x, int pos_y);
 		tile_owner get_tile_owner(bn::point pos);
 		int count_tiles_with_owner(tile_owner owner);

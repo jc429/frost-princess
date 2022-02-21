@@ -106,7 +106,7 @@ namespace sh
 		void set_battle_cursor_tile_mode();
 
 		void open_pause_menu();
-
+		tile_owner get_current_player();
 		void apply_damage_to_player(tile_owner player, int dmg);
 
 		static bn::sprite_palette_ptr get_palette_of_player(tile_owner player);

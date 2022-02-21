@@ -453,6 +453,10 @@ namespace sh
 		update_text();
 	}
 
+	tile_owner battle_scene::get_current_player()
+	{
+		return current_player;
+	}
 
 	void battle_scene::apply_damage_to_player(tile_owner player, int dmg)
 	{
